@@ -1,0 +1,25 @@
+- name: install rsyslog
+  yum: pkg=rsyslog
+
+- name: config rebellion
+  template: src=rebellion.service.j2 dest=/etc/systemd/system/rebellion.service
+  notify:
+    - reload systemd for rebellion
+    - restart rebellion
+- meta: flush_handlers
+
+- name: ensure rebellion started
+  service: name=rebellion enabled=yes state=started
+
+- name: checking rebellion working correctly
+  shell: "docker ps | grep rebellion.service"
+  register: result
+  until: result|success
+  retries: 5
+  delay: 5
+  changed_when: False
+
+- name: deploy rsyslog config
+  template: src=10-docker-rsyslog.conf.j2 dest=/etc/rsyslog.d/10-docker-rsyslog.conf
+  notify:
+    - restart rsyslog

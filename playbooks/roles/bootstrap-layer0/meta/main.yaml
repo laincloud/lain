@@ -1,0 +1,24 @@
+dependencies:
+  - role: bootstrap-firewall
+
+  # store cluster configs in etcd
+  - role: bootstrap-etcd
+
+  # load all required images
+  - role: bootstrap-docker
+
+  - role: prepare
+
+  - role: lainlet
+
+  - role: networkd
+
+  - role: calico
+
+  - role: swarm
+
+  - role: deployd
+
+  - role: dnsmasq
+
+  - role: rsync

@@ -1,0 +1,5 @@
+- name: stop bootstrap-registry
+  docker:
+    image: "{{ bootstrap_registry_image }}"
+    name: bootstrap-registry
+    state: absent

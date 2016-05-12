@@ -1,0 +1,20 @@
+- name: load dnshijack dirs from etcd
+  command: etcdctl ls /lain/config/dnshijack
+  register: hijack_domain_list
+  ignore_errors: yes
+  changed_when: False
+
+- name: load dnshijack settings from etcd
+  command: etcdctl get {{ item.1 }}
+  register: hijack_ip_list
+  with_indexed_items: "{{ hijack_domain_list.stdout_lines }}"
+  when: hijack_domain_list|success and hijack_domain_list.stdout != ""
+  changed_when: False
+
+- name: config dnsmasq
+  template: src=proxy.conf.j2 dest=/etc/dnsmasq.d/proxy.conf
+  notify:
+    - restart dnsmasq
+  when: hijack_domain_list|success and hijack_domain_list.stdout != ""
+
+- meta: flush_handlers

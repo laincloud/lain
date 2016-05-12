@@ -1,0 +1,23 @@
+- set_fact:
+    drift_vars: "{{ lookup('template', var_file) }}"
+
+- name: create directory on target node
+  file: path="{{item}}" state=directory
+  with_items: "{{ drift_vars['volumes'] }}"
+  when: node_name == target_node
+
+- name: write rsyncd password file
+  shell: echo "{{ rsync_secrets }}" > /tmp/pass
+  when: node_name == target_node
+
+- name: chmod password file
+  file: path=/tmp/pass state=file mode=0600 group=root owner=root
+  when: node_name == target_node
+
+- name: pull data from source node
+  shell: rsync -az --password-file /tmp/pass rsync://"{{rsync_auth_user}}@{{from_ip}}/{{rsync_module}}{{ item[18:] }}/" "{{ item }}"/
+  with_items: "{{ drift_vars['volumes'] }}"
+  when: node_name == target_node
+
+- name: remove the password file
+  file: path=/tmp/pass state=absent

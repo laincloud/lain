@@ -1,0 +1,12 @@
+[Unit]
+Description=bind registry data dir onto moosefs
+After=network.target remote-fs.target mfs.mount
+
+[Mount]
+What={{ registry_mfsdir }}
+Where={{ registry_datadir }}
+Type=none
+Options=bind
+
+[Install]
+WantedBy=multi-user.target

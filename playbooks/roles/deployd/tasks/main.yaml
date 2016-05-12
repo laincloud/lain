@@ -1,0 +1,53 @@
+- name: check if deployd container exists
+  command: docker inspect deployd-binary
+  register: result
+  ignore_errors: yes
+  changed_when: False
+
+- name: create deployd binary container
+  command: docker create --name deployd-binary {{ deployd_image }} /bin/bash
+  when: result|failed
+
+- name: copy deployd binary to local /usr/bin
+  command: docker cp deployd-binary:/usr/bin/deployd /tmp/deployd
+
+- name: remove the deployd-binary container
+  command: docker rm -f deployd-binary
+
+- name: get stat of old deployd
+  stat: path=/usr/bin/deployd
+  register: ostat
+  ignore_errors: yes
+
+- name: get stat of new deployd
+  stat: path=/tmp/deployd
+  register: nstat
+  ignore_errors: yes
+
+- name: stop deployd service
+  service: name=deployd state=stopped
+  when: ostat|failed or nstat|failed or "{{ostat.stat.md5|default('old')}}" != "{{nstat.stat.md5|default('new')}}"
+
+- name: update deployd
+  shell: cp /tmp/deployd /usr/bin/deployd && chmod +x /usr/bin/deployd
+  when: ostat|failed or nstat|failed or "{{ostat.stat.md5|default('old')}}" != "{{nstat.stat.md5|default('new')}}"
+
+- name: generate deployd service
+  template: src=deployd.service.j2 dest=/etc/systemd/system/deployd.service
+  register: result
+
+- name: reload systemd
+  command: systemctl daemon-reload
+  when: result|changed
+
+- name: restart deployd
+  service: name=deployd state=restarted
+  when: is_deployd_node and result|changed
+
+- name: ensure deployd started
+  service: name=deployd enabled=yes state=started
+  when: is_deployd_node
+
+- name: stop deployd if this is not a deployd node
+  service: name=deployd state=stopped
+  when: not is_deployd_node

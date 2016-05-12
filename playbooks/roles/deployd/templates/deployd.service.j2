@@ -1,0 +1,16 @@
+[Unit]
+Description=deployd
+After=network.target
+
+[Service]
+LimitNOFILE=65535
+ExecStart=/usr/bin/deployd \
+          -web=:{{ deployd_port }} \
+          -etcd=http://etcd.lain:{{ etcd_client_port }} \
+          -swarm=tcp://swarm.lain:{{ swarm_manager_port }} \
+          -advertise={{ node_ip }}:{{ deployd_port }} \
+          -debug
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

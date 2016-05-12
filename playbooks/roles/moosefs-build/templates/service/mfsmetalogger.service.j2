@@ -1,0 +1,12 @@
+[Unit]
+Description=mfsmetalogger
+After=network.target
+
+[Service]
+ExecStart=/usr/sbin/mfsmetalogger -f start
+ExecStop=/usr/sbin/mfsmetalogger stop
+ExecReload=/usr/sbin/mfsmetalogger -f reload
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,37 @@
+- name: deploy calicoctl
+  copy: src=/tmp/lain/calicoctl dest=/usr/bin/calicoctl mode=ugo+x
+
+- name: add calico needed env
+  template: src=calico.sh.j2 dest=/etc/profile.d/calico.sh
+
+- name: load kernel modules needed by calico
+  modprobe: name={{ item }} state=present
+  with_items:
+    - xt_set
+    - ip6_tables
+
+- name: ensure modules auto load
+  copy: src=calico.conf dest=/etc/modules-load.d/calico.conf
+
+- name: inspect existing container
+  docker_inspect: name=calico-node type=container
+  register: result
+  ignore_errors: yes
+
+- name: start calico node
+  shell: calicoctl node --libnetwork --node-image={{ calico_node_image }} --libnetwork-image={{ calico_libnetwork_image }} --ip {{ node_ip }}
+  environment:
+    ETCD_AUTHORITY: 127.0.0.1:{{ etcd_client_port }}
+  when: |
+      result|failed
+      or not result.State.Running
+      or "IP=%s" % node_ip not in result.Config.Env
+      or "ETCD_AUTHORITY=127.0.0.1:%s" % etcd_client_port not in result.Config.Env
+
+- include: profile.yaml
+
+- name: store subdir config in etcd
+  etcd_set_key:
+      key: /lain/config/calico_network
+      value: "{{ calico_default_network }}"
+      etcd_client_port: "{{ etcd_client_port }}"

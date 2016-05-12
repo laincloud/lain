@@ -1,0 +1,46 @@
+- name: add new etcd-member to cluster
+  local_action: command etcdctl member add {{ node_name }} http://{{ node_ip }}:{{ etcd_peer_port }}
+  when: adding_etcd_member
+
+- name: get etcd-member-id
+  local_action: shell etcdctl member list | grep "name={{ node_name }}" | awk '{print substr($1, 0, length($1)-1)}'
+  register: member_id
+  failed_when: member_id.stdout == ""
+  when: removing_etcd_member
+
+- name: remove etcd-member from cluster
+  local_action: command etcdctl member remove {{ member_id.stdout }}
+  register: result
+  failed_when: "'500' in result.stderr"
+  when: removing_etcd_member
+
+- name: stop etcd service
+  service: name=etcd state=stopped
+  when: delete_existing_etcd|bool
+  ignore_errors: yes
+
+- name: remove old etcd data
+  file: path={{ etcd_dir }} state=absent
+  when: delete_existing_etcd|bool
+
+- name: create etcd data dir
+  file: path={{ etcd_dir }} state=directory owner=etcd
+
+- name: prepare etcd config
+  set_fact:
+    etcd_cluster: "{% for node in etcd_members %}{{ node.name }}=http://{{ node.ip }}:{{ etcd_peer_port }}{% if not loop.last %},{% endif %}{% endfor %}"
+
+# now when etcd-cluster-resizing, all the nodes will cause template changed and restart etcd
+# TODO(chenyunfei) check whether is adding new lain-node
+- name: config etcd
+  template: src=etcd.env.j2 dest={{ etcd_dir }}/env owner=etcd
+  notify:
+    - restart etcd
+
+- name: config etcd service
+  template: src=etcd.service.j2 dest=/etc/systemd/system/etcd.service
+  notify:
+    - reload systemd for etcd
+    - restart etcd
+
+- meta: flush_handlers

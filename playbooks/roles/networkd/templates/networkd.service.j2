@@ -1,0 +1,24 @@
+[Unit]
+Description=networkd
+After=network.target lainlet.service
+
+[Service]
+Environment=ETCD_AUTHORITY=127.0.0.1:{{ etcd_client_port }}
+LimitNOFILE=65535
+ExecStart=/usr/bin/networkd {% if domain == 'lain.local' and vip == '0.0.0.0' %}--domain=lain.local{% endif %} \
+          --net.interface={{ net_interface }} \
+          --lainlet.endpoint={{ node_ip }}:{{ lainlet_port }} \
+          --etcd.endpoint=http://{{ node_ip }}:{{ etcd_client_port }} \
+          --libnetwork \
+          --dnsmasq \
+          --tinydns \
+          --swarm \
+          --deployd \
+          --webrouter \
+          --resolv.conf \
+          --verbose
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

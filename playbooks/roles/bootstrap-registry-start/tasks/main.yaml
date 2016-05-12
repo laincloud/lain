@@ -1,0 +1,8 @@
+- name: check if registry app is deployed
+  command: etcdctl ls /lain/deployd/pod_groups/registry
+  register: result
+  ignore_errors: yes
+  changed_when: False
+
+- include: start.yaml
+  when: result|failed

@@ -1,0 +1,17 @@
+- name: stop bootstrap-webrouter
+  docker:
+    image: "{{ bootstrap_webrouter_image }}"
+    name: bootstrap-webrouter
+    state: absent
+
+- name: remove console.lain
+  set_dnsmasq_domain: domain="console.lain" record=""
+
+- name: remove console.DOMAIN
+  set_dnsmasq_domain: domain="console.{{ domain }}" record=""
+
+- name: remove registry.lain
+  set_dnsmasq_domain: domain="registry.lain" record=""
+
+- name: remove registry.DOMAIN
+  set_dnsmasq_domain: domain="registry.{{ domain }}" record=""

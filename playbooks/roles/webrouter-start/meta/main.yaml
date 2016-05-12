@@ -1,0 +1,5 @@
+dependencies:
+  - role: firewall
+  - role: webrouter
+  - role: console-deploy
+    app: webrouter

@@ -1,0 +1,7 @@
+- name: restart dnsmasq
+  service: name=dnsmasq state=restarted
+
+- name: regenerate dnsmasq config
+  template: src=dnsmasq.conf.j2
+
+# vim: set filetype=ansible.yaml:

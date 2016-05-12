@@ -1,0 +1,15 @@
+[Unit]
+Description=lainlet
+After=network.target
+
+[Service]
+LimitNOFILE=65535
+ExecStart=/usr/bin/lainlet \
+          -web=:{{ lainlet_port }} \
+          -etcd={{ node_ip }}:{{ etcd_client_port }} \
+          -ip={{ node_ip }} \
+          -debug
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

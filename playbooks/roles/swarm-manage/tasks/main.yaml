@@ -1,0 +1,33 @@
+- name: config swarm agent
+  template: src=swarm-agent.service.j2 dest=/etc/systemd/system/swarm-agent.service
+  notify:
+    - reload systemd for swarm-manage
+    - restart swarm agent
+- meta: flush_handlers
+
+- name: ensure swarm agent started
+  service: name=swarm-agent enabled=yes state=started
+
+- name: checking swarm agent working correctly
+  command: etcdctl ls {{ swarm_discovery_path }}/{{ node_ip }}:{{ docker_port }}
+  register: result
+  until: result|success
+  retries: 5
+  delay: 5
+  changed_when: False
+
+# every node may becomming a swarm-manager later,
+# add it into service to make administration convenient
+- name: add swarm manager service
+  template: src=swarm-manager.service.j2 dest=/etc/systemd/system/swarm-manager.service
+  notify:
+    - reload systemd for swarm-manage
+- meta: flush_handlers
+
+- name: stop swarm manager
+  service: name=swarm-manager state=stopped
+  when: not is_swarm_manager
+
+# make sure the swarm manager started
+- include: swarm-manager.yaml
+  when: is_swarm_manager

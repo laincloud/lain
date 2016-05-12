@@ -1,0 +1,40 @@
+- name: check if app already deployed
+  command: etcdctl ls /lain/deployd/pod_groups/{{ app }}
+  register: result
+  ignore_errors: yes
+  changed_when: False
+
+- name: waiting for console ready to deploy
+  shell: "curl -f http://console.lain/api/v1/repos/"
+  register: console_ready
+  until: console_ready.rc == 0
+  retries: 5
+  delay: 5
+  changed_when: False
+  when: result|failed
+
+- name: reposit app
+  post_json:
+    url: http://console.lain/api/v1/repos/
+    body:
+      appname: "{{ app }}"
+    header:
+      access-token: "{{ access_token|default('unknown') }}"
+  when: result|failed
+
+- name: deploy app
+  post_json:
+    url: http://console.lain/api/v1/apps/
+    body:
+      appname: "{{ app }}"
+    header:
+      access-token: "{{ access_token|default('unknown') }}"
+  when: result|failed
+
+- name: check app deployed
+  shell: "curl -s －H \"access-token: {{ access_token|default('unknown') }}\" console.lain/api/v1/apps/{{ app }}/ | python -c \"import json, sys; print json.load(sys.stdin)['app']['procs'][0]['pods'][0]['containerid']\""
+  register: container_id
+  until: container_id|success
+  retries: 5
+  delay: 5
+  changed_when: False

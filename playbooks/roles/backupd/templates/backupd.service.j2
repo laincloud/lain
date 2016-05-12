@@ -1,0 +1,15 @@
+[Unit]
+Description=backupd
+After=network.target
+
+[Service]
+User=root
+ExecStart=/usr/bin/backupd daemon \
+    -addr :{{ backupd_port }} \
+    -ip {{ node_ip }} \
+    -backup-driver {{ backupd_driver }} \
+    -backup-moosefs-dir /mfs/lain/backup
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

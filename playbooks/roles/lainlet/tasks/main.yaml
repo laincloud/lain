@@ -1,0 +1,57 @@
+- name: set lainlet's auth configuration on etcd
+  etcd_set_key:
+    key: /lain/config/super_apps/{{item}}
+    value: " {}"
+    etcd_client_port: "{{ etcd_client_port }}"
+  with_items:
+    - console
+    - webrouter
+    - tinydns
+    - backupctl
+    - lvault
+    - registry
+    - hedwig
+
+- name: check if lainlet container exists
+  command: docker inspect lainlet-binary
+  register: result
+  ignore_errors: yes
+  changed_when: False
+
+- name: create lainlet binary container
+  command: docker create --name lainlet-binary {{ lainlet_image }} /bin/bash
+  when: result|failed
+
+- name: copy lainlet binary to local /usr/bin
+  command: docker cp lainlet-binary:/usr/bin/lainlet /tmp/lainlet
+
+- name: remove the lainlet-binary container
+  command: docker rm -f lainlet-binary
+
+- name: get stat of old lainlet
+  stat: path=/usr/bin/lainlet
+  register: ostat
+  ignore_errors: yes
+
+- name: get stat of new lainlet
+  stat: path=/tmp/lainlet
+  register: nstat
+  ignore_errors: yes
+
+- name: stop lainlet service
+  service: name=lainlet state=stopped
+  when: ostat|failed or nstat|failed or "{{ostat.stat.md5|default('old')}}" != "{{nstat.stat.md5|default('new')}}"
+
+- name: update lainlet
+  shell: cp /tmp/lainlet /usr/bin/lainlet && chmod +x /usr/bin/lainlet
+  when: ostat|failed or nstat|failed or "{{ostat.stat.md5|default('old')}}" != "{{nstat.stat.md5|default('new')}}"
+
+- template: src=lainlet.service.j2 dest=/etc/systemd/system/lainlet.service
+  notify:
+    - reload systemd for lainlet
+    - restart lainlet
+- meta: flush_handlers
+- service: name=lainlet enabled=yes state=started
+
+- name: set lainlet restart cron
+  template: src=lainlet.cron.j2 dest=/etc/cron.d/lainlet.cron

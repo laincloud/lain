@@ -1,0 +1,15 @@
+use chroot = yes
+max connections = 4
+timeout = 900
+transfer logging = yes
+dont compress   = *.gz *.tgz *.zip *.z *.Z *.rpm *.deb *.bz2
+
+[lain_volume]
+	uid = root
+	gid = root
+        path = /data/lain/volumes
+        comment = the volume host directory for lain
+        read only = true
+	hosts allow = {{ rsync_network }}
+        auth users = {{ rsync_auth_user }}
+        secrets file = {{ rsync_secrets_file }}

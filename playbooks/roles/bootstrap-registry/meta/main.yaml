@@ -1,0 +1,4 @@
+dependencies:
+  - role: config
+  - role: libraries
+  - role: packages

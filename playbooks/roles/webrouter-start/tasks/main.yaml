@@ -1,0 +1,7 @@
+- name: set webrouter virtual ip config
+  set_virtual_ip_key: ip="{{ vip }}" port="{{ item }}" container_app="webrouter" container_proc="worker"
+  with_items:
+      - 80
+      - 443
+
+- meta: flush_handlers

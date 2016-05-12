@@ -1,0 +1,53 @@
+- name: install rsync
+  yum: pkg=rsync
+
+- name: get network segment
+  command: etcdctl get /lain/config/node_network
+  register: network_result
+
+- set_fact:
+    network: "{{network_result.stdout}}"
+
+- name: generate secret for rsyncd
+  shell: etcdctl set /lain/config/rsyncd_secrets "$(uuidgen)"
+  register: new_secrets_result
+  when: bootstrapping is defined and bootstrapping|bool
+
+- name: get rsync secret from etcd
+  command: etcdctl get /lain/config/rsyncd_secrets
+  register: secrets_result
+
+- set_fact:
+    rsyncd_secrets: "{{secrets_result.stdout}}"
+
+- fail: msg="secrets value needed, you can get it in /etc/rsyncd.secrets on manager-node"
+  when: rsyncd_secrets == ""
+
+- name: set set secrets into etcd
+  command: etcdctl set /lain/config/rsyncd_secrets "{{ rsyncd_secrets }}"
+  when: bootstrapping|bool
+
+- name: write secrets
+  template: src=rsyncd.secrets.j2 dest={{ rsync_secrets_file }}
+  register: secrets_result
+
+- name: chmod secrets file
+  file: path={{ rsync_secrets_file }} state=file mode=0400 group=root owner=root
+
+- name: generate rsyncd configuration
+  template: src=rsyncd.conf.j2 dest="{{rsync_conf_path}}"
+  register: config_result
+
+- name: generate service configration
+  template: src=rsyncd.sysconfig.j2 dest=/etc/sysconfig/rsyncd
+  register: service_result
+
+- name: reload systemd for rsync
+  command: systemctl daemon-reload
+
+- name: restart the rsyncd
+  service: name=rsyncd enabled=yes state=restarted
+  when: secrets_result|changed or config_result|changed or service_result|changed
+
+- name: ensure rsyncd started
+  service: name=rsyncd enabled=yes state=started

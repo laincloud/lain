@@ -1,0 +1,127 @@
+Hostname    "{{ inventory_hostname }}"
+FQDNLookup   false
+BaseDir     "/var/lib/collectd"
+PIDFile     "/var/run/collectd.pid"
+PluginDir   "/usr/lib64/collectd"
+TypesDB     "/usr/share/collectd/types.db"
+AutoLoadPlugin true
+CollectInternalStats true
+Interval     10
+MaxReadInterval 86400
+Timeout         2
+ReadThreads     5
+WriteThreads    5
+WriteQueueLimitHigh 1000000
+WriteQueueLimitLow   800000
+LoadPlugin syslog
+
+<Plugin syslog>
+    LogLevel info
+</Plugin>
+
+LoadPlugin conntrack
+LoadPlugin contextswitch
+LoadPlugin cpu
+LoadPlugin df
+LoadPlugin disk
+LoadPlugin exec
+LoadPlugin fhcount
+LoadPlugin interface
+LoadPlugin load
+LoadPlugin memory
+LoadPlugin ntpd
+LoadPlugin ping
+LoadPlugin processes
+LoadPlugin protocols
+LoadPlugin swap
+LoadPlugin tail
+LoadPlugin tcpconns
+LoadPlugin vmem
+LoadPlugin write_graphite
+
+<Plugin cpu>
+  ReportByCpu true
+  ReportByState true
+  ValuesPercentage true
+</Plugin>
+
+<Plugin df>
+    ReportByDevice false
+    ReportReserved false
+    ReportInodes true
+    ValuesAbsolute true
+    ValuesPercentage true
+</Plugin>
+
+<Plugin disk>
+    Disk "/xvd[a-z][0-9]/"
+    Disk "/sd[a-z][0-9]/"
+    IgnoreSelected false
+    UseBSDName false
+    UdevNameAttr "DEVNAME"
+</Plugin>
+
+<Plugin fhcount>
+    ValuesAbsolute true
+    ValuesPercentage false
+</Plugin>
+
+<Plugin interface>
+    Interface "eth0"
+    Interface "bond0"
+    IgnoreSelected false
+</Plugin>
+
+<Plugin load>
+        ReportRelative true
+</Plugin>
+
+<Plugin memory>
+    ValuesAbsolute true
+    ValuesPercentage true
+</Plugin>
+
+<Plugin ntpd>
+    Host "127.0.0.1"
+    Port 123
+    ReverseLookups false
+    IncludeUnitID true
+</Plugin>
+
+<Plugin ping>
+    Host "{{ ansible_default_ipv4.gateway }}"
+    Interval 1.0
+    Timeout 0.9
+    TTL 255
+    MaxMissed -1
+</Plugin>
+
+<Plugin processes>
+    Process "collectd"
+</Plugin>
+
+<Plugin swap>
+    ReportByDevice false
+    ReportBytes true
+    ValuesAbsolute true
+    ValuesPercentage true
+</Plugin>
+
+<Plugin vmem>
+    Verbose false
+</Plugin>
+
+<Plugin write_graphite>
+  <Node "hedwig">
+    Host "{{ graphite_vip }}"
+    Port "{{ graphite_port }}"
+    Protocol "tcp"
+    LogSendErrors true
+    StoreRates true
+    SeparateInstances true
+    AlwaysAppendDS false
+    EscapeCharacter "."
+  </Node>
+</Plugin>
+
+Include "/etc/collectd.d"

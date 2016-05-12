@@ -1,0 +1,35 @@
+- name: check if app already deployed
+  command: etcdctl ls /lain/deployd/pod_groups/{{ app }}
+  register: result
+  ignore_errors: yes
+  changed_when: False
+
+- name: reposit app
+  post_json:
+    url: http://localhost:{{ bootstrap_console_port }}/api/v1/repos/
+    body:
+      appname: "{{ app }}"
+  when: result|failed
+
+- name: deploy app
+  post_json:
+    url: http://localhost:{{ bootstrap_console_port }}/api/v1/apps/
+    body:
+      appname: "{{ app }}"
+  when: result|failed
+
+- name: check app deployed
+  shell: "curl -s console.lain/api/v1/apps/{{ app }}/ | python -c \"import json, sys; print json.load(sys.stdin)['app']['procs'][0]['pods'][0]['containerid']\""
+  register: container_id
+  until: container_id|success
+  retries: 5
+  delay: 5
+  changed_when: False
+
+- name: remove bootstrap-webrouter nginx config
+  file: path={{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/bootstrap/{{ app }}.lain.conf state=absent
+  register: result
+
+- name: reload bootstrap-webrouter
+  command: docker exec bootstrap-webrouter nginx -s reload
+  when: result|changed

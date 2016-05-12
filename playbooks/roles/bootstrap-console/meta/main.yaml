@@ -1,0 +1,8 @@
+dependencies:
+  - role: config
+  - role: libraries
+  - role: docker
+  - role: packages
+  - role: etcd
+  - role: bootstrap-registry
+    action: start

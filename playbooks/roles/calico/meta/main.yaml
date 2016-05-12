@@ -1,0 +1,12 @@
+dependencies:
+  - role: config
+  - role: libraries
+  - role: docker
+  - role: etcd
+  - role: packages
+  - role: binary
+  - role: images
+    images:
+      - calico-node
+      - calico-libnetwork
+  - role: firewall

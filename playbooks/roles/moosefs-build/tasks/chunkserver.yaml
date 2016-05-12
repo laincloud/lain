@@ -1,0 +1,24 @@
+- name: create mfs dir
+  file: path={{ item }} state=directory group=mfs owner=mfs
+  with_items: "{{ mfs_data_dir }}"
+
+- name: prepare mfshdd config file for mfschunkserver
+  template: src=config/mfshdd.cfg.j2 dest=/etc/mfs/mfshdd.cfg
+  notify:
+    - reload mfschunkserver
+
+- name: generate configuration file for mfschunkserver
+  template: src=config/mfschunkserver.cfg.j2 dest=/etc/mfs/mfschunkserver.cfg
+  notify:
+    - reload mfschunkserver
+
+- name: config mfschunkserver service
+  template: src=service/mfschunkserver.service.j2 dest=/etc/systemd/system/mfschunkserver.service
+  notify:
+    - reload systemd for moosefs-build
+    - restart mfschunkserver
+
+- meta: flush_handlers
+
+- name: ensure moosefs chunkserver started
+  service: name=mfschunkserver enabled=yes state=started

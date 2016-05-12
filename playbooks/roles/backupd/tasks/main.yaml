@@ -1,0 +1,67 @@
+- fail: msg="moosefs not exist yet"
+  when: mfsmaster=="" and backupd_driver=="moosefs"
+
+- name: check if backupd container exists
+  command: docker inspect backupd-binary
+  register: result
+  ignore_errors: yes
+  changed_when: False
+
+- name: create backupd binary container
+  command: docker create --name backupd-binary {{ backupd_image }} /bin/bash
+  when: result|failed
+
+- name: copy backupd binary to local /usr/bin
+  command: docker cp backupd-binary:/usr/bin/backupd /tmp/backupd
+
+- name: remove the backupd-binary container
+  command: docker rm -f backupd-binary
+
+- name: get stat of old backupd
+  stat: path=/usr/bin/backupd
+  register: ostat
+  ignore_errors: yes
+
+- name: get stat of new backupd
+  stat: path=/tmp/backupd
+  register: nstat
+  ignore_errors: yes
+
+- name: stop backupd service
+  service: name=backupd state=stopped
+  when: ostat|failed or nstat|failed or "{{ostat.stat.md5|default('old')}}" != "{{nstat.stat.md5|default('new')}}"
+
+- name: update backupd
+  shell: cp /tmp/backupd /usr/bin/backupd && chmod +x /usr/bin/backupd
+  register: binary_result
+  when: ostat|failed or nstat|failed or "{{ostat.stat.md5|default('old')}}" != "{{nstat.stat.md5|default('new')}}"
+
+- name: install rsync
+  yum: name=rsync
+
+- name: create backup directory
+  file: path="{{ backup_dir }}/{{ node_ip }}" state=directory
+  when: backupd_driver == "moosefs" and is_lain_manager
+
+- name: set the backup dir's trashtimeout on moosefs
+  command: mfssettrashtime -r 3600 /mfs/lain/backup
+  when: backupd_driver == "moosefs" and is_lain_manager
+
+- name: add backupd to service
+  template: src=backupd.service.j2  dest=/etc/systemd/system/backupd.service
+  register: service_result
+  notify:
+    - reload systemd for backupd
+
+- meta: flush_handlers
+
+- name: restart backupd
+  service: name=backupd state=restarted
+  when: (binary_result is defined and binary_result|success) or service_result|success
+
+- name: ensure backupd service started
+  service: name=backupd enabled=yes state=started
+
+- name: config etcd to tag backup_enabled
+  command: etcdctl set /lain/config/backup_enabled True
+  when: is_lain_manager

@@ -1,0 +1,9 @@
+dependencies:
+  - role: config
+  - role: libraries
+  - role: bootstrap-registry
+  - role: bootstrap-console
+  - role: etcd
+  - role: ssl
+  - role: packages
+  - role: networkd

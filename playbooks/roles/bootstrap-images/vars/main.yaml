@@ -1,0 +1,26 @@
+# vim: set filetype=json:
+# This file is also used by bootstrap python script.  Please keep JSON format for this file.
+{
+  "bootstrap_images": {
+    "calico-node": "calico_node:v0.19.0",
+    "calico-libnetwork": "calico_node-libnetwork:v0.8.0",
+    "swarm": "swarm:1.2.0",
+    "rebellion": "rebellion:2.0.2",
+    "pip_binary": "pip-binary:1462951953",
+    "networkd-binary": "networkd-binary:0.1.12",
+    "deployd-binary": "deployd:2.0.2",
+    "lainlet": "lainlet:2.0.2",
+    "registry": "registry:release-1462937087-a278561f51ec8365c42ea5c3b7da392b78171016",
+    "registry-meta": "registry:meta-1462937087-a278561f51ec8365c42ea5c3b7da392b78171016",
+    "tinydns": "tinydns:release-1462424821-15ab41349dce81ddb9bc5c10309bb43b9aa0c573",
+    "tinydns-meta": "tinydns:meta-1462424821-15ab41349dce81ddb9bc5c10309bb43b9aa0c573",
+    "webrouter": "webrouter:release-1462260224-41bff528f481a2ec6b01ca975fd17dea1b67bdb5",
+    "webrouter-meta": "webrouter:meta-1462260224-41bff528f481a2ec6b01ca975fd17dea1b67bdb5",
+    "console": "console:release-1462949955-ec2dab7586e5fedae2311f380c86c447b39ddbea",
+    "console-meta": "console:meta-1462949955-ec2dab7586e5fedae2311f380c86c447b39ddbea",
+    "backupctl-meta": "backupctl:meta-1460534637-7bb87af249b1672e18baacbacb6d3ffd6155e81c",
+    "backupctl": "backupctl:release-1460534637-7bb87af249b1672e18baacbacb6d3ffd6155e81c",
+    "lvault-meta": "lvault:meta-1462443822-81ed22691e022c788be3cb1e5cc1259c54daafcd",
+    "lvault": "lvault:release-1462443822-81ed22691e022c788be3cb1e5cc1259c54daafcd"
+  }
+}

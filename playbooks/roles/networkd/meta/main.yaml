@@ -1,0 +1,7 @@
+dependencies:
+  - role: libraries
+  - role: etcd
+  - role: binary
+  - role: images
+    images:
+      - networkd-binary

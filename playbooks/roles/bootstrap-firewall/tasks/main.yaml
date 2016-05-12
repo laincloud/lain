@@ -1,0 +1,5 @@
+- name: clean lain-PREROUTING
+  shell: "iptables -t nat -F lain-PREROUTING"
+
+- name: clean lain-OUTPUT
+  shell: "iptables -t nat -F lain-OUTPUT"

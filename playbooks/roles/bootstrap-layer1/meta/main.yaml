@@ -1,0 +1,46 @@
+dependencies:
+
+  # start layer1 apps using docker directly
+
+  - role: bootstrap-registry-start
+
+  - role: bootstrap-webrouter-start
+
+  - role: bootstrap-console-start
+
+  # deploy registry using bootstrap-console
+
+  - role: bootstrap-registry-push
+    images_to_push:
+      - registry
+      - registry-meta
+
+  - role: bootstrap-console-deploy
+    app: registry
+
+  # we have registry.lain.local now, no need for bootstrap-registry
+
+  - role: bootstrap-registry-stop
+
+  # prepare to deploy other layer1 apps
+
+  - role: registry
+    action: push
+    images_to_push: "{{ bootstrap_images.keys() }}"
+
+  # deploy dns app
+  - role: bootstrap-tinydns
+
+  # deploy console app
+  - role: console
+  - role: bootstrap-console-deploy
+    app: console
+
+  - role: bootstrap-console-stop
+
+  # deploy webrouter
+  - role: webrouter-start
+
+  - role: bootstrap-webrouter-stop
+
+  - role: lvault-app

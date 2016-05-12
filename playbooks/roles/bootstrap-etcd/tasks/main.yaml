@@ -1,0 +1,83 @@
+- name: get nodes
+  command: etcdctl ls /lain/nodes/nodes
+  register: result
+  changed_when: False
+  ignore_errors: yes
+
+- name: stop bootstrapping if there are more than 1 node existing in cluster
+  fail: msg="Do not bootstrap on a cluster with more than 1 node!"
+  when: "result|success and result.stdout_lines|length > 1"
+
+- set_fact:
+    node_data: {"name":"{{node_name}}","ip":"{{ node_ip }}","ssh_port":"{{ ssh_port }}","docker_device":"{{ docker_device }}"}
+
+- name: store nodes in etcd
+  etcd_set_key:
+    key: /lain/nodes/{{ item }}/{{ node_name }}:{{ node_ip }}:{{ ssh_port }}
+    value: " {{ node_data | to_json }}" # we must leave a space between `"` and `{{`, otherwize "{{xxx|to_json}}" will return a dict, dict will cause etcd_set_key failed
+    etcd_client_port: "{{ etcd_client_port }}"
+  with_items:
+    - nodes
+    - managers
+    - etcd-members
+    - web-routers
+    - swarm-managers
+    - deployd
+
+- set_fact:
+    ssl_data: {"*.lain.local":"web","*.lain":"web"}
+
+- name: store default ssl config in etcd
+  etcd_set_key:
+    key: /lain/config/ssl
+    value: " {{ ssl_data | to_json }}"
+    etcd_client_port: "{{ etcd_client_port }}"
+
+- name: store cluster config in etcd
+  etcd_set_key:
+    key: /lain/config/{{ item.key }}
+    value: "{{ item.value }}"
+    etcd_client_port: "{{ etcd_client_port }}"
+  with_dict:
+      domain: "{{ domain }}"
+      vip: "{{ vip }}"
+      bootstrap_node_ip: "{{ bootstrap_node_ip }}"
+      dns_ip: "{{ dns_ip }}"
+      dns_port: "{{ dns_port }}"
+      etcd_cluster_token: "{{ cluster_token }}"
+      swarm_manager_ip: "{{ node_ip }}"
+      node_network: "{{ node_network }}"
+
+- name: store feature switch in etcd
+  etcd_set_key:
+    key: /lain/config/features/{{ item.key }}
+    value: "{{ item.value }}"
+    etcd_client_port: "{{ etcd_client_port }}"
+  with_dict:
+    statsd: "{{ feature_statsd }}"
+    graphite: "{{ feature_graphite }}"
+    maintaining: "{{ feature_maintaining }}"
+
+- name: set system volume for some special lain apps
+  etcd_set_key:
+    key: /lain/config/system_volumes/{{ item.key }}
+    value: "{{ item.value }}"
+    etcd_client_port: "{{ etcd_client_port }}"
+  with_dict:
+      registry: "/var/lib/registry:/var/lib/registry"
+
+- name: store optional cluster config in etcd
+  etcd_set_key:
+    key: /lain/config/{{ item.key }}
+    value: "{{ item.value }}"
+    etcd_client_port: "{{ etcd_client_port }}"
+  with_dict:
+      registry_mirror: "{{ registry_mirror | default('') }}"
+      registry_bootstrap: "{{ registry_bootstrap | default('') }}"
+  when: item.value
+
+- name: set etcd restart cron
+  template: src=etcd.cron.j2 dest=/etc/cron.d/etcd.cron
+  when: is_lain_manager
+
+# vim: set ft=ansible.yaml:

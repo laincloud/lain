@@ -1,0 +1,7 @@
+dependencies:
+  - role: config
+  - role: libraries
+  - role: rsyslog
+  - role: etcd
+  - role: dnsmasq
+  - role: firewall

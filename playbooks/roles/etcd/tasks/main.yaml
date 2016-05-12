@@ -1,0 +1,48 @@
+- name: create etcd user
+  user: name=etcd createhome=no
+
+- name: install etcd
+  yum: pkg=etcd-{{ etcd_ver }}
+
+- name: get etcd member list
+  local_action: shell etcdctl member list  | awk '{print $2}' | awk '{print substr($1, 6)}'
+  register: member_list
+  failed_when: member_list.stdout == ""
+  ignore_errors: yes
+  changed_when: False
+
+- name: checking whether is adding or removing etcd member
+  set_fact:
+    adding_etcd_member: "{{ node_name not in member_list.stdout_lines and is_etcd_member}}"
+    removing_etcd_member: "{{ node_name in member_list.stdout_lines and not is_etcd_member }}"
+  when: member_list|success
+
+- name: decide whether to remove etcd data
+  set_fact:
+    delete_existing_etcd: true
+  when: adding_etcd_member|bool or removing_etcd_member|bool
+
+# begin to reset etcd
+- include: etcd-reset.yaml
+
+- name: ensure etcd service started
+  service: name=etcd enabled=yes state=started
+
+- name: wait for etcd to be healthy
+  shell: etcdctl cluster-health | grep "cluster is healthy"
+  register: health_result
+  until: health_result|success
+  retries: 5
+  delay: 5
+  changed_when: False
+
+- name: wait for etcd is ready to write
+  command: etcdctl set /lain/test test
+  register: result
+  until: result|success
+  retries: 5
+  delay: 5
+  changed_when: False
+
+- name: Ship etcdctl bash-completion script
+  copy: src=etcdctl_comp dest=/usr/share/bash-completion/completions/etcdctl

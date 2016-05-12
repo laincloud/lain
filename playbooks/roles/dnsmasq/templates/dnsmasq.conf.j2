@@ -1,0 +1,12 @@
+listen-address=127.0.0.1
+listen-address={{ node_ip }}
+address=/etcd.lain/{{ node_ip }}
+address=/docker.lain/{{ node_ip }}
+address=/lainlet.lain/{{ node_ip }}
+address=/metric.lain/{{ node_ip }}
+{% if domain == 'lain.local' and vip != '0.0.0.0' %}
+address=/{{ domain }}/{{ vip }}
+{% endif %}
+addn-hosts=/etc/dnsmasq.hosts
+servers-file=/etc/dnsmasq.servers
+conf-dir=/etc/dnsmasq.d

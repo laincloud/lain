@@ -1,0 +1,11 @@
+[Unit]
+Description=mfscgiserv
+After=network.target
+
+[Service]
+ExecStart=/usr/sbin/mfscgiserv -f start
+ExecStop=/usr/sbin/mfscgiserv stop
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

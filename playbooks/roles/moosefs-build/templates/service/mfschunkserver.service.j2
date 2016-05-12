@@ -1,0 +1,12 @@
+[Unit]
+Description=mfschunkserver
+After=network.target
+
+[Service]
+ExecStart=/usr/sbin/mfschunkserver -f start
+ExecStop=/usr/sbin/mfschunkserver stop
+ExecReload=/usr/sbin/mfschunkserver -f reload
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

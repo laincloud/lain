@@ -1,0 +1,22 @@
+# firewall
+# TODO: should refine firewall configuration instead to disable it.
+- name: disable firewalld
+  service: name=firewalld enabled=no state=stopped
+
+- name: mask firewalld
+  shell: systemctl mask firewalld
+
+- name: install iptables-services
+  yum: pkg=iptables-services
+
+- name: enable iptables services
+  service: name=iptables enabled=yes
+
+- name: deploy init iptables script
+  template: src=iptables.sh.j2 dest=/tmp/iptables.sh
+
+- name: init iptables
+  shell: sh /tmp/iptables.sh
+
+- name: deploy /etc/sysconfig/iptables
+  template: src=iptables.save.j2 dest=/etc/sysconfig/iptables mode=600

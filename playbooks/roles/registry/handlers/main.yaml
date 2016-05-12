@@ -1,0 +1,5 @@
+- name: reload systemd for registry
+  command: systemctl daemon-reload
+
+- name: mount registry directory
+  service: name=var-lib-registry.mount state=restarted

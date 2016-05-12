@@ -1,0 +1,5 @@
+- name: reload systemd for backupd
+  command: systemctl daemon-reload
+
+- name: restart backupd
+  service: name=backupd state=restarted

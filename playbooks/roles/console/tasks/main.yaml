@@ -1,0 +1,13 @@
+- name: prepare volume dirs
+  file: path={{ lain_data_dir }}/volumes/console/console.web.web/1/{{ item }} state=directory
+  with_items:
+    - externalbin
+
+- name: copy volume files
+  copy: src={{ item.src }} dest={{ lain_data_dir }}/volumes/console/console.web.web/1/{{ item.dest }} mode={{ item.mode }}
+  with_items:
+    - src: /usr/bin/calicoctl
+      dest: externalbin/calicoctl
+      mode: "0755"
+
+# vim: set filetype=ansible.yaml:

@@ -1,0 +1,13 @@
+- name: inspect existing bootstrap registry
+  docker_inspect: name=bootstrap-registry type=container
+  register: inspect
+  ignore_errors: yes
+
+- name: run bootstrap-registry
+  command: >
+    docker run -d
+    --name bootstrap-registry
+    -p {{ bootstrap_registry_port }}:5000
+    {{ bootstrap_registry_image }}
+    ./entry.sh
+  when: inspect|failed or not inspect.State.Running

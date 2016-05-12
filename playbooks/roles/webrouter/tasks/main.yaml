@@ -1,0 +1,35 @@
+- name: prepare webrouter volume dirs
+  file: path={{ lain_data_dir }}/volumes/webrouter/webrouter.worker.worker/1{{ item }} state=directory
+  with_items:
+    - /var/log/nginx
+    - /var/log/watcher
+    - /var/log/supervisor
+    - /etc/nginx/ssl
+    - /etc/nginx/conf.d
+    - /etc/nginx/upstreams
+    - /etc/nginx/locations
+    - /etc/nginx/buffer
+
+- name: copy configs to webrouter volumes
+  copy: src={{ item.src }} dest={{ lain_data_dir }}/volumes/webrouter/webrouter.worker.worker/1{{ item.dest }}
+  with_items:
+    - src: nginx/proxy.conf
+      dest: /etc/nginx/proxy.conf
+    - src: nginx/nginx.conf
+      dest: /etc/nginx/nginx.conf
+    - src: nginx/default.conf
+      dest: /etc/nginx/default.conf
+
+- name: load ssl info from etcd
+  command: etcdctl get /lain/config/ssl
+  register: result
+
+- name: copy ssl crt to volumes
+  copy: src={{ manager_home }}/.certs/{{ item.value }}.crt dest={{ lain_data_dir }}/volumes/webrouter/webrouter.worker.worker/1/etc/nginx/ssl/ owner=root
+  with_dict: "{{result.stdout|from_json}}"
+  when: result|success and result.stdout != ""
+
+- name: copy ssl key to volumes
+  copy: src={{ manager_home }}/.certs/{{ item.value }}.key dest={{ lain_data_dir }}/volumes/webrouter/webrouter.worker.worker/1/etc/nginx/ssl/ owner=root
+  with_dict: "{{result.stdout|from_json}}"
+  when: result|success and result.stdout != ""

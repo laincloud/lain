@@ -1,0 +1,33 @@
+- fail: msg="moosefs master address not exist in /lain/config/moosefs"
+  when: mfsmaster == ""
+
+
+- name: extract moosefs rpm package
+  command: tar --overwrite -z -x -f /tmp/lain/moosefs-3.0.47.tar.gz -C /tmp/
+
+- name: install moosefs
+  yum: name=/tmp/fuse-libs-2.9.2-5.el7.x86_64.rpm,/tmp/moosefs-cli-3.0.47-1.rhsysv.x86_64.rpm,/tmp/moosefs-client-3.0.47-1.rhsysv.x86_64.rpm,fuse
+
+- name: write moosefs master addr into /etc/hosts
+  lineinfile: dest=/etc/hosts line="{{ mfsmaster }} mfsmaster" insertafter=EOF
+
+- name: create /mfs
+  file: path=/mfs state=directory
+
+- name: check if /mfs mounted
+  command: mfsdirinfo /mfs
+  register: result
+  ignore_errors: yes
+
+- name: set /etc/fstab, automount moosefs
+  lineinfile: dest=/etc/fstab line="mfsmount /mfs fuse _netdev 0 0" insertafter=EOF
+
+# mfsmount may failed. it return error "EAGAIN (Resource temporarily unavailable)", means we need to try again later
+# try 5 time every 5 seconds.
+- name: mount /mfs -P "{{ mfsport }}"
+  command: mount /mfs
+  register: mount_result
+  until: mount_result|success
+  retries: 5
+  delay: 5
+  when: result|failed

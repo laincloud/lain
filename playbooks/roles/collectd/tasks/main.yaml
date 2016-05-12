@@ -1,0 +1,43 @@
+- name: get hedwig vip
+  get_virtual_ip: container_app="hedwig" container_proc="carbon"
+  register: result
+
+- set_fact: graphite_vip="{{ result.ip }}"
+
+# Patched collectd for DATA_MAX_NAME_LEN
+- name: install collectd
+  yum: pkg=collectd
+
+- name: install collectd plugins
+  yum: pkg={{ item }}
+  with_items:
+    - collectd-ping
+    - collectd-disk
+
+- name: create collectd user
+  user: name=collectd createhome=no append=yes groups=docker system=yes
+
+- name: deploy collectd main config
+  template: src=collectd.conf.j2 dest=/etc/collectd.conf
+  notify: restart collectd
+
+- name: ensure plugins dir
+  file: path=/var/lib/collectd/plugins state=directory
+
+- name: deploy collectd types
+  copy: src=types dest=/var/lib/collectd/ 
+  notify: restart collectd
+
+- name: deploy collectd lain plugins
+  copy: src=plugins dest=/var/lib/collectd/ mode=0755
+  notify: restart collectd
+
+- name: ensure conf dir
+  file: path=/etc/collectd.d state=directory
+
+- name: deploy collectd lain config
+  template: src=lain.conf.j2 dest=/etc/collectd.d/lain.conf
+  notify: restart collectd
+
+- name: ensure collectd running
+  service: name=collectd enabled=yes state=started

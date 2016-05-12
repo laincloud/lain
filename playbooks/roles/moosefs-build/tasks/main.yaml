@@ -1,0 +1,21 @@
+- name: extract moosefs rpm package
+  command: tar --overwrite -z -x -f /tmp/lain/moosefs-3.0.47.tar.gz -C /tmp/
+
+- name: install moosefs
+  yum: name=/tmp/fuse-libs-2.9.2-5.el7.x86_64.rpm,/tmp/moosefs-cgi-3.0.47-1.rhsysv.x86_64.rpm,/tmp/moosefs-cgiserv-3.0.47-1.rhsysv.x86_64.rpm,/tmp/moosefs-chunkserver-3.0.47-1.rhsysv.x86_64.rpm,/tmp/moosefs-cli-3.0.47-1.rhsysv.x86_64.rpm,/tmp/moosefs-client-3.0.47-1.rhsysv.x86_64.rpm,/tmp/moosefs-master-3.0.47-1.rhsysv.x86_64.rpm,/tmp/moosefs-metalogger-3.0.47-1.rhsysv.x86_64.rpm,fuse
+
+- include: master.yaml
+  when: is_moosefs_master
+
+- command: etcdctl get /lain/config/moosefs
+  register: result
+  failed_when: result.stdout == ""
+
+- name: write moosefs master addr into /etc/hosts
+  lineinfile: dest=/etc/hosts line="{{ result.stdout.split(":")[0] }} mfsmaster" insertafter=EOF
+
+- include: chunkserver.yaml
+  when: is_moosefs_chunkserver
+
+- include: metalogger.yaml
+  when: is_moosefs_metalogger

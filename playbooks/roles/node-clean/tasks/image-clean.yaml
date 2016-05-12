@@ -1,0 +1,15 @@
+- name: collect running images
+  shell: docker ps --format \{\{.Image\}\} | awk '{split($1, array, ":"); print array[1]}'
+  register: images
+  changed_when: False
+
+- name: display to-save images of each node
+  debug: var=images.stdout_lines
+
+- name: "check finding the correct images to save. Next: clean images"
+  pause: seconds=600
+
+- name: remove extra images
+  image_clean:
+    images: "{{ images.stdout_lines }}"
+    redundancy: 3

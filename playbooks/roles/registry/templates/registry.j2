@@ -1,0 +1,15 @@
+{
+    "image": "{{ registry_image }}",
+    "expose": 5000,
+    "num_instances": 1,
+    "memory": "128m",
+    "env":
+        [
+            "LAIN_APPNAME=registry",
+            "LAIN_PROCNAME=web",
+            "CALICO_IP=auto",
+            "CALICO_PROFILE=default",
+            "GUNICORN_OPTS=[--preload]"
+        ],
+    "annotation": "{\"mountpoint\": [\"registry.{{ domain }}\"]}"
+}

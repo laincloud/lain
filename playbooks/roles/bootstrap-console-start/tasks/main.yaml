@@ -1,0 +1,38 @@
+- name: prepare volume dirs
+  file: path={{ bootstrap_volumes_dir }}/console/{{ item }} state=directory
+  with_items:
+    - web/externalbin
+    - web/lain/app/logs
+
+- name: copy volume files
+  copy: src={{ item.src }} dest={{ bootstrap_volumes_dir }}/console/{{ item.dest }} mode={{ item.mode }}
+  with_items:
+    - src: /usr/bin/calicoctl
+      dest: web/externalbin/calicoctl
+      mode: "0755"
+
+- name: inspect bootstrap-console
+  docker_inspect: name=bootstrap-console
+  register: inspect_console
+  ignore_errors: yes
+
+- name: remove deprected bootstrap-console
+  command: docker rm -f bootstrap-console
+  when: inspect_console|success and not inspect_console.State.Running
+
+- name: run bootstrap-console
+  command: >
+    docker run -d
+    --name bootstrap-console
+    -p {{ bootstrap_console_port }}:8000
+    -v {{ bootstrap_volumes_dir }}/console/web/externalbin:/externalbin
+    -v {{ bootstrap_volumes_dir }}/console/web/lain/app/logs:/lain/app/logs
+    {{ bootstrap_console_image }}
+    ./entry.sh
+  when: inspect_console|failed or not inspect_console.State.Running
+
+- name: wait for console ready
+  wait_for: host=localhost port={{ bootstrap_console_port }} timeout=10
+
+
+# vim: set filetype=ansible.yaml:

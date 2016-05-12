@@ -1,0 +1,23 @@
+- name: check if all images exist
+  docker_check_images:
+    images: "{{ bootstrap_images.values() }}"
+  register: check
+  ignore_errors: yes
+  changed_when: False
+
+- name: load saved images (this may take minutes...)
+  shell: xz -d -c {{ saved_images }} | docker load
+  when: check|failed and saved_images is defined
+  register: load
+
+- name: check if all images exist, again
+  docker_check_images:
+    images: "{{ bootstrap_images.values() }}"
+  register: check
+  ignore_errors: yes
+  changed_when: False
+
+- name: pull images if not exists (use --saved-images option if your connection to DockerHub is very slow)
+  docker_pull_image: image={{ item }} registry={{ registry_bootstrap|default('') }}
+  with_items: "{{ bootstrap_images.values() }}"
+  when: check|failed

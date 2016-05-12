@@ -1,0 +1,4 @@
+- name: pull images
+  docker_pull_image: image={{ bootstrap_images[item] }} registry=registry.lain
+  with_items: "{{ images }}"
+  when: not bootstrapping|bool

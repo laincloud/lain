@@ -1,0 +1,37 @@
+# dnsmasq
+# TODO: support more distro
+- name: install dnsmasq
+  yum: pkg=/tmp/lain/dnsmasq-2.75-1.el7.centos.x86_64.rpm
+
+- name: ensure /etc/dnsmasq.hosts
+  file: path="{{ dnsmasq_hosts_path }}" state=touch
+
+- name: get dnsmasq server
+  get_app_proc_ip: container_app="tinydns" container_proc="worker"
+  register: result
+  ignore_errors: true
+
+- set_fact: dnsmasq_server_ip="{{ result.ip }}"
+  when: result|success
+
+- set_fact: dnsmasq_server_port="{{ result.port }}"
+  when: result|success
+
+- name: ensure /etc/dnsmasq.servers
+  template: src=dnsmasq.servers.conf.j2 dest=/etc/dnsmasq.servers
+  when: result|success
+
+- name: ensure /etc/dnsmasq.servers
+  file: path="{{ dnsmasq_servers_path }}" state=touch
+  when: result|failed
+
+- name: config dnsmasq
+  template: src=dnsmasq.conf.j2 dest=/etc/dnsmasq.conf
+  notify:
+    - restart dnsmasq
+
+- name: enable and start dnsmasq service
+  service: name=dnsmasq enabled=yes state=started
+
+- name: set dnsmasq as default resolver
+  lineinfile: dest=/etc/resolv.conf line="nameserver 127.0.0.1" insertbefore=BOF

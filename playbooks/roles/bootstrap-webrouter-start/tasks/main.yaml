@@ -1,0 +1,170 @@
+- name: add console.lain
+  set_dnsmasq_domain: domain="console.lain" record="{{node_ip if vip == '0.0.0.0' else vip}}"
+
+- name: add console.DOMAIN
+  set_dnsmasq_domain: domain="console.{{ domain  }}" record="{{node_ip if vip == '0.0.0.0' else vip}}"
+
+- name: add registry.lain
+  set_dnsmasq_domain: domain="registry.lain" record="{{node_ip if vip == '0.0.0.0' else vip}}"
+
+- name: add registry.DOMAIN
+  set_dnsmasq_domain: domain="registry.{{ domain  }}" record="{{node_ip if vip == '0.0.0.0' else vip}}"
+
+- name: prepare volume dirs
+  file: path={{ bootstrap_volumes_dir }}/webrouter/nginx/{{ item }} state=directory
+  with_items:
+    - /var/log/nginx
+    - /var/log/watcher
+    - /var/log/supervisor
+    - /etc/nginx/ssl
+    - /etc/nginx/conf.d
+    - /etc/nginx/upstreams
+    - /etc/nginx/locations
+    - /etc/nginx/buffer
+    - /etc/nginx/bootstrap
+
+- name: remove old webrouter
+  command: docker rm -f bootstrap-webrouter
+  ignore_errors: yes
+  when: result|changed
+
+- name: copy configs to volumes
+  copy: src={{ item.src }} dest={{ bootstrap_volumes_dir }}/webrouter/nginx/{{ item.dest }}
+  with_items:
+    - src: nginx/proxy.conf
+      dest: /etc/nginx/proxy.conf
+    - src: nginx/nginx.conf
+      dest: /etc/nginx/nginx.conf
+    - src: nginx/default.conf
+      dest: /etc/nginx/default.conf
+  register: copy_configs
+
+- name: copy ssl certs to volumes
+  copy: src={{ manager_home }}/.certs/{{ item }} dest={{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/ssl/ owner=root
+  with_items:
+    - web.key
+    - web.crt
+  register: copy_ssl
+
+- name: check if registry app deployed
+  command: etcdctl ls /lain/deployd/pod_groups/registry
+  register: result
+  ignore_errors: yes
+  changed_when: False
+
+- name: remove generated regitsry app configs by last run
+  file: path={{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/conf.d/{{ item }} state=absent
+  with_items:
+    - registry.lain.conf
+    - registry.{{ domain }}.conf
+  when: result|failed
+
+- name: generate configs for bootstrap-registry
+  template: src=nginx/registry.conf.j2 dest={{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/bootstrap/registry.lain.conf
+  when: result|failed
+  register: config_bootstrap_registry
+
+- name: check if deploy app deployed
+  command: etcdctl ls /lain/deployd/pod_groups/deploy
+  register: result
+  ignore_errors: yes
+  changed_when: False
+
+- name: check if console app deployed
+  command: etcdctl ls /lain/deployd/pod_groups/console
+  register: result
+  ignore_errors: yes
+  changed_when: False
+
+- name: remove generated configs by last run
+  file: path={{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/conf.d/{{ item }} state=absent
+  with_items:
+    - console.lain.conf
+    - console.{{ domain }}.conf
+  when: result|failed
+
+- name: generate configs for bootstrap-console
+  template: src=nginx/console.conf.j2 dest={{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/bootstrap/console.lain.conf
+  when: result|failed
+  register: config_bootstrap_console
+
+
+# Met https://github.com/ansible/ansible-modules-core/issues/1337 here:
+#   current docker module has bug when bind file in volumes.
+# TODO: use fixed docker module.
+#
+#- name: start webrouter container
+#  docker:
+#    name: bootstrap-webrouter
+#    image: "{{ bootstrap_webrouter_image }}"
+#    command: /usr/bin/supervisord
+#    ports:
+#      - "80:80"
+#    env:
+#      WATCHER_DOMAIN: "{{ domain }}"
+#      WATCHER_ETCD_HOST: "{{ node_ip }}"
+#      WATCHER_NGINX_CONF_PATH: /etc/nginx
+#    volumes:
+#      - "{{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/nginx.conf:/etc/nginx/nginx.conf"
+#      - "{{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/proxy.conf:/etc/nginx/proxy.conf"
+#      - "{{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/default.conf:/etc/nginx/default.conf"
+#      - "{{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/conf.d:/etc/nginx/conf.d"
+#      - "{{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/upstreams:/etc/nginx/upstreams"
+#      - "{{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/locations:/etc/nginx/locations"
+#      - "{{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/buffer:/etc/nginx/buffer"
+#      - "{{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/ssl:/etc/nginx/ssl"
+#      - "{{ bootstrap_volumes_dir }}/webrouter/nginx/var/log/nginx:/var/log/nginx"
+#      - "{{ bootstrap_volumes_dir }}/webrouter/nginx/var/log/watcher:/var/log/watcher"
+#      - "{{ bootstrap_volumes_dir }}/webrouter/nginx/var/log/supervisor:/var/log/supervisor"
+
+- name: inspect container
+  docker_inspect: name=bootstrap-webrouter
+  register: result
+  ignore_errors: yes
+
+- name: remove deprected container
+  command: docker rm -f bootstrap-webrouter
+  when: result|success and not result.State.Running
+
+- name: run container
+  command: |
+    docker run
+    --name bootstrap-webrouter
+    --net=host
+    -d
+    -e WATCHER_DOMAIN={{ domain }}
+    -e WATCHER_ETCD_HOST={{ node_ip }}
+    -e WATCHER_NGINX_CONF_PATH=/etc/nginx
+    -v "{{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/nginx.conf:/etc/nginx/nginx.conf"
+    -v "{{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/proxy.conf:/etc/nginx/proxy.conf"
+    -v "{{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/default.conf:/etc/nginx/default.conf"
+    -v "{{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/bootstrap:/etc/nginx/bootstrap"
+    -v "{{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/conf.d:/etc/nginx/conf.d"
+    -v "{{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/upstreams:/etc/nginx/upstreams"
+    -v "{{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/locations:/etc/nginx/locations"
+    -v "{{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/buffer:/etc/nginx/buffer"
+    -v "{{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/ssl:/etc/nginx/ssl"
+    -v "{{ bootstrap_volumes_dir }}/webrouter/nginx/var/log/nginx:/var/log/nginx"
+    -v "{{ bootstrap_volumes_dir }}/webrouter/nginx/var/log/watcher:/var/log/watcher"
+    -v "{{ bootstrap_volumes_dir }}/webrouter/nginx/var/log/supervisor:/var/log/supervisor"
+    "{{ bootstrap_webrouter_image }}"
+    /usr/bin/supervisord
+  when: result|failed or not result.State.Running
+  register: run_bootstrap_webrouter
+
+- name: wait for bootstrap-webrouter start
+  wait_for: host={{ node_ip }} port=80 timeout=30
+
+- name: reload webrouter nginx
+  command: docker exec bootstrap-webrouter nginx -s reload
+  when: >
+    run_bootstrap_webrouter|skipped and (
+      copy_configs|changed
+      or copy_ssl|changed
+      or config_bootstrap_registry|changed
+      or config_bootstrap_console|changed
+    )
+
+- name: set webrouter virtual ip
+  set_virtual_ip: ip="{{ vip }}" device="{{ net_interface }}"
+  when: is_lain_manager and vip != '0.0.0.0' and vip != node_ip

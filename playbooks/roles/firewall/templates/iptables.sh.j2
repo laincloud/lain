@@ -1,0 +1,41 @@
+#!/bin/sh
+
+function chain_add() {
+    iptables -n -L $1 &>/dev/null || iptables -N $1
+}
+
+function nat_chain_add() {
+    iptables -t nat -n -L $1 &>/dev/null || iptables -t nat -N $1
+}
+
+function rule_append() {
+    iptables -C $1 &>/dev/null || iptables -A $1
+}
+
+function nat_rule_append() {
+    iptables -t nat -C $1 &>/dev/null || iptables -t nat -A $1
+}
+
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+
+#iptables -D INPUT -j REJECT --reject-with icmp-host-prohibited || true
+#iptables -D FORWARD -j REJECT --reject-with icmp-host-prohibited || true
+
+#rule_append "INPUT -i lo -j ACCEPT"
+#rule_append "INPUT -i docker+ -j ACCEPT"
+#rule_append "INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT"
+#rule_append "INPUT -s {{ node_network }} -j ACCEPT"
+#rule_append "INPUT -s {{ calico_default_network }} -j ACCEPT"
+#rule_append "INPUT -p icmp -j ACCEPT"
+#rule_append "INPUT -p tcp --dport {{ ssh_port }} -j ACCEPT"
+#rule_append "FORWARD -s {{ calico_default_network }} -j ACCEPT"
+#{% if ansible_eth0 is defined %}
+#rule_append "INPUT -i eth0 -j ACCEPT"
+#{% endif %}
+
+nat_chain_add "lain-PREROUTING"
+nat_rule_append "PREROUTING -j lain-PREROUTING"
+nat_chain_add "lain-OUTPUT"
+nat_rule_append "OUTPUT -j lain-OUTPUT"

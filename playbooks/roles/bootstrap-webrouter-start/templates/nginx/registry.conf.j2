@@ -1,0 +1,15 @@
+server {
+    listen 80;
+    listen 443 ssl;
+    server_name .registry.{{ domain }} .registry.lain;
+    ssl_certificate /etc/nginx/ssl/web.crt;
+    ssl_certificate_key /etc/nginx/ssl/web.key;
+    include proxy.conf;
+
+    location / {
+
+    	proxy_pass http://{{ node_ip }}:{{ bootstrap_registry_port }};
+
+    }
+    access_log /var/log/nginx/web.registry.access.log main;
+}

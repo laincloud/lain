@@ -1,0 +1,5 @@
+- name: stop bootstrap-console
+  docker:
+    image: "{{ bootstrap_console_image }}"
+    name: bootstrap-console
+    state: absent

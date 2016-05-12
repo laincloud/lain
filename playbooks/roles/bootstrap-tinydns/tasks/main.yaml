@@ -1,0 +1,16 @@
+- name: set tinydns vip port config
+  set_virtual_ip_key: ip="0.0.0.0" port="{{ dns_port }}" container_app="tinydns" container_proc="worker" container_proto="udp" container_port="53"
+
+- name: set tinydns domain lain
+  set_tinydns_domain: domain="lain" record=".lain:{{ node_ip }}:a:300"
+
+- name: set tinydns domain .20.172.in-addr.arpa
+  set_tinydns_domain: domain=".20.172.in-addr.arpa" record=".20.172.in-addr.arpa:{{ node_ip }}:a:300"
+
+- name: set tinydns domain DOMAIN
+  set_tinydns_domain: domain="{{ domain  }}" record=".{{ domain }}:{{ node_ip }}:a:300"
+  when: domain == 'lain.local'
+
+- name: set tinydns wildcard domain lain
+  set_tinydns_domain: domain="webrouter.lain" record="+webrouter.lain:{{ vip }}:300"
+  when: vip != '0.0.0.0'

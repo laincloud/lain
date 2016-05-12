@@ -1,0 +1,6 @@
+- hosts: bootstrap-node
+  vars:
+    bootstrapping: yes
+
+  roles:
+    - "{{ role|default('bootstrap') }}"

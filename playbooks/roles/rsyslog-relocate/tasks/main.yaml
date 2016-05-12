@@ -1,0 +1,10 @@
+- name: relocate syslog messages
+  template: src=syslog-messages.conf.j2 dest=/etc/rsyslog.d/syslog-messages.conf
+  notify:
+    - restart rsyslog
+
+- name: remove default logrotate settting in syslog if exists
+  replace: dest=/etc/logrotate.d/syslog regexp='/var/log/messages'
+
+- name: reset syslog-messages logrotate config
+  template: src=syslog-messages.j2 dest=/etc/logrotate.d/syslog-messages

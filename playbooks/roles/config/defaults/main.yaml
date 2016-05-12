@@ -1,0 +1,128 @@
+bootstrapping: no
+
+# Common configuratons
+lain_data_dir: /data/lain
+
+# ansible always consider 10.0.2.15 as default ipv4 in vagrant... here is an ugly workaround.
+# TODO: make it less ugly.
+# fixme!!!
+node_ip: "{{ ansible_eth1.ipv4.address if ansible_eth1 is defined else ansible_default_ipv4.address }}"
+net_interface: "{{ ansible_eth1.device if ansible_eth1 is defined else ansible_default_ipv4.interface }}"
+# default node network range: a class C network
+node_network: "{{ '.'.join(node_ip.split('.')[:3] + ['0/24']) }}"
+ssh_port: 22
+domain: lain.local
+
+# default floating ip
+vip: 0.0.0.0
+dns_ip: 0.0.0.0
+bootstrap_node_ip: "{{ node_ip }}"
+dns_port: 5555
+graphite_port: 2003
+
+# Deployd configurations
+deployd_port: 9003
+deployd_image: "{{ bootstrap_images['deployd-binary'] }}"
+
+
+# Backupd configurations
+backupd_driver: moosefs
+backupd_port: 9002
+backup_dir: /mfs/lain/backup
+backupd_image: "{{ bootstrap_images.backupctl }}"
+
+# Bootstrap layer1 app configurations
+bootstrap_console_image: "{{ bootstrap_images.console }}"
+bootstrap_console_port: 8003
+
+bootstrap_registry_image: "{{ bootstrap_images.registry }}"
+bootstrap_registry_port: 8001
+
+bootstrap_webrouter_image: "{{ bootstrap_images.webrouter }}"
+
+# Calico configurations
+calico_ipip: no
+calico_default_network: 172.20.0.0/16
+calico_node_image: "{{ bootstrap_images['calico-node'] }}"
+calico_libnetwork_image: "{{ bootstrap_images['calico-libnetwork'] }}"
+
+# Docker configurations
+docker_ver: 1.11.1-1.el7.centos
+docker_port: 2375
+docker_graph_dir: /data/docker
+docker_volumes_dir: "{{ lain_data_dir }}/volumes"
+bootstrap_volumes_dir: "{{ lain_data_dir }}/bootstrap-volumes"
+allow_restart_docker: no
+
+bootstrap_image_prefix: "{{ registry_bootstrap | default('') }}"
+
+remove_all_containers: "{{ delete_existing_etcd | default('no') }}"
+
+docker_device: ""
+volume_group: "docker"
+devicemapper_data_dir: ""
+devicemapper_metadata_dir: ""
+
+# Feature configurations
+feature_graphite: false
+feature_statsd: false
+feature_maintaining: false
+
+
+# Drift configurations
+drift_vars:
+  volumes: []
+  ids: ""
+
+# Etcd configurations
+etcd_ver: 2.2.5
+etcd_dir: /var/etcd
+etcd_client_port: 4001
+etcd_peer_port: 7001
+delete_existing_etcd: no
+adding_etcd_member: false
+removing_etcd_member: false
+
+# Lainlet configurations
+lainlet_image: "{{ bootstrap_images.lainlet }}"
+lainlet_port: 9001
+
+# Manager configurations
+manager_home: /root
+
+# Python pip configurations
+pip_binary_image: "{{ bootstrap_images.pip_binary }}"
+pip_binary_cp_path: "{{ lain_data_dir }}/aux/binary/{{ pip_binary_image.replace('/', '_') }}"
+pip_binary_path: "{{ pip_binary_cp_path }}/binary"
+
+# Rebellion configurations
+rebellion_rsyslog_tcp_port: 8178
+rebellion_image: "{{ bootstrap_images.rebellion }}"
+
+# Registry configurations
+registry_image: "{{ bootstrap_images.registry }}"
+registry_mfsdir: /mfs/lain/registry
+registry_datadir: /var/lib/registry
+
+# Rsync configurations
+rsync_module: lain_volume
+rsync_conf_path: /etc/rsyncd.conf
+rsync_network: ""
+rsync_secrets: ""
+rsync_secrets_file: /etc/rsyncd.secrets
+rsync_auth_user: lain
+
+# Swarm configurations
+swarm_image: "{{ bootstrap_images.swarm }}"
+swarm_manager_port: 2376
+swarm_discovery_path: "/lain/swarm/docker/swarm/nodes"
+swarm_leader_path: "/lain/swarm/docker/swarm/leader"
+swarm_manager_ip_key: "/lain/config/swarm_manager_ip"
+
+# Moosefs configurations
+mfs_data_dir:
+  - "/mfsdata"
+mfs_port: 9421
+
+dnsmasq_hosts_path: "/etc/dnsmasq.hosts"
+dnsmasq_servers_path: "/etc/dnsmasq.servers"

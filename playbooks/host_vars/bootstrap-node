@@ -1,0 +1,10 @@
+is_lain_manager: true
+is_swarm_manager: true
+is_deployd_node: true
+
+is_etcd_member: true
+etcd_members:
+  - name: "{{ node_name }}"
+    ip: "{{ node_ip }}"
+
+allow_restart_docker: yes

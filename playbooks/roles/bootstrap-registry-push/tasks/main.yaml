@@ -1,0 +1,15 @@
+- name: wait_for registry ready
+  command: curl -m 2 http://registry.lain/v2/
+  register: result
+  until: "result.stdout.startswith('{')"
+  retries: 5
+  delay: 5
+  changed_when: False
+
+- name: push image to registry (may take minutes)
+  docker_push:
+    image: "{{ bootstrap_images[item] }}"
+    registry: registry.lain
+  with_items: "{{images_to_push|default([])}}"
+
+# vim: set filetype=ansible.yaml:

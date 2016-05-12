@@ -1,0 +1,58 @@
+- name: check the size(bytes) of block device
+  shell: blockdev --getsize64 "{{ docker_device }}"
+  register: size_result
+
+- set_fact:
+    size: "{{ size_result.stdout|int // 1024 // 1024 // 1024 }}"
+
+- name: check if size big enough
+  fail: msg="the given block device's size is too small"
+  when: size < 10
+
+- name: check if the physical volume having been created
+  shell: pvdisplay -c {{ docker_device }}
+  register: result
+  ignore_errors: true
+
+- name: create physical volume for docker devicemapper storage
+  command: pvcreate "{{ docker_device }}"
+  when: result|failed
+
+- name: check if the volume group having been created
+  command: vgdisplay "{{ volume_group }}"
+  register: result
+  ignore_errors: true
+
+- name: create volume group
+  command: vgcreate "{{ volume_group }}" "{{ docker_device }}"
+  when: result | failed
+
+- name: check if the logical volume for data having been created
+  shell: lvdisplay -c | grep {{ volume_group }} | grep /data
+  register: result
+  ignore_errors: true
+
+- name: create logical volume for data
+  command: lvcreate -l95%VG -n data "{{ volume_group }}"
+  when: result|failed
+
+- shell: lvdisplay -c | grep {{ volume_group }} | grep /data | cut -d ":" -f 1
+  register: result
+
+- set_fact:
+    devicemapper_data_dir: "{{ result.stdout|trim }}"
+
+- name: check if the logical volume for data having been created
+  shell: lvdisplay -c | grep {{ volume_group }} | grep /metadata
+  register: result
+  ignore_errors: true
+
+- name: create logical volume for metadata
+  command: lvcreate -l100%FREE -n metadata "{{ volume_group }}"
+  when: result|failed
+
+- shell: lvdisplay -c | grep {{ volume_group }} | grep /metadata | cut -d ":" -f 1
+  register: result
+
+- set_fact:
+    devicemapper_metadata_dir: "{{ result.stdout|trim }}"

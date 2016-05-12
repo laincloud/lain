@@ -1,0 +1,9 @@
+- name: install rsyslog
+  yum: pkg=rsyslog
+
+- name: copy rsyslog.conf
+  copy: src=rsyslog.conf dest=/etc/rsyslog.conf backup=yes
+  notify:
+    - restart rsyslog
+
+- meta: flush_handlers

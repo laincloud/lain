@@ -1,0 +1,25 @@
+- name: generate ssh key pair for cluster management
+  command: ssh-keygen -t rsa -N "" -f /root/.ssh/lain
+  args:
+    creates: /root/.ssh/lain
+  when: is_lain_manager
+
+- name: copy ssh key pair for cluster management
+  copy: src=/root/.ssh/{{ item }} dest=/root/.ssh/{{ item }}
+  with_items:
+    - lain
+    - lain.pub
+  when: is_lain_manager
+
+- name: generate ssh finger print
+  command: ssh-keyscan -t rsa {{ node_ip }}
+  register: result
+  changed_when: False
+  delegate_to: 127.0.0.1
+
+- name: put the ssh finger print in known_hosts
+  lineinfile: dest=/root/.ssh/known_hosts line='{{ result.stdout_lines | last }}' create=yes
+  delegate_to: 127.0.0.1
+
+- name: authorize the management ssh key
+  authorized_key: user=root key="{{ lookup('file', '/root/.ssh/lain.pub') }}"

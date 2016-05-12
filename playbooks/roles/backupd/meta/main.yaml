@@ -1,0 +1,9 @@
+dependencies:
+  - role: config
+  - role: libraries
+  - role: images
+    images:
+      - backupctl
+  - role: console-deploy
+    app: backupctl
+    when: is_lain_manager

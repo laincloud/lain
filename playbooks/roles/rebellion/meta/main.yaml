@@ -1,0 +1,5 @@
+dependencies:
+  - role: config
+  - role: images
+    images:
+      - rebellion

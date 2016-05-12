@@ -1,0 +1,8 @@
+- name: reload systemd for rebellion
+  command: systemctl daemon-reload
+
+- name: restart rebellion
+  service: name=rebellion state=restarted
+
+- name: restart rsyslog
+  service: name=rsyslog state=restarted

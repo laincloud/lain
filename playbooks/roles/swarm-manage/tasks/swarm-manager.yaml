@@ -1,0 +1,20 @@
+- name: config swarm manager
+  template: src=swarm-manager.service.j2 dest=/etc/systemd/system/swarm-manager.service
+  notify:
+    - reload systemd for swarm-manage
+    - restart swarm manager
+- meta: flush_handlers
+
+- name: ensure swarm manager started
+  service: name=swarm-manager enabled=yes state=started
+
+- name: waiting for swarm manager to collect information from cluster nodes
+  shell: "docker -H tcp://{{ node_ip }}:{{ swarm_manager_port }} info | grep 'Nodes: ' | awk '{ print $2 }'"
+  register: swarm_cluster_nodes
+  until: swarm_cluster_nodes.stdout|int > 0
+  retries: 5
+  delay: 5
+  changed_when: False
+
+- name: set the swarm manager ip into etcd
+  command: etcdctl set "{{ swarm_manager_ip_key }}" "{{ node_ip }}"

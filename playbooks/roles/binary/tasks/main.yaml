@@ -1,0 +1,2 @@
+- name: copy bootstrap binary to /tmp
+  copy: src=lain dest=/tmp/

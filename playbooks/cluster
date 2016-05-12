@@ -1,0 +1,170 @@
+#!/usr/bin/env python
+
+# An dynamic ansible inventory script for lain cluster management
+
+import sys
+import json
+import argparse
+import yaml
+import os
+from collections import namedtuple
+from itertools import chain
+from urllib2 import urlopen, HTTPError
+
+
+CONFIG_DIR = '/lain/config'
+BOOTSTRAP_CONFIG_FILE = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    'roles/config/defaults/main.yaml')
+Node = namedtuple('Node', ['name', 'ip', 'ssh_port'])
+etcd_port = 4001
+
+
+def list_nodes():
+    return list_node_group('nodes')
+
+
+def list_node_group(role):
+    url = 'http://localhost:%d/v2/keys/lain/nodes/%s' % (etcd_port, role)
+    try:
+        f = urlopen(url)
+    except HTTPError as e:
+        if e.code == 404:
+            return {}
+        raise
+
+    nodes = {}
+    data = json.load(f)
+    if 'nodes' not in data['node']:
+        return {}
+    keys = [x['key'] for x in data['node']['nodes']]
+    for key in keys:
+        key = key.split('/')[-1]
+        node_name, node_ip, ssh_port = key.split(':')
+        ssh_port = int(ssh_port)
+        node = Node(node_name, node_ip, ssh_port)
+        nodes[node_name] = node
+    return nodes
+
+
+def parse_config(data):
+    ret = {}
+    for node in data:
+        assert node['key'].startswith(CONFIG_DIR + '/')
+        key = node['key'].split("/")[-1]
+        if 'value' in node:
+            value = node['value']
+        elif 'nodes' in node:
+            value = parse_config(node['nodes'])
+        else:
+            continue
+        ret[key] = value
+    return ret
+
+
+def get_config():
+    f = urlopen('http://127.0.0.1:%d/v2/keys/%s?recursive=true'
+                % (etcd_port, CONFIG_DIR))
+    data = json.load(f)
+    return parse_config(data['node']['nodes'])
+
+
+def list_inventory():
+    nodes = list_nodes()
+    managers = list_node_group('managers')
+    etcd_members = list_node_group('etcd-members')
+    deployd_nodes = list_node_group('deployd')
+    web_routers = list_node_group('web-routers')
+    swarm_managers = list_node_group('swarm-managers')
+    moosefs_master = list_node_group('moosefs-master')
+    moosefs_chunkserver = list_node_group('moosefs-chunkserver')
+    moosefs_metalogger = list_node_group('moosefs-metalogger')
+    new_nodes = list_node_group('new')
+    removing_nodes = list_node_group('removing')
+    clean_nodes = list_node_group('clean')
+
+    cluster_config = get_config()
+
+    group_vars = {
+        'ansible_ssh_user': 'root',
+        'ansible_ssh_private_key_file': '/root/.ssh/lain',
+        'etcd_members': [{'name': node_name, 'ip': nodes[node_name].ip}
+                         for node_name in etcd_members],
+    }
+    group_vars.update(cluster_config)
+
+    inventory = {
+        'nodes': {
+            'hosts': nodes.keys(),
+            'vars': group_vars,
+        },
+        'new_nodes': {
+            'hosts': new_nodes.keys(),
+            'vars': group_vars,
+        },
+        'removing_nodes': {
+            'hosts': removing_nodes.keys(),
+            'vars': group_vars,
+        },
+        'clean_nodes': {
+            'hosts': clean_nodes.keys(),
+            'vars': group_vars,
+        },
+    }
+
+    mfs_config = cluster_config.get("moosefs", "").split(":")
+
+    hostvars = {}
+    for node in chain(nodes.itervalues(),
+                      new_nodes.itervalues(),
+                      clean_nodes.itervalues()):
+        v = {
+            'ansible_ssh_host': node.ip,
+            'ansible_ssh_port': node.ssh_port,
+            'node_ip': node.ip,
+            'node_name': node.name,
+            'is_lain_manager': node.name in managers,
+            'is_etcd_member': node.name in etcd_members,
+            'is_web_router': node.name in web_routers,
+            'is_swarm_manager': node.name in swarm_managers,
+            'is_deployd_node': node.name in deployd_nodes,
+            'is_moosefs_master': node.name in moosefs_master,
+            'is_moosefs_chunkserver': node.name in moosefs_chunkserver,
+            'is_moosefs_metalogger': node.name in moosefs_metalogger,
+            'mfsmaster': mfs_config[0],
+            'mfsport': "9421" if len(mfs_config) < 2 else mfs_config[1],
+        }
+        hostvars[node.name] = v
+
+    inventory['_meta'] = {
+        'hostvars': hostvars,
+    }
+
+    return inventory
+
+
+def host_inventory(host):
+    # For host parameters, not implemented
+    return {}
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(usage="prog [options]")
+    parser.add_argument('--list', action='store_true')
+    parser.add_argument('--host', metavar='HOSTNAME')
+    options = parser.parse_args()
+
+    with open(BOOTSTRAP_CONFIG_FILE, 'r') as f:
+        bootstrap_conf = yaml.load(f)
+        if bootstrap_conf["etcd_client_port"]:
+            etcd_port = bootstrap_conf["etcd_client_port"]
+
+    if options.list:
+        inventory = list_inventory()
+    elif options.host:
+        inventory = host_inventory(options.host)
+    else:
+        parser.print_help()
+        sys.exit(1)
+
+    print(json.dumps(inventory, indent=4))

@@ -1,0 +1,75 @@
+- fail: msg="moosefs not exist"
+  when: mfsmaster == ""
+- fail: msg="unknown registry's backend dir"
+  when: registry_datadir == ""
+
+- stat: path="{{ registry_mfsdir }}"
+  register: result
+- fail: msg="registry datadir {{ registry_mfsdir }} having been exist on moosefs, check and delete it by yourself"
+  when: result.stat.isdir is defined
+
+- name: get registry's container id
+  shell: docker ps| grep registry.web.web | awk '{print $1}'
+  register: registry_container_id
+  failed_when: registry_container_id.stdout == ""
+  ignore_errors: yes
+  changed_when: False
+
+- stat: path="{{ registry_mfsdir }}"
+  register: result
+
+- fail: msg="registry datadir {{ registry_mfsdir }} having been exist on moosefs, check and delete it by yourself"
+  when: result.stat.isdir is defined
+
+- name: create registry directory on moosefs
+  file: path="{{ registry_mfsdir }}" state=directory
+
+- fail: msg="unknown registry volume dir"
+  when: registry_datadir == ""
+
+- file: path="{{ registry_datadir }}.bak" state=absent
+- name: backup registry data (may take minutes)
+  command: cp -r "{{ registry_datadir }}" "{{ registry_datadir }}.bak"
+
+- name: pause the registry container
+  command: docker pause "{{ registry_container_id.stdout }}"
+  ignore_errors: yes
+
+- name: move registry data into moosefs
+  shell: mv "{{ registry_datadir }}/docker" "{{ registry_mfsdir }}/"
+
+# The .mount file must be var-lib-registry.mount, file name corresponds to /var/lib/registry, check `man systemd.mount` for detail
+- name: generate systemd.mount for /var/lib/registry
+  template: src=var-lib-registry.mount.j2 dest=/etc/systemd/system/var-lib-registry.mount
+  notify:
+    - reload systemd for registry
+    - mount registry directory
+- meta: flush_handlers
+
+- name: ensure registry data dir mounted onto moosefs and enable this service
+  service: name=var-lib-registry.mount state=started enabled=yes
+
+- name: unpause and stop registry container, deployd will start it later
+  shell: docker unpause "{{ registry_container_id.stdout }}" && docker stop "{{ registry_container_id.stdout }}"
+
+- name: wait for registry up
+  shell: docker ps | grep "{{ registry_container_id.stdout }}"
+  register: result
+  until: result|success
+  retries: 40
+  delay: 5
+  changed_when: False
+
+- name: unmount registry dir
+  shell: umount "{{ registry_datadir }}" && rmdir "{{ registry_datadir }}"
+  when: result|failed
+
+- name: Failed, recover registry data
+  command: mv "{{ registry_datadir }}.bak" "{{ registry_datadir }}"
+  when: result|failed
+
+- fail: msg="Fail because registry can not started after using moosefs"
+  when: result|failed
+
+- name: set registry_on_moosefs tag in etcd
+  command: etcdctl set /lain/config/registry_on_moosefs True

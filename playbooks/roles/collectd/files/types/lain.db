@@ -1,0 +1,6 @@
+net value:COUNTER:0:U
+status value:GAUGE:0:1
+val value:GAUGE:-1:U
+percent value:GAUGE:0:1
+time_diff value:COUNTER:0:U
+blkio value:COUNTER:0:U

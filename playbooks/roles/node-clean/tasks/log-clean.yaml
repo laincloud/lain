@@ -1,0 +1,18 @@
+- name: collect log files need to clean in /var/log
+  shell: ls -1 /var/log/messages-*
+  register: log_files
+  changed_when: False
+  ignore_errors: yes
+
+- name: display the log files need to clean of each node
+  debug: var=log_files.stdout_lines
+  when: log_files|success
+
+- name: "check finding the correct log files to clean. Next: clean log files"
+  pause: seconds=600
+  when: log_files|success
+
+- name: clean log files in /var/log
+  command: /usr/bin/rm -f {{ item }}
+  with_items: "{{ log_files.stdout_lines }}"
+  when: log_files|success and log_files.stdout != ""

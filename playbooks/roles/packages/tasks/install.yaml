@@ -1,0 +1,39 @@
+- name: check if pip_binary container exists
+  command: docker inspect pip_binary
+  register: check_container
+  ignore_errors: yes
+  changed_when: False
+
+- name: create pip_binary container
+  command: docker create --name pip_binary {{ pip_binary_image }} /bin/bash
+  when: check_container|failed
+
+- name: create pip_binary directory
+  file: path="{{ pip_binary_cp_path }}" state=directory
+
+- name: extract files from pip_binary container
+  command: docker cp pip_binary:/binary {{ pip_binary_cp_path }}/
+  args:
+    creates: "{{ pip_binary_path }}"
+
+- name: remove pip_binary container
+  command: docker rm pip_binary
+
+- name: install pip
+  yum: pkg=python-pip
+
+- name: install python packages
+  command: pip install --upgrade --force-reinstall --use-wheel --no-index --find-links={{ pip_binary_path }}/pip/wheelhouse {{ item }}
+  with_items:
+    - pip
+    - python-dateutil
+    - python-etcd
+    - docker-py
+    - psutil
+    - requests
+  register: result
+  changed_when: "'Successfully installed' in result.stdout"
+
+- name: install lainctl
+  command: pip install --upgrade --force-reinstall --use-wheel --no-index --find-links={{ pip_binary_path }}/pip/wheelhouse lain_admin_cli
+  when: bootstrapping is defined and bootstrapping|bool

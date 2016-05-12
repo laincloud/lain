@@ -1,0 +1,13 @@
+[Unit]
+Description=etcd
+After=network.target
+
+[Service]
+User=etcd
+LimitNOFILE=65535
+EnvironmentFile={{ etcd_dir }}/env
+ExecStart=/usr/bin/etcd
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

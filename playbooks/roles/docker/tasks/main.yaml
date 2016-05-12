@@ -1,0 +1,78 @@
+# TODO: support more distro
+- name: install(update) lvm2 and device-mapper
+  yum: name=lvm2,device-mapper state=latest
+
+- name: install docker from OS package manage system
+  yum: pkg={{ item }}
+  with_items:
+    - "/tmp/lain/docker-engine-selinux-{{ docker_ver }}.noarch.rpm"
+    - "/tmp/lain/docker-engine-{{ docker_ver }}.x86_64.rpm"
+  register: pkg
+
+- name: remove default Docker keys, avoid issues with Swarm
+  file: path=/etc/docker/key.json state=absent
+  when: adding_node_mode is defined
+
+- set_fact:
+    docker_device: "{{node_info['docker_device']}}"
+  when: docker_device == "" and node_info is defined
+
+- include: devicemapper.yaml
+  when: docker_device != ""
+
+# Restarting docker is a big deal.  User must allow it explicitly.
+- name: render docker config for test
+  template: src=docker.j2 dest=/tmp/docker.conf
+- name: get stat of rendered docker config
+  stat: path=/tmp/docker.conf
+  register: new_docker_conf_stat
+- name: get stat of current docker config
+  stat: path=/etc/systemd/system/docker.service
+  register: current_docker_conf_stat
+- name: quit if restarting docker daemon is not allowed explicitly
+  fail: msg="You must specify -e allow_restart_docker=yes to process"
+  when: |
+    not (allow_restart_docker|bool)
+    and (pkg|changed or new_docker_conf_stat.stat.md5 != current_docker_conf_stat.stat.md5)
+
+- name: set docker graph dir
+  file: path={{ docker_graph_dir }} state=directory
+
+# When is not bootstrapping or add node, do not allow to restart docker
+- name: config docker
+  template: src=docker.j2 dest=/etc/systemd/system/docker.service
+  notify:
+    - reload systemd for docker
+    - restart docker
+  when: bootstrapping|bool or target|default('') == 'new_nodes'
+- meta: flush_handlers
+
+- name: ensure docker started
+  service: name=docker state=started
+
+- name: wait for docker daemon start, again
+  command: docker version -f "\{\{.Server.Version\}\}"
+  register: current_docker_version
+  until: current_docker_version.stdout
+  retries: 5
+  delay: 5
+  changed_when: False
+
+# svirt_sandbox_file_t must be set so that a container with USER can mount directories owned by root
+- name: config volumes dirs selinux setting
+  file: path={{ item }} state=directory setype=svirt_sandbox_file_t recurse=yes
+  with_items:
+    - "{{ bootstrap_volumes_dir }}"
+    - "{{ docker_volumes_dir }}"
+
+- copy: src=docker-enter dest=/usr/bin/docker-enter mode=755
+
+- name: gather existing containers
+  command: docker ps -aq
+  register: containers
+  when: remove_all_containers|bool
+
+- name: remove all containers
+  command: docker rm -f {{ item }}
+  with_items: containers.stdout_lines
+  when: remove_all_containers|bool

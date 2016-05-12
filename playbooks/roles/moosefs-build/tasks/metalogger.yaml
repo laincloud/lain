@@ -1,0 +1,13 @@
+- name: gernerate configuration file for mfsmetalogger
+  template: src=config/mfsmetalogger.cfg.j2 dest=/etc/mfs/mfsmetalogger.cfg
+  notify:
+    - reload mfsmetalogger
+
+- name: config mfsmetalogger service
+  template: src=service/mfsmetalogger.service.j2 dest=/etc/systemd/system/mfsmetalogger.service
+  notify:
+    - reload systemd for moosefs-build
+    - restart mfsmetalogger
+
+- name: ensure moosefs metalogger started
+  service: name=mfsmetalogger enabled=yes state=started

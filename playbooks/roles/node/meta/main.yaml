@@ -1,0 +1,23 @@
+dependencies:
+  - role: config
+  - role: libraries
+  - role: etcd
+  - role: prepare
+  - role: firewall
+  - role: dnsmasq
+  - role: manager
+  - role: docker
+  - role: calico
+  - role: swarm
+  - role: ssl
+  - role: lainlet
+  - role: rebellion
+  - role: networkd
+  - role: moosefs
+    when: mfsmaster != ""
+  - role: backupd
+    when: backup_enabled is defined and backup_enabled == "True"
+  - role: registry
+    action: "usemfs"
+    when: registry_on_moosefs is defined and registry_on_moosefs == "True"
+  - role: rsync

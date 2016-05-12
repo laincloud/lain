@@ -1,0 +1,283 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+import os
+import sys
+import optparse
+from subprocess import check_call, call, check_output, CalledProcessError, Popen, PIPE, STDOUT
+from distutils.spawn import find_executable as which
+from uuid import uuid4
+import socket
+import json
+
+try:
+    from shlex import quote as shellquote
+except ImportError:
+    from pipes import quote as shellquote
+
+LAIN_VERSION = "2.0.0"
+
+here = os.path.abspath(os.path.dirname(__file__))
+
+
+class QuitInstallation(Exception):
+    pass
+
+
+def main():
+    parser = optparse.OptionParser()
+    parser.add_option('-d', '--download-only', action='store_true',
+                      help="Download docker images and export to a tarball")
+    parser.add_option('--delete-etcd', action='store_true',
+                      help="Delete existing etcd data")
+    parser.add_option('-k', '--keep-etcd', action='store_true',
+                      help="Do not delete existing etcd data")
+    parser.add_option('-r', '--registry-bootstrap',
+                      help="use a local docker registry for bootstrap"
+                           "(e.g. http://registry.example.com:5001)")
+    parser.add_option('-m', '--registry-mirror',
+                      help="use a docker registry mirror "
+                           "(e.g. http://registry.example.com:5000)")
+    saved_images = os.path.join(here, 'images-%s.tar.xz' % LAIN_VERSION)
+    if not os.path.exists(saved_images):
+        saved_images = None
+    parser.add_option('--saved-images', default=saved_images,
+                      help="Path to the saved images archive, which is downloaded using "
+                           "--download-only option. "
+                           "[default: images-LAIN_VERSION.tar.xz if exists]")
+    parser.add_option('-e', '--extra-vars', action='append',
+                      default=[],
+                      help="extra variables to be sent to ansible")
+    default_node_name = socket.gethostname()
+    parser.add_option('-n', '--node-name',
+                      default=default_node_name,
+                      help="name used in etcd cluster, should be cluster-wide "
+                           "unique. [default: %s]" % default_node_name)
+    parser.add_option('--node-ip',
+                      help="host ip used to communicate with cluster [default: auto detect]")
+    parser.add_option('--node-network',
+                      help="host network subnet [default: auto default]")
+    parser.add_option('--vip',
+                      help="Floating IP for external visiting")
+    parser.add_option('--domain', default='lain.local',
+                      help="Default domain for apps in the cluster [default: lain.local]")
+    parser.add_option('--net-interface',
+                      help="network interface to communicate with cluster [default: auto detect]")
+    parser.add_option('-v', '--verbose', action='store_true',
+                      help="output verbose logs")
+    parser.add_option('--tag',
+                      help="run only selected tasks (debug only)")
+    parser.add_option('--extra-roles', action='append', default=[],
+                      help="Extra ansible roles to apply besides node role")
+    parser.add_option('--docker-device', default="",
+                      help="The block device used for docker's devicemapper storage."
+                           "docker will run on loop-lvm if this is not given, but loop-lvm is not proposed")
+    parser.add_option('--ipip', action='store_true',
+                      help="calico using ip tunnel")
+    options, args = parser.parse_args()
+
+    if options.download_only:
+        download(options)
+        return 0
+
+    if os.getuid() != 0:
+        error("Run bootstrap script with root privilege please.")
+        return 1
+
+    try:
+        bootstrap(options)
+    except CalledProcessError:
+        error("Failed to install lain")
+        return 1
+    except QuitInstallation as e:
+        error("Quit installation: %s", e.message)
+        return 1
+
+
+def download(options):
+    f = open(os.path.join(here, 'playbooks', 'roles', 'bootstrap-images', 'vars', 'main.yaml'))
+    images = '\n'.join(line for line in f.readlines() if not line.startswith('#'))
+    images = json.loads(images)['bootstrap_images']
+    for image in images.values():
+        retval = call(['docker', 'inspect', image], stdout=open('/dev/null', 'w'))
+        if retval == 0:
+            # image exists
+            continue
+        info("Pull %s", image)
+        if options.registry_bootstrap:
+            alt_image = '%s/%s' % (options.registry_bootstrap, image)
+            check_call(['docker', 'pull', alt_image])
+            check_call(['docker', 'tag', '-f', alt_image, image])
+        else:
+            check_call(['docker', 'pull', image])
+
+    tarball = 'images-%s.tar.xz' % LAIN_VERSION
+    info("Save and compress %s (this may take a long time)", tarball)
+    p1 = Popen(['docker', 'save'] + list(images.values()), stdout=PIPE)
+    # use parallel version of compresser if available
+    xz = 'pxz' if which('pxz') else 'xz'
+    p2 = Popen([xz], stdin=p1.stdout, stdout=open(tarball, 'wb'))
+    if p1.wait() != 0:
+        raise Exception("save images failed")
+    if p2.wait() != 0:
+        raise Exception("compress images failed")
+
+
+def bootstrap(options):
+    install_ansible(options)
+    exec_prepare()
+    apply_bootstrap_playbook(options)
+    apply_site_playbook(options)
+
+    info("You can run the following command regularly to ensure the cluster's state: \n"
+         "      ansible-playbook -i playbooks/cluster playbooks/site.yaml")
+
+
+def exec_prepare():
+    os.chdir(here)
+    check_call(['bash', 'prepare.sh'])
+
+
+def install_ansible(options):
+    if not which('ansible-playbook'):
+        info("Installing ansible...")
+
+        # pycrypto, if installed, causes python-crypto package fail to install
+        if _is_pip_package_installed('pycrypto'):
+            warn("pycrypto, if installed via pip, is conflict "
+                 "with CentOS's python-crypto package.  Remove it.")
+            call('pip uninstall -y pycrypto', shell=True)
+
+        check_call('yum install -y epel-release', shell=True)
+        # ansible 2.0 hang when starting
+        check_call('yum install -y "ansible < 2.0"', shell=True)
+
+    # Install customized plugins, eg. show timestamp for tasks
+    _install_ansible_plugins(options)
+
+
+def _install_ansible_plugins(options):
+    run_playbook('bootstrap-hosts', 'bootstrap.yaml', options,
+                 role='ansible_plugins')
+
+
+def _is_pip_package_installed(package):
+    return which('pip') and \
+        call(
+            ['pip', 'show', package],
+            stdout=open('/dev/null', 'w'),
+            stderr=STDOUT) == 0
+
+
+def apply_bootstrap_playbook(options):
+    if etcd_data_exists():
+        if options.keep_etcd:
+            delete_existing_etcd = False
+        elif options.delete_etcd:
+            delete_existing_etcd = True
+        else:
+            delete_existing_etcd = yes_or_no(
+                "Existing etcd data detected.  Is it okay to delete them?",
+                default='no', color=_yellow)
+    else:
+        delete_existing_etcd = True
+
+    try:
+        cluster_token = check_output([
+            'etcdctl', 'get', '/lain/config/etcd_cluster_token'])
+    except (OSError, CalledProcessError):
+        cluster_token = uuid4()
+
+    run_playbook(
+        'bootstrap-hosts', 'bootstrap.yaml', options,
+        delete_existing_etcd='yes' if delete_existing_etcd else 'no',
+        cluster_token=cluster_token,
+        registry_mirror=options.registry_mirror,
+        registry_bootstrap=options.registry_bootstrap,
+        saved_images=options.saved_images,
+        node_name=options.node_name,
+        node_ip=options.node_ip,
+        node_network=options.node_network,
+        vip=options.vip,
+        domain=options.domain,
+        net_interface=options.net_interface,
+        allow_restart_docker='yes',
+        bootstrapping='yes',
+        target='bootstrap-node',
+        docker_device=options.docker_device,
+        calico_ipip='yes' if options.ipip else 'no',
+    )
+
+
+def apply_site_playbook(options):
+    run_playbook('cluster', 'site.yaml', options)
+
+
+def etcd_data_exists():
+    return os.path.exists('/var/etcd')
+
+
+def yes_or_no(prompt, default='yes', color=None):
+    if default not in ('yes', 'no'):
+        raise Exception("default must be either yes or no")
+    question = '(Y/n)' if default == 'yes' else '(y/N)'
+    text = '%s %s ' % (prompt, question)
+    if color:
+        text = color(text)
+    while True:
+        answer = raw_input(text)
+        if not answer:
+            return default == 'yes'
+        if answer.lower() in ('y', 'yes'):
+            return True
+        elif answer.lower() in ('n', 'no'):
+            return False
+        print("Please input yes or no")
+
+
+def run_playbook(inventory, playbook, options, **extra_vars):
+    cmd = ['ansible-playbook', '-i', os.path.join(here, 'playbooks', inventory)]
+    if options.verbose:
+        cmd += ['-vvvv']
+
+    if options.tag:
+        cmd += ['-t', options.tag]
+
+    for k, v in extra_vars.items():
+        if v:
+            cmd += ['-e', '%s=%s' % (k, v)]
+    for ev in options.extra_vars:
+        cmd += ['-e', ev]
+
+    cmd += [os.path.join(here, 'playbooks', playbook)]
+    info(' '.join(shellquote(x) for x in cmd))
+    check_call(cmd)
+
+
+def info(pattern, *args):
+    print(_green(">>> " + pattern % args))
+
+
+def error(pattern, *args):
+    print(_red(">>> " + pattern % args, True))
+
+
+def warn(pattern, *args):
+    print(_yellow(">>> " + pattern % args, True))
+
+
+def _colorize(code):
+    def _(text, bold=False):
+        c = code
+        if bold:
+            c = '1;%s' % c
+        return '\033[%sm%s\033[0m' % (c, text)
+    return _
+
+_red = _colorize('31')
+_green = _colorize('32')
+_yellow = _colorize('33')
+
+
+if __name__ == '__main__':
+    sys.exit(main())

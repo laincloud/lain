@@ -1,0 +1,3 @@
+[test_nodes]
+node2 ansible_ssh_port=22 ansible_ssh_host=192.168.77.22 ansible_ssh_pass=vagrant
+node3 ansible_ssh_port=22 ansible_ssh_host=192.168.77.23 ansible_ssh_pass=vagrant

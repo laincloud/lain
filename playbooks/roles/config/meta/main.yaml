@@ -1,0 +1,3 @@
+dependencies:
+  - role: binary
+  - role: bootstrap-images

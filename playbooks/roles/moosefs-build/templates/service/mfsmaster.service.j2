@@ -1,0 +1,12 @@
+[Unit]
+Description=mfsmaster
+After=network.target
+
+[Service]
+ExecStart=/usr/sbin/mfsmaster -a -f start
+ExecStop=/usr/sbin/mfsmaster stop
+ExecReload=/usr/sbin/mfsmaster -f reload
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

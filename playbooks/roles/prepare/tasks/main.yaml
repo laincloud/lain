@@ -1,0 +1,23 @@
+- name: ensure epel exists
+  yum: pkg=epel-release
+
+- name: create data dir
+  file: path={{ lain_data_dir }} state=directory
+
+- yum: pkg=libselinux-python
+
+- name: enable selinux 
+  selinux: policy=targeted state=permissive
+
+- name: disable nscd
+  service: name=nscd enabled=no state=stopped
+
+- name: load node info from etcd
+  command: etcdctl get /lain/nodes/nodes/{{ node_name }}:{{ node_ip }}:{{ ssh_port }}
+  register: result
+  ignore_errors: yes
+
+- set_fact:
+    node_info: "{{result.stdout|from_json}}"
+  when: result|success and result.stdout != ""
+  ignore_errors: yes

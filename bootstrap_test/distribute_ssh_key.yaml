@@ -1,0 +1,26 @@
+---
+- hosts: localhost
+  tasks:
+  - name: install sshpass
+    yum: pkg=sshpass state=latest
+
+- hosts: test_nodes
+  gather_facts: no
+  tasks:
+  - name: examine whether new nodes in known_hosts
+    local_action: command grep '{{ ansible_ssh_host }}' /root/.ssh/known_hosts
+    register: exists
+    ignore_errors: True
+    changed_when: False
+  - name: collect the public keys of new nodes
+    local_action: shell ssh-keyscan -p {{ ansible_ssh_port|default(22) }} {{ ansible_ssh_host }}
+    register: result
+    when: exists|failed
+  - name: add the public keys of new nodes to known_hosts
+    local_action: known_hosts path='/root/.ssh/known_hosts' host={{ ansible_ssh_host }} key="{{ result.stdout }}"
+    when: exists|failed
+
+- hosts: test_nodes
+  tasks:
+  - name: upload public key to new nodes
+    authorized_key: user=root key="{{ lookup('file', '/root/.ssh/lain.pub') }}"

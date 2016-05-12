@@ -1,0 +1,9 @@
+dependencies:
+  - role: config
+  - role: docker
+  - role: etcd
+  - role: calico
+  - role: dnsmasq
+  - role: images
+    images:
+      - swarm

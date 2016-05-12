@@ -1,0 +1,27 @@
+- name: gernerate configuration file for mfsmaster
+  template: src=config/mfsmaster.cfg.j2 dest=/etc/mfs/mfsmaster.cfg
+  notify:
+    - reload mfsmaster
+
+- name: config mfsmaster service
+  template: src=service/mfsmaster.service.j2 dest=/etc/systemd/system/mfsmaster.service
+  notify:
+    - reload systemd for moosefs-build
+    - restart mfsmaster
+
+- name: config mfscgiserv service
+  template: src=service/mfscgiserv.service.j2 dest=/etc/systemd/system/mfscgiserv.service
+  notify:
+    - reload systemd for moosefs-build
+    - restart mfscgiserv
+
+- meta: flush_handlers
+
+- name: ensure moosefs master started
+  service: name=mfsmaster enabled=yes state=started
+
+- name: ensure moosefs cgiserv started
+  service: name=mfscgiserv enabled=yes state=started
+
+- name: write moosefs master's address into etcd
+  command: etcdctl set /lain/config/moosefs "{{ node_ip }}:{{ mfsport }}"

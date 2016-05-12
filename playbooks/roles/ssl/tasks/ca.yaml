@@ -1,0 +1,43 @@
+# ref doc: https://help.github.com/enterprise/11.10.340/admin/articles/using-self-signed-ssl-certificates/
+
+- file: path={{ manager_home }}/.certs state=directory mode=0700
+
+- name: generate the root CA key
+  command: openssl genrsa -out {{ manager_home }}/.certs/rootCA.key 2048
+  args:
+    creates: "{{ manager_home }}/.certs/rootCA.key"
+
+- name: generate the self-signed root CA certificate
+  # TODO notify sysadmin when the cert is near expiring
+  command: openssl req -x509 -new -nodes -key {{ manager_home }}/.certs/rootCA.key -days 365 -out {{ manager_home }}/.certs/rootCA.crt -subj "/C=ZZ/O=Lain/CN={{ domain }}"
+  args:
+    creates: "{{ manager_home }}/.certs/rootCA.crt"
+
+- name: generate the wildcard SSL key for web
+  command: openssl genrsa -out {{ manager_home }}/.certs/web.key 2048
+  args:
+    creates: "{{ manager_home }}/.certs/web.key"
+
+- name: generate the certificate signing request for web SSL key
+  command: openssl req -new -key {{ manager_home }}/.certs/web.key -out {{ manager_home }}/.certs/web.csr -subj "/C=ZZ/O=Lain/CN=*.{{ domain }}"
+  args:
+    creates: "{{ manager_home }}/.certs/web.csr"
+
+- name: generate the signed certificate for web SSL
+  # TODO notify sysadmin when the cert is near expiring
+  command: >
+    openssl x509 -req -in {{ manager_home }}/.certs/web.csr
+    -CA {{ manager_home }}/.certs/rootCA.crt
+    -CAkey {{ manager_home }}/.certs/rootCA.key
+    -CAcreateserial -out {{ manager_home }}/.certs/web.crt
+    -days 365
+  args:
+    creates: "{{ manager_home }}/.certs/web.crt"
+
+- file: path="{{ manager_home }}/.certs/{{ item }}" mode=0600
+  with_items:
+    - rootCA.key
+    - rootCA.crt
+    - web.key
+    - web.csr
+    - web.crt

@@ -1,0 +1,24 @@
+- name: reload systemd for moosefs-build
+  command: systemctl daemon-reload
+
+- name: restart mfsmaster
+  service: name=mfsmaster state=restarted
+
+- name: restart mfschunkserver
+  service: name=mfschunkserver state=restarted
+
+- name: restart mfscgiserv
+  service: name=mfscgiserv state=restarted
+
+- name: restart mfsmetalogger
+  service: name=mfsmetalogger state=restarted
+
+- name: reload mfsmaster
+  service: name=mfsmaster state=reloaded
+
+- name: reload mfschunkserver
+  service: name=mfschunkserver state=reloaded
+
+- name: reload mfsmetalogger
+  service: name=mfsmetalogger state=reloaded
+

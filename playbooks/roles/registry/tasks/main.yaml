@@ -1,0 +1,25 @@
+- include: push.yml
+  when: action == 'push'
+
+# system_volumes.registry is like "/var/lib/registry:/var/lib/registry"
+- set_fact:
+    registry_datadir: "{{ system_volumes.registry.split(':')[0] }}"
+  when: action == 'usemfs'
+
+- name: create registry's data-dir
+  file: path="{{ registry_datadir }}" state=directory
+  when: action == 'usemfs'
+
+- name: generate systemd.mount for /var/lib/registry
+  template: src=var-lib-registry.mount.j2 dest=/etc/systemd/system/var-lib-registry.mount
+  notify:
+    - reload systemd for registry
+    - mount registry directory
+  when: action == 'usemfs'
+
+- meta: flush_handlers
+  when: action == 'usemfs'
+
+- name: ensure registry data dir mounted onto moosefs and enable this service
+  service: name=var-lib-registry.mount state=started enabled=yes
+  when: action == 'usemfs'
