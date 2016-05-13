@@ -1,5 +1,7 @@
 # LAIN
 
+[![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/laincloud)
+
 Lain 是一个基于 docker 的 PaaS 系统。
 
 其面向技术栈多样寻求高效运维方案的高速发展中的组织，devops 人力缺乏的 startup ，个人开发者。
