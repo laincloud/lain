@@ -24,8 +24,8 @@ Lain 是一个基于 docker 的 PaaS 系统。
 
 ## Contributors
 
-- @[hongqn](https://github.com/hongqn)
-- @[mijia](https://github.com/mijia)
+- @[Qiangning Hong](https://github.com/hongqn)
+- @[Jia Mi](https://github.com/mijia)
 - @[flex](https://github.com/frostynova)
 - @[Tachikoma](https://github.com/sunyi00)
 - @[cloudfly](https://github.com/cloudfly)
@@ -34,7 +34,7 @@ Lain 是一个基于 docker 的 PaaS 系统。
 - @[Meng Wenbin](https://github.com/supermeng)
 - @[chaoyiwang](https://github.com/wchaoyi)
 - @[Zhuoyun Wei](https://github.com/wzyboy)
-- @[xtao](https://github.com/xtao)
+- @[Xu Tao](https://github.com/xtao)
 
 ## LICENSE
 
