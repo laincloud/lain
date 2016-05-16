@@ -3,6 +3,7 @@ Description=docker swarm agent
 After=docker.service
 
 [Service]
+ExecStartPre=/usr/bin/docker rm -f %n
 ExecStart=/usr/bin/docker run \
           --name %n \
           --rm \
