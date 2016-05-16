@@ -28,8 +28,7 @@ ExecStart=/usr/bin/docker daemon \
           --host tcp://{{ node_ip }}:{{ docker_port }} \
           --log-driver=syslog \
           --log-opt syslog-address=tcp://127.0.0.1:514 \
-          --cluster-store=etcd://{{ node_ip }}:{{ etcd_client_port }} \
-          --debug
+          --cluster-store=etcd://{{ node_ip }}:{{ etcd_client_port }}
 
 MountFlags=slave
 LimitNOFILE=1048576
