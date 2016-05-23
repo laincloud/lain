@@ -59,8 +59,8 @@ def main():
                       help="host network subnet [default: auto default]")
     parser.add_option('--vip',
                       help="Floating IP for external visiting")
-    parser.add_option('--domain', default='lain.local',
-                      help="Default domain for apps in the cluster [default: lain.local]")
+#    parser.add_option('--domain', default='lain.local',
+#                      help="Default domain for apps in the cluster [default: lain.local]")
     parser.add_option('--net-interface',
                       help="network interface to communicate with cluster [default: auto detect]")
     parser.add_option('-v', '--verbose', action='store_true',
@@ -199,7 +199,8 @@ def apply_bootstrap_playbook(options):
         node_ip=options.node_ip,
         node_network=options.node_network,
         vip=options.vip,
-        domain=options.domain,
+#        domain=options.domain,
+        domain="lain.local",
         net_interface=options.net_interface,
         allow_restart_docker='yes',
         bootstrapping='yes',
