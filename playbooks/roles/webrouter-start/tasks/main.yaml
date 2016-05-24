@@ -3,5 +3,7 @@
   with_items:
       - 80
       - 443
+      - 8080
+      - 8443
 
 - meta: flush_handlers
