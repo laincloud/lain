@@ -15,3 +15,11 @@
 
 - name: remove registry.DOMAIN
   set_dnsmasq_domain: domain="registry.{{ domain }}" record=""
+
+- name: check new webrouter works well
+  shell: "curl -s registry.lain/v2/"
+  register: result
+  until: result|success
+  retries: 5
+  delay: 5
+  changed_when: False
