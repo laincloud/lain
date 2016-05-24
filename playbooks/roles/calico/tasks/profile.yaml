@@ -1,13 +1,13 @@
 - name: remove calico default pool
   shell: calicoctl pool remove 192.168.0.0/16
-  environment: 
+  environment:
     ETCD_AUTHORITY: 127.0.0.1:{{ etcd_client_port }}
   changed_when: False
   ignore_errors: yes
 
 - name: check if lain pool exists
   shell: calicoctl pool show --ipv4 | grep "{{ calico_default_network }}" 
-  environment: 
+  environment:
     ETCD_AUTHORITY: 127.0.0.1:{{ etcd_client_port }}
   register: result
   changed_when: False
@@ -15,13 +15,13 @@
 
 - name: add lain pool
   shell: calicoctl pool add {{ calico_default_network }} --nat-outgoing
-  environment: 
+  environment:
     ETCD_AUTHORITY: 127.0.0.1:{{ etcd_client_port }}
   when: result|failed and not calico_ipip|bool
 
 - name: add lain pool with ipip
   shell: calicoctl pool add {{ calico_default_network }} --nat-outgoing --ipip
-  environment: 
+  environment:
     ETCD_AUTHORITY: 127.0.0.1:{{ etcd_client_port }}
   when: result|failed and calico_ipip|bool
 
@@ -69,22 +69,24 @@
 
 - name: add tinydns rules allow to udp 53
   command: calicoctl profile tinydns rule add inbound --at=1 allow udp to ports 53
-  environment: 
+  environment:
     ETCD_AUTHORITY: 127.0.0.1:{{ etcd_client_port }}
   when: result|failed
 
-- name: add webrouter rules allow to tcp 80 and 443
+- name: add webrouter rules allow to tcp 80, 443, 8080, 8443
   command: calicoctl profile webrouter rule add inbound --at=1 allow tcp to ports {{ item }}
   with_items:
     - "80"
     - "443"
-  environment: 
+    - "8080"
+    - "8443"
+  environment:
     ETCD_AUTHORITY: 127.0.0.1:{{ etcd_client_port }}
   when: result|failed
 
 - name: add lain tag to webrouter profile
   command: calicoctl profile webrouter tag add lain
-  environment: 
+  environment:
     ETCD_AUTHORITY: 127.0.0.1:{{ etcd_client_port }}
   when: result|failed
 
