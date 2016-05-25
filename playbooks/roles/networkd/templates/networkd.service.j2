@@ -15,8 +15,7 @@ ExecStart=/usr/bin/networkd {% if domain == 'lain.local' and vip == '0.0.0.0' %}
           --swarm \
           --deployd \
           --webrouter \
-          --resolv.conf \
-          --verbose
+          --resolv.conf
 
 Restart=on-failure
 
