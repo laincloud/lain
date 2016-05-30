@@ -7,7 +7,7 @@
     "swarm": "swarm:1.2.0",
     "rebellion": "rebellion:2.0.2",
     "pip_binary": "pip-binary:1462951953",
-    "networkd-binary": "networkd-binary:0.1.12",
+    "networkd-binary": "networkd-binary:0.1.16",
     "deployd-binary": "deployd:2.0.2",
     "lainlet": "lainlet:2.0.2",
     "registry": "registry:release-1464060746-b1033b6544555a0b7e8775a994b8a891aaab0a11",

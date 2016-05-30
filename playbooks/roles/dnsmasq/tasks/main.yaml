@@ -19,7 +19,7 @@
 
 - name: ensure /etc/dnsmasq.servers
   template: src=dnsmasq.servers.conf.j2 dest=/etc/dnsmasq.servers
-  when: result|success
+  when: result|success and bootstrapping|bool
 
 - name: ensure /etc/dnsmasq.servers
   file: path="{{ dnsmasq_servers_path }}" state=touch
