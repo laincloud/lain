@@ -16,6 +16,9 @@
 - name: remove registry.DOMAIN
   set_dnsmasq_domain: domain="registry.{{ domain }}" record=""
 
+- name: wait for DNS resolution ready
+  pause: seconds=2
+
 - name: check new webrouter works well
   shell: "curl -s registry.lain/v2/"
   register: result
