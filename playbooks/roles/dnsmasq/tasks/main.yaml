@@ -3,7 +3,7 @@
 - name: install dnsmasq
   yum: pkg=/tmp/lain/dnsmasq-2.75-1.el7.centos.x86_64.rpm
 
-- name: ensure /etc/dnsmasq.hosts
+- name: ensure dnsmasq.hosts
   file: path="{{ dnsmasq_hosts_path }}" state=touch
 
 - name: get dnsmasq server
@@ -17,11 +17,17 @@
 - set_fact: dnsmasq_server_port="{{ result.port }}"
   when: result|success
 
-- name: ensure /etc/dnsmasq.servers
-  template: src=dnsmasq.servers.conf.j2 dest=/etc/dnsmasq.servers
-  when: result|success and bootstrapping|bool
+- name: check if dnsmasq.servers exists
+  stat: path="{{ dnsmasq_servers_path }}"
+  register: dnsmasq_servers_result
 
-- name: ensure /etc/dnsmasq.servers
+- name: generate dnsmasq.servers if not exists
+  template: src=dnsmasq.servers.conf.j2 dest="{{ dnsmasq_servers_path }}"
+  when: result|success and not dnsmasq_servers_result.stat.exists
+  notify:
+    - restart dnsmasq
+
+- name: ensure dnsmasq.servers
   file: path="{{ dnsmasq_servers_path }}" state=touch
   when: result|failed
 
