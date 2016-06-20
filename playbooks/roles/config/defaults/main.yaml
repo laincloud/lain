@@ -47,7 +47,7 @@ calico_node_image: "{{ bootstrap_images['calico-node'] }}"
 calico_libnetwork_image: "{{ bootstrap_images['calico-libnetwork'] }}"
 
 # Docker configurations
-docker_ver: 1.11.1-1.el7.centos
+docker_ver: 1.11.2-1.el7.centos
 docker_port: 2375
 docker_graph_dir: /data/docker
 docker_volumes_dir: "{{ lain_data_dir }}/volumes"
