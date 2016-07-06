@@ -8,7 +8,6 @@ dependencies:
   - role: manager
   - role: docker
   - role: calico
-  - role: swarm
   - role: ssl
   - role: lainlet
   - role: rebellion
@@ -21,3 +20,4 @@ dependencies:
     action: "usemfs"
     when: registry_on_moosefs is defined and registry_on_moosefs == "True"
   - role: rsync
+  - role: swarm
