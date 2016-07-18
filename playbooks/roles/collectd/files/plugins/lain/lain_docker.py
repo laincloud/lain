@@ -162,7 +162,7 @@ class Lainlet(object):
                     info[name] = {}
                     info[name]['app_name'] = app
                     info[name]['node_name'] = host
-                    info[name]['portal_name'] = aval['Annotation']['service_name']
+                    info[name]['portal_name'] = json.loads(aval['Annotation'])['service_name']
                     info[name]['service_name'] = service_name
                     info[name]['proc_name'] = None
                     info[name]['proc_type'] = None
