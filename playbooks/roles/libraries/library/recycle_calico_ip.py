@@ -13,21 +13,19 @@ module = AnsibleModule(
     )
 )
 
-def main():
 
+def main():
     ip = module.params['ip']
-    subnet_list = get_subnet_list()
-    ip_subnet = get_subnet_of_ip(ip, subnet_list)
 
     try:
-        module.exit_json(changed=recycle_ip(ip, ip_subnet))
+        subnet_key_list = get_assign_subnet_keys()
+        subnet_key = get_subnet_key_of_ip(ip, subnet_key_list)
+        module.exit_json(changed=recycle_ip(ip, subnet_key))
     except Exception as e:
         module.fail_json(msg=str(e))
 
-    module.exit_json(changed=True)
 
-
-def get_subnet_list():
+def get_assign_subnet_keys():
     p = Popen(['etcdctl', 'ls', IP_ASSIGN_KEY], stdout=PIPE, stderr=PIPE)
     output, err = p.communicate()
     if p.returncode == 4:
@@ -40,18 +38,20 @@ def get_subnet_list():
     return output.rstrip().splitlines()
 
 
-def get_subnet_of_ip(ip, subnet_list):
+def get_subnet_key_of_ip(ip, subnet_key_list):
     ipaddr = ip_address(ip)
-    for subnet in subnet_list:
-        if ipaddr in IPv4Network(subnet[len(IP_ASSIGN_KEY):len(subnet)].replace('-', '/')):
-            return subnet
+    for subnet_key in subnet_key_list:
+        subnet = subnet_key[len(IP_ASSIGN_KEY):len(subnet_key)].replace('-', '/')
+        if ipaddr in IPv4Network(subnet):
+            return subnet_key
     module.fail_json(msg='find proper subnet wrong!')
 
 
-def recycle_ip(ip, ip_subnet):
-    try:    
-        assign_info = adjust_ip_assign_info(ip, ip_subnet)
-        p = Popen(['etcdctl', 'set', ip_subnet, assign_info], stdout=PIPE, stderr=PIPE)
+def recycle_ip(ip, subnet_key):
+    try:
+        assign_info = adjust_ip_assign_info(ip, subnet_key)
+        p = Popen(['etcdctl', 'set', subnet_key, assign_info],
+                  stdout=PIPE, stderr=PIPE)
         _, err = p.communicate()
         if p.returncode != 0:
             module.fail_json(msg=err)
@@ -60,10 +60,10 @@ def recycle_ip(ip, ip_subnet):
         module.fail_json(msg=str(e))
 
 
-def adjust_ip_assign_info(ip, ip_subnet):
-    assign_info = json.loads(get_ip_assign_info(ip, ip_subnet))
+def adjust_ip_assign_info(ip, subnet_key):
+    assign_info = get_ip_assign_info(ip, subnet_key)
+    subnet = assign_info['cidr']
 
-    subnet = assign_info.get('cidr', None)
     assign_count, index, ip_index = 0, 0, -1
     for addr in IPv4Network(subnet):
         if assign_info['allocations'][index] == 0 or assign_info['allocations'][index] == 1:
@@ -76,15 +76,15 @@ def adjust_ip_assign_info(ip, ip_subnet):
         assign_info['allocations'][ip_index] = None
         assign_info['unallocated'].append(ip_index)
 
+    # if only assigned the recycling ip, set the `attributes` param to be empty
     if assign_count == 1:
         assign_info['attributes'] = []
 
     return json.dumps(assign_info)
 
 
-def get_ip_assign_info(ip, ip_subnet):
-    key = ip_subnet
-    p = Popen(['etcdctl', 'get', key], stdout=PIPE, stderr=PIPE)
+def get_ip_assign_info(ip, subnet_key):
+    p = Popen(['etcdctl', 'get', subnet_key], stdout=PIPE, stderr=PIPE)
     output, err = p.communicate()
     if p.returncode == 4:
         if "Key not found" in err:
@@ -93,7 +93,8 @@ def get_ip_assign_info(ip, ip_subnet):
             module.fail_json(msg=err)
     elif p.returncode != 0:
         module.fail_json(msg=err)
-    return output.rstrip()
+    return json.loads(output.rstrip())
+
 
 if __name__ == "__main__":
     main()

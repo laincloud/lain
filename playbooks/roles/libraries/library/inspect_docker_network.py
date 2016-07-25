@@ -25,7 +25,6 @@ def main():
             network_info, procname, instance_no)
         module.exit_json(changed=False, network_id=network_id,
                          endpoint_id=endpoint_id, recycle_ip=container_ip)
-        module.exit_json(changed=False)
     except Exception as e:
         module.fail_json(msg=str(e))
 
@@ -50,10 +49,11 @@ def get_endpoint_info(network_info, procname, instance_no):
         container_name = v['Name']
         if match_proc_instance(container_name, procname, instance_no):
             endpoint_id = v['EndpointID']
-            container_ip = v['IPv4Address']
+            container_ip = v['IPv4Address']    # the format of ip is 'x.x.x.x/32'
     return endpoint_id, container_ip[0:len(container_ip) - 3]
 
 
+# container name should include procname and instance no
 def match_proc_instance(name, procname, instance_no):
     instance_filter = '-i' + instance_no + '-'
     return procname in name and instance_filter in name
