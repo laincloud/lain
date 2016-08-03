@@ -59,8 +59,6 @@ def main():
                       help="host network subnet [default: auto default]")
     parser.add_option('--vip',
                       help="Floating IP for external visiting")
-#    parser.add_option('--domain', default='lain.local',
-#                      help="Default domain for apps in the cluster [default: lain.local]")
     parser.add_option('--net-interface',
                       help="network interface to communicate with cluster [default: auto detect]")
     parser.add_option('-v', '--verbose', action='store_true',
@@ -95,11 +93,14 @@ def main():
 
 
 def download(options):
-    f = open(os.path.join(here, 'playbooks', 'roles', 'bootstrap-images', 'vars', 'main.yaml'))
-    images = '\n'.join(line for line in f.readlines() if not line.startswith('#'))
+    f = open(os.path.join(here, 'playbooks', 'roles',
+                          'bootstrap-images', 'vars', 'main.yaml'))
+    images = '\n'.join(line for line in f.readlines()
+                       if not line.startswith('#'))
     images = json.loads(images)['bootstrap_images']
     for image in images.values():
-        retval = call(['docker', 'inspect', image], stdout=open('/dev/null', 'w'))
+        retval = call(['docker', 'inspect', image],
+                      stdout=open('/dev/null', 'w'))
         if retval == 0:
             # image exists
             continue
@@ -170,18 +171,7 @@ def _is_pip_package_installed(package):
 
 
 def apply_bootstrap_playbook(options):
-    if etcd_data_exists():
-        if options.keep_etcd:
-            delete_existing_etcd = False
-        elif options.delete_etcd:
-            delete_existing_etcd = True
-        else:
-            delete_existing_etcd = yes_or_no(
-                "Existing etcd data detected.  Is it okay to delete them?",
-                default='no', color=_yellow)
-    else:
-        delete_existing_etcd = True
-
+    delete_existing_etcd = True
     try:
         cluster_token = check_output([
             'etcdctl', 'get', '/lain/config/etcd_cluster_token'])
@@ -199,7 +189,6 @@ def apply_bootstrap_playbook(options):
         node_ip=options.node_ip,
         node_network=options.node_network,
         vip=options.vip,
-#        domain=options.domain,
         domain="lain.local",
         net_interface=options.net_interface,
         allow_restart_docker='yes',
@@ -212,10 +201,6 @@ def apply_bootstrap_playbook(options):
 
 def apply_site_playbook(options):
     run_playbook('cluster', 'site.yaml', options)
-
-
-def etcd_data_exists():
-    return os.path.exists('/var/etcd')
 
 
 def yes_or_no(prompt, default='yes', color=None):
@@ -237,7 +222,8 @@ def yes_or_no(prompt, default='yes', color=None):
 
 
 def run_playbook(inventory, playbook, options, **extra_vars):
-    cmd = ['ansible-playbook', '-i', os.path.join(here, 'playbooks', inventory)]
+    cmd = ['ansible-playbook', '-i',
+           os.path.join(here, 'playbooks', inventory)]
     if options.verbose:
         cmd += ['-vvvv']
 
