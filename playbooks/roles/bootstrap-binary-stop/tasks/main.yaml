@@ -1,0 +1,27 @@
+- name: get stat of old lainlet
+  stat: path=/usr/bin/lainlet
+  register: lainlet
+  ignore_errors: yes
+
+- name: stop lainlet service
+  service: name=lainlet state=stopped
+  when: lainlet.stat.exists
+
+- name: get stat of old deployd
+  stat: path=/usr/bin/deployd
+  register: deployd
+  ignore_errors: yes
+
+- name: stop deployd service
+  service: name=deployd state=stopped
+  when: deployd|success
+
+- name: test if networkd binary path exists
+  stat: path=/usr/bin/networkd
+  register: networkd
+  ignore_errors: yes
+
+- name: stop networkd service
+  service: name=networkd enabled=yes state=stopped
+  when: networkd.stat.exists
+
