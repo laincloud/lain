@@ -9,4 +9,4 @@
 - name: pull images when not exist (this may take minutes)
   docker_pull_image: image={{ item }}
   with_items: "{{ to_drift_images }}"
-  when: check|failed
+  when: node_name == target_node and (check|failed)
