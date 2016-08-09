@@ -21,4 +21,3 @@ playbooks/roles/binary/files/*
 **/dist
 **/*.egg-info
 venv/
-lainctl/
