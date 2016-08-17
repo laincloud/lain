@@ -26,6 +26,5 @@
   when: is_lain_manager
 
 - name: recycle the used ip
-  recycle_calico_ip:
-    ip: "{{ recycle_ip }}"
+  shell: calicoctl ipam release {{ recycle_ip }}
   when: is_lain_manager
