@@ -1,10 +1,11 @@
 - name: inspect docker network
   inspect_docker_network:
+    node: "{{ recover_node }}"
     app: "{{ recover_app }}"
     proc: "{{ recover_proc }}"
     instance_number: "{{ recover_instance_number }}"
+    client_app: "{{ recover_client_app }}"
   register: result
-  ignore_errors: true
 
 - set_fact: network_id="{{ result.network_id }}"
   when: result|success
@@ -18,13 +19,13 @@
 - name: remove dirty endpoint in docker directory of etcd
   shell: etcdctl rm /docker/network/v1.0/endpoint/{{ network_id }}/{{ endpoint_id }}
   ignore_errors: yes
-  when: is_lain_manager
+  when: is_lain_manager and result|success
 
 - name: remove dirty endpoint in calico directory of etcd
   shell: etcdctl rm /calico/v1/host/{{ recover_node }}/workload/libnetwork/libnetwork/endpoint/{{ endpoint_id }}
   ignore_errors: yes
-  when: is_lain_manager
+  when: is_lain_manager and result|success
 
 - name: recycle the used ip
   shell: calicoctl ipam release {{ recycle_ip }}
-  when: is_lain_manager
+  when: is_lain_manager and result|success
