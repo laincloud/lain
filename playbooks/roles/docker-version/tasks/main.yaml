@@ -1,0 +1,70 @@
+- name: get stat of old deployd
+  stat: path=/usr/bin/deployd
+  register: deployd
+  ignore_errors: yes
+
+- name: stop deployd service
+  service: name=deployd state=stopped
+  when: deployd|success
+
+- name: stop running docker
+  service: name=docker enabled=yes state=stopped
+
+- name: uninstall exists docker
+  yum: name={{ item }} state=absent
+  with_items:
+    - docker-engine-selinux.noarch
+    - docker-engine.x86_64
+
+# TODO: support more distro
+- name: install(update) lvm2 and device-mapper
+  yum: name=lvm2,device-mapper state=latest
+
+- name: install docker from OS package manage system
+  yum: pkg={{ item }}
+  with_items:
+    - "/tmp/lain/docker-engine-selinux-{{ docker_version }}.noarch.rpm"
+    - "/tmp/lain/docker-engine-{{ docker_version }}.x86_64.rpm"
+  register: pkg
+
+- name: remove default Docker keys, avoid issues with Swarm
+  file: path=/etc/docker/key.json state=absent
+  when: adding_node_mode is defined
+
+
+# Restarting docker is a big deal.  User must allow it explicitly.
+- name: render docker config for test
+  template: src=docker.j2 dest=/tmp/docker.conf
+- name: get stat of rendered docker config
+  stat: path=/tmp/docker.conf
+  register: new_docker_conf_stat
+- name: get stat of current docker config
+  stat: path=/etc/systemd/system/docker.service
+  register: current_docker_conf_stat
+- name: quit if restarting docker daemon is not allowed explicitly
+  fail: msg="You must specify -e allow_restart_docker=yes to process"
+  when: |
+    not (allow_restart_docker|bool)
+    and (pkg|changed or new_docker_conf_stat.stat.md5 != current_docker_conf_stat.stat.md5)
+
+- name: config docker
+  template: src=docker.j2 dest=/etc/systemd/system/docker.service
+  notify:
+    - reload systemd for docker
+    - restart docker
+- meta: flush_handlers
+
+- name: set docker graph dir
+  file: path={{ docker_graph_dir }} state=directory
+
+- name: ensure docker started
+  service: name=docker state=started
+
+- name: wait for docker daemon start, again
+  command: docker version -f "\{\{.Server.Version\}\}"
+  register: current_docker_version
+  until: current_docker_version.stdout
+  retries: 5
+  delay: 5
+  changed_when: False
+

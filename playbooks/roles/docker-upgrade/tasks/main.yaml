@@ -1,0 +1,7 @@
+- name: reload systemd 
+  command: systemctl daemon-reload
+
+- name: restart deployd
+  service: name=deployd state=started
+
+
