@@ -1,0 +1,3 @@
+dependencies:
+  - role: docker-version
+  - role: swarm

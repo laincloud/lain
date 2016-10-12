@@ -1,0 +1,38 @@
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+After=network.target
+[Service]
+Type=notify
+Environment=GOTRACEBACK=crash DOCKER_CERT_PATH=/etc/docker
+ExecStart=/usr/bin/docker daemon \
+          {% if docker_device != "" %}
+          --storage-driver=devicemapper \
+          --storage-opt dm.datadev={{ devicemapper_data_dir }} \
+          --storage-opt dm.metadatadev={{ devicemapper_metadata_dir }} \
+          {% endif -%}
+          {% if registry_mirror is defined %}
+          --registry-mirror={{ registry_mirror }} \
+          --insecure-registry={{ registry_mirror|replace('http://', '')|replace('https://', '') }} \
+          {% endif -%}
+          {% if registry_bootstrap is defined %}
+          --insecure-registry={{ registry_bootstrap|replace('http://', '')|replace('https://', '') }} \
+          {% endif -%}
+          --insecure-registry=registry.lain \
+          --insecure-registry=registry.{{ domain }} \
+          --dns={{ node_ip }} \
+          --selinux-enabled \
+          --graph {{ docker_graph_dir }} \
+          --host unix:///var/run/docker.sock \
+          --host tcp://{{ node_ip }}:{{ docker_port }} \
+          --log-driver=syslog \
+          --log-opt syslog-address=tcp://127.0.0.1:514 \
+          --cluster-store=etcd://{{ node_ip }}:{{ etcd_client_port }}
+
+MountFlags=slave
+LimitNOFILE=1048576
+LimitNPROC=1048576
+LimitCORE=infinity
+
+[Install]
+WantedBy=multi-user.target
