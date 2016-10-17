@@ -31,6 +31,12 @@
   file: path=/etc/docker/key.json state=absent
   when: adding_node_mode is defined
 
+- set_fact:
+    docker_device: "{{node_info['docker_device']}}"
+  when: docker_device == "" and node_info is defined
+
+- include: devicemapper.yaml
+  when: docker_device != ""
 
 # Restarting docker is a big deal.  User must allow it explicitly.
 - name: render docker config for test
@@ -41,11 +47,6 @@
 - name: get stat of current docker config
   stat: path=/etc/systemd/system/docker.service
   register: current_docker_conf_stat
-- name: quit if restarting docker daemon is not allowed explicitly
-  fail: msg="You must specify -e allow_restart_docker=yes to process"
-  when: |
-    not (allow_restart_docker|bool)
-    and (pkg|changed or new_docker_conf_stat.stat.md5 != current_docker_conf_stat.stat.md5)
 
 - name: config docker
   template: src=docker.j2 dest=/etc/systemd/system/docker.service
