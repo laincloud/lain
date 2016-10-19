@@ -108,7 +108,7 @@ def download(options):
         if options.registry_bootstrap:
             alt_image = '%s/%s' % (options.registry_bootstrap, image)
             check_call(['docker', 'pull', alt_image])
-            check_call(['docker', 'tag', '-f', alt_image, image])
+            check_call(['docker', 'tag', alt_image, image])
         else:
             check_call(['docker', 'pull', image])
 

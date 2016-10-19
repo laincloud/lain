@@ -1,0 +1,11 @@
+- shell: lvdisplay -c | grep {{ volume_group }} | grep /data | cut -d ":" -f 1
+  register: result
+
+- set_fact:
+    devicemapper_data_dir: "{{ result.stdout|trim }}"
+
+- shell: lvdisplay -c | grep {{ volume_group }} | grep /metadata | cut -d ":" -f 1
+  register: result
+
+- set_fact:
+    devicemapper_metadata_dir: "{{ result.stdout|trim }}"

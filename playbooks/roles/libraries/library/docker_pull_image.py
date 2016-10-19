@@ -22,7 +22,7 @@ def main():
     if registry:
         src_image = '%s/%s' % (registry, image)
         check_call(['docker', 'pull', src_image])
-        check_call(['docker', 'tag', '-f', src_image, image])
+        check_call(['docker', 'tag', src_image, image])
     else:
         check_call(['docker', 'pull', image])
 
