@@ -44,7 +44,7 @@
   when: backupd_driver == "moosefs" and is_lain_manager
 
 - name: set the backup dir's trashtimeout on moosefs
-  command: mfssettrashtime -r 3600 /mfs/lain/backup
+  command: mfssettrashtime -r 3600 {{ backup_dir }}
   when: backupd_driver == "moosefs" and is_lain_manager
 
 - name: add backupd to service

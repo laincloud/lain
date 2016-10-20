@@ -8,7 +8,7 @@ ExecStart=/usr/bin/backupd daemon \
     -addr :{{ backupd_port }} \
     -ip {{ node_ip }} \
     -backup-driver {{ backupd_driver }} \
-    -backup-moosefs-dir /mfs/lain/backup
+    -backup-moosefs-dir {{ backup_dir }}
 Restart=always
 
 [Install]
