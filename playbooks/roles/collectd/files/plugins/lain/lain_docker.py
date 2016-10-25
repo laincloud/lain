@@ -138,13 +138,13 @@ class Lainlet(object):
         for key, val in containers.iteritems():
             name = key.partition('/')[-1]
             podname = val['proc']
-            _, proc_type, proc_name = podname.split('.')
+            parts = podname.split('.')
             info[name] = {}
             info[name]['app_name'] = val['app']
             info[name]['node_name'] = val['nodename']
             info[name]['instance_no'] = val['instanceNo']
-            info[name]['proc_name'] = proc_name
-            info[name]['proc_type'] = proc_type
+            info[name]['proc_name'] = parts[-1]
+            info[name]['proc_type'] = parts[-2]
         return info
 
     def get_depends(self):
