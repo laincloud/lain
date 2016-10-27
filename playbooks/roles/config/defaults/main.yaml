@@ -77,6 +77,8 @@ drift_vars:
 # Etcd configurations
 etcd_ver: 2.3.7
 etcd_dir: /var/etcd
+etcd_mfsdir: /mfs/lain/etcd_backup
+etcd_backup_dir: /data/lain/etcd_backup
 etcd_client_port: 4001
 etcd_peer_port: 7001
 delete_existing_etcd: no

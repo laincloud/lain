@@ -1,0 +1,21 @@
+- name: ship etcd_backup binary
+  copy: src=plugins/lain/etcd_backup dest=/usr/bin/etcd_backup
+  when: is_lain_manager
+
+- name: make etcd_backup service executable
+  shell: chmod +x /usr/bin/etcd_backup 
+  when: is_lain_manager
+
+- name: config etcd_backup service
+  template: src=etcd_backup.service.j2 dest=/etc/systemd/system/etcd_backup.service
+  notify:
+    - reload systemd for etcd_backup
+  when: is_lain_manager
+
+- name: start etcd_backup
+  shell: systemctl restart etcd_backup
+  when: is_lain_manager
+
+- name: ensure etcd_backup
+  service: name=etcd_backup state=started enabled=yes
+  when: is_lain_manager

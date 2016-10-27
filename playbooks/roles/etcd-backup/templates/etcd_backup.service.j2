@@ -1,0 +1,13 @@
+[Unit]
+Description=etcd_backup
+After=network.target
+
+[Service]
+User=root
+LimitNOFILE=65535
+Environment='HOSTNAME={{ node_name }}'
+ExecStart=/usr/bin/etcd_backup --backup_dir={{ etcd_backup_dir }}/
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,5 @@
+- name: reload systemd for etcd_backup
+  command: systemctl daemon-reload
+
+- name: restart etcd_backup
+  service: name=etcd_backup state=restarted

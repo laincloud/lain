@@ -1,0 +1,12 @@
+[Unit]
+Description=bind etcd_backup data dir onto moosefs
+After=network.target remote-fs.target mfs.mount
+
+[Mount]
+What={{ etcd_mfsdir }}
+Where={{ etcd_backup_dir }}
+Type=none
+Options=bind
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,36 @@
+- fail: msg="moosefs not exist"
+  when: mfsmaster == ""
+- fail: msg="unknown etcd_backup's dir"
+  when: etcd_backup_dir == ""
+
+- stat: path="{{ etcd_mfsdir }}"
+  register: result
+- fail: msg="etcd_backup datadir {{ etcd_mfsdir }} having been exist on moosefs, check and delete it by yourself"
+  when: result.stat.isdir is defined
+
+- name: create etcd directory on moosefs
+  file: path="{{ etcd_mfsdir }}" state=directory
+
+- name: stop etcd_backup service
+  service: name=etcd_backup state=stopped
+
+- file: path="{{ etcd_backup_dir }}.bak" state=absent
+- name: backup etcd data (may take minutes)
+  command: cp -r "{{ etcd_backup_dir }}" "{{ etcd_backup_dir }}.bak"
+
+- name: move etcd data into moosefs
+  shell: mv "{{ etcd_backup_dir }}/etcd" "{{ etcd_mfsdir }}/"
+
+# The .mount file must be var-lib-registry.mount, file name corresponds to /var/lib/registry, check `man systemd.mount` for detail
+- name: generate systemd.mount for etcd_backup
+  template: src=data-lain-etcd_backup.mount.j2 dest=/etc/systemd/system/data-lain-etcd_backup.mount
+  notify:
+    - reload systemd for etcd_backup mount
+    - mount etcd_backup directory
+- meta: flush_handlers
+
+- name: ensure etcd_backup data dir mounted onto moosefs and enable this service
+  service: name=data-lain-etcd_backup.mount state=started enabled=yes
+
+- name: start etcd_backup service
+  service: name=etcd_backup state=started enabled=yes
