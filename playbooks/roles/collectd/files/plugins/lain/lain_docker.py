@@ -18,6 +18,7 @@ class Plugin:
         interval = CONFIGS['interval']
         host = lain_info["host"]
         plugin = lain_info["plugin"]
+        plugin = plugin.replace('-', '_')
         plugin_instance = lain_info["plugin_instance"]
         type, type_instance = metric.split('.')
         print 'PUTVAL "%s/%s-%s/%s-%s" interval=%s N:%s' % (host, plugin, plugin_instance,
