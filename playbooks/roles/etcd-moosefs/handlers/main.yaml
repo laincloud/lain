@@ -1,0 +1,5 @@
+- name: reload systemd for etcd_backup mount
+  command: systemctl daemon-reload
+
+- name: mount etcd_backup directory
+  service: name=data-lain-etcd_backup.mount state=restarted

@@ -1,0 +1,145 @@
+#!/usr/bin/python
+# -*- coding:utf-8 -*-
+
+import time
+import sys
+import argparse
+import optparse
+import Queue
+
+from os import environ
+from subprocess import check_call, check_output
+
+HOSTNAME = 'HOSTNAME'
+NODE_NAME = environ.get(HOSTNAME, 'lain')
+
+DEFAULT_DATA_DIR = environ.get('DATA_DIR', '/var/etcd/%s' % NODE_NAME)
+DEFAULT_TMP_DIR = environ.get('TMP_DIR', '/tmp/lain/etcd_backup/')
+DEFAULT_BACKUP_DIR = environ.get('BACKUP_DIR', '/data/lain/etcd_backup/')
+DEFAULT_SUB_DIR = environ.get('SUB_SNAP_DIR', '/member')
+DEFAULT_INTERVAL = environ.get('INTERVAL', 3600)  # 1hour
+DEFAULT_EXPIRED = environ.get('EXPIRED', 10)     # retain last 10 backup data
+
+
+def _call_cmd(cmds):
+    return check_call(cmds)
+
+
+def _call_output(cmds):
+    try:
+        res = check_output(cmds)
+        return res
+    except Exception as e:
+        return None
+
+
+def _rm_file(file):
+    return _call_cmd(['rm', '-rf', file])
+
+
+def _make_dir(dir):
+    return check_call(['mkdir', '-p', dir])
+
+
+def _etcd_backup(data_dir, tmp_dir):
+    # remove target dir first
+    _rm_file(tmp_dir)
+    return _call_cmd(['etcdctl', 'backup', '--data-dir', data_dir, '--backup-dir', tmp_dir])
+
+
+def _compress_file(target_dir, target_files):
+    target = target_dir + target_files + \
+        '-' + str(int(time.time())) + '.tar.gz'
+    target_files = target_files.strip('/')
+    res = _call_cmd(['tar', '-zcf', target, '-C', target_dir, target_files])
+    if res != 0:
+        return None
+    return target
+
+
+def mfs_back_up(backup_dir, data_file):
+    return _call_cmd(['mv', data_file, backup_dir])
+
+
+def _fetch_files_from_ls(dir):
+    files_str = _call_output(['ls', '-l', dir])
+    if files_str is None:
+        return []
+    lines = files_str.splitlines()
+    files = []
+    for line in lines[1:]:  # emit total line
+        cols = line.split(' ')
+        file = cols[-1]
+        files.append(file)
+    return files
+
+
+# data flow :  etcddata dir => tmp dir => aim backup dir
+class BackUpWorker():
+
+    def __init__(self, **argvs):
+        self.data_dir = argvs.get('data_dir', DEFAULT_DATA_DIR)
+        self.tmp_dir = argvs.get('tmp_dir', DEFAULT_TMP_DIR)
+        self.backup_dir = argvs.get('backup_dir', DEFAULT_BACKUP_DIR)+'/etcd/'
+        self.sub_dir = argvs.get('sub_dir', DEFAULT_SUB_DIR)
+        self.interval = argvs.get('interval', DEFAULT_INTERVAL)
+        self.expired = argvs.get('expired', DEFAULT_EXPIRED)
+        self.backup_func = argvs.get('backup_func', mfs_back_up)
+
+        self.backup_files = Queue.Queue(maxsize=self.expired)
+        self._init_data()
+
+    def _init_data(self):
+        print 'backup_dir:', self.backup_dir
+        backup_dir = self.backup_dir
+        _make_dir(backup_dir)
+
+        backuped_files = _fetch_files_from_ls(backup_dir)
+        for backup_file in backuped_files:
+            self._put_backup(backup_file)
+
+    def _put_backup(self, backup_file):
+        try:
+            self.backup_files.put(backup_file, block=False)
+        except Exception as e:
+            expired_file = self.backup_dir + self.backup_files.get(block=False)
+            _rm_file(expired_file)
+            self._put_backup(backup_file)
+
+    def data_backup(self):
+        _etcd_backup(self.data_dir, self.tmp_dir)
+        target = _compress_file(self.tmp_dir, self.sub_dir)
+        self.backup_func(self.backup_dir, target)
+        self._put_backup(target[target.rindex('/') + 1:])
+
+    def run(self):
+        while True:
+            self.data_backup()
+            time.sleep(self.interval)
+
+
+def main():
+    parser = optparse.OptionParser()
+    parser.add_option('-i', '--interval', default=DEFAULT_INTERVAL, type=float,
+                      help="interval between backup")
+    parser.add_option('-e', '--expired', default=DEFAULT_EXPIRED, type=int,
+                      help="interval between backup")
+    parser.add_option('--data_dir', default=DEFAULT_DATA_DIR,
+                      help="etcd's data dir")
+    parser.add_option('--tmp_dir', default=DEFAULT_TMP_DIR,
+                      help="tmp backup dir")
+    parser.add_option('--backup_dir', default=DEFAULT_BACKUP_DIR,
+                      help="actual backup dir")
+    parser.add_option('--sub_dir', default=DEFAULT_SUB_DIR,
+                      help="backup sub dir")
+    parser.add_option('--backupfunc',
+                      help="method for backup data to remote")
+
+    options, args = parser.parse_args()
+
+    print options, type(options)
+    worker = BackUpWorker(**vars(options))
+    worker.run()
+
+if __name__ == "__main__":
+    sys.exit(main())
