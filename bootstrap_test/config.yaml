@@ -1,0 +1,15 @@
+vip: 192.168.77.201
+domain: lain.local
+console_api:
+  repos: /api/v1/repos/
+  apps: /api/v1/apps/
+
+ipaddr:
+  resource:
+    appname: ipaddr-resource
+  service:
+    appname: ipaddr-service
+  client:
+    appname: ipaddr-client
+    procname: web
+    num_instances: 4
