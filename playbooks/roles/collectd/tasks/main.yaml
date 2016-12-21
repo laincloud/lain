@@ -12,7 +12,13 @@
   yum: pkg={{ item }}
   with_items:
     - collectd-ping
+
+# lastest collectd without disk pkg
+- name: install collectd plugins
+  yum: pkg={{ item }}
+  with_items:
     - collectd-disk
+  ignore_errors: yes
 
 - name: create collectd user
   user: name=collectd createhome=no append=yes groups=docker system=yes
