@@ -1,0 +1,40 @@
+- name: install ceph-fuse
+  yum: 
+    name: ceph-fuse-{{ ceph_version }}
+    state: present
+
+- name: get kernel
+  command: uname -r
+  register: kernel_info
+
+# 在centos7里， /etc/fstab 不支持 '=', 所以我们用 ':' 替代
+# 但是在用 ':' 替代之后需要修改ceph-fuse mount的代码，使其先将  ':' 替换成 '='
+
+- name: backup /sbin/mount.fuse.ceph
+  command: mv /sbin/mount.fuse.ceph /sbin/mount.fuse.ceph.bak
+  when: "'3.10.0' in kernel_info.stdout"
+
+- name: update ceph mount file, 
+  shell: sed -e "s/cephargs='--'\`echo \$1 | sed 's\/,\/ --\/g'\`/fs_spec=\`echo \$1 | sed \'s\/:\/=\/g\'\` \ncephargs=\'--\'\`echo \$fs_spec | sed \'s\/,\/ --\/g\'\`/g" /sbin/mount.fuse.ceph.bak >/sbin/mount.fuse.ceph
+  when: "'3.10.0' in kernel_info.stdout"
+
+- name: chmod mount.fuse.ceph
+  file: path=/sbin/mount.fuse.ceph state=file mode=755 group=root owner=root
+
+- name: create ceph conf dir
+  command: mkdir -p /etc/ceph
+
+- name: create ceph client_mountpoint dir
+  command: mkdir -p {{client_mountpoint}}
+
+- name: copy keyring
+  template: src=ceph.client.lain.keyring.j2 dest=/etc/ceph/ceph.client.lain.keyring
+
+- name: copy ceph.conf
+  template: src=ceph.conf.j2 dest=/etc/ceph/ceph.conf
+
+- name: edit fstab
+  lineinfile: dest=/etc/fstab line="id:{{ceph_account}},client_mountpoint:{{ceph_mountpoint}} {{client_mountpoint}} fuse.ceph _netdev 0 0" insertafter=EOF
+
+- name: mount
+  command: mount -a
