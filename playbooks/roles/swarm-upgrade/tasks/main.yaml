@@ -1,0 +1,61 @@
+- name: pull new swarm image
+  command: docker pull registry.lain/swarm:{{ upgrade_version }}
+
+- name: tag new swarm image
+  command: docker tag registry.lain/swarm:{{ upgrade_version }} swarm:{{ upgrade_version }}
+
+- name: stop deployd
+  service: name=deployd enabled=yes state=stopped
+  ignore_errors: yes
+
+- name: config swarm agent
+  template: src=swarm-agent.service.j2 dest=/etc/systemd/system/swarm-agent.service
+  notify:
+    - reload systemd for swarm-manage
+    - restart swarm agent
+- meta: flush_handlers
+
+- name: ensure swarm agent started
+  service: name=swarm-agent enabled=yes state=started
+
+- name: checking swarm agent working correctly
+  command: etcdctl ls {{ swarm_discovery_path }}/{{ node_ip }}:{{ docker_port }}
+  register: result
+  until: result|success
+  retries: 5
+  delay: 5
+  changed_when: False
+
+# every node may becomming a swarm-manager later,
+# add it into service to make administration convenient
+- name: add swarm manager service
+  template: src=swarm-manager.service.j2 dest=/etc/systemd/system/swarm-manager.service
+  notify:
+    - reload systemd for swarm-manage
+    - stop swarm manager
+  when: node_name not in {{ manager_list }}
+- meta: flush_handlers
+
+- name: config swarm manager
+  template: src=swarm-manager.service.j2 dest=/etc/systemd/system/swarm-manager.service
+  notify:
+    - restart swarm manager
+    - reload systemd for swarm-manage
+  when: node_name in {{ manager_list }}
+- meta: flush_handlers
+
+- name: ensure swarm manager started
+  service: name=swarm-manager enabled=yes state=started
+  when: node_name in {{ manager_list }}
+
+- name: waiting for swarm manager to collect information from cluster nodes
+  shell: "docker -H swarm.lain:{{ swarm_manager_port }} info | grep 'Nodes: ' | awk '{ print $2 }'"
+  register: swarm_cluster_nodes
+  until: swarm_cluster_nodes.stdout|int == {{ groups['nodes'] | length }}
+  retries: 5
+  delay: 5
+  changed_when: False
+
+- name: start deployd
+  service: name=deployd enabled=yes state=started
+  ignore_errors: yes
