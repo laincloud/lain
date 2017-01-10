@@ -23,12 +23,14 @@
 
 - name: create ceph conf dir
   command: mkdir -p /etc/ceph
+  ignore_errors: yes
 
 - name: create ceph client_mountpoint dir
   command: mkdir -p {{client_mountpoint}}
+  ignore_errors: yes
 
 - name: copy keyring
-  template: src=ceph.client.lain.keyring.j2 dest=/etc/ceph/ceph.client.lain.keyring
+  template: src=ceph.client.lain.keyring.j2 dest=/etc/ceph/ceph.client.{{ceph_account}}.keyring
 
 - name: copy ceph.conf
   template: src=ceph.conf.j2 dest=/etc/ceph/ceph.conf
