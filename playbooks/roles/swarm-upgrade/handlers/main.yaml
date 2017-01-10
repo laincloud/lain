@@ -1,0 +1,11 @@
+- name: reload systemd for swarm-manage
+  command: systemctl daemon-reload
+
+- name: restart swarm agent
+  service: name=swarm-agent state=restarted
+
+- name: stop swarm manager
+  service: name=swarm-manager state=stopped
+
+- name: restart swarm manager
+  service: name=swarm-manager state=restarted

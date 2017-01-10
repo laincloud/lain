@@ -1,0 +1,18 @@
+[Unit]
+Description=docker swarm manager
+After=docker.service
+
+[Service]
+ExecStart=/usr/bin/docker run \
+          --name %n \
+          --rm \
+          -p {{ swarm_manager_port }}:{{ docker_port }} \
+          swarm:{{ upgrade_version }} manage \
+          --replication \
+          --addr={{ node_ip }}:{{ swarm_manager_port }} \
+          etcd://{{ node_ip }}:{{ etcd_client_port }}/lain/swarm
+ExecStop=/usr/bin/docker stop %n
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
