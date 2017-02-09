@@ -20,9 +20,11 @@ class ClusterPlugin(Plugin):
     _step = 0
     _endpoint = socket.gethostname()
 
-    def __init__(self, step, swarm_manager_port):
+    def __init__(self, step, swarm_manager_port, docker_port):
         self._swarm_manager_port = swarm_manager_port
+        self._docker_port = docker_port
         self._step = step
+        self._ip_address = socket.gethostbyname(self._endpoint)
 
     def prepare_data(self):
         self._result = []
@@ -132,7 +134,7 @@ class ClusterPlugin(Plugin):
         meta_percent = 0
         try:
             resp = requests.get(
-                "http://localhost:%s/info" % self._swarm_manager_port,
+                "http://%s:%s/info" % (self._ip_address, self._docker_port),
                 timeout=1)
             data = resp.json()
             driver_status = data["DriverStatus"]
@@ -178,8 +180,10 @@ if __name__ == "__main__":
     parser.add_argument('--verbose', action="store_true")
     parser.add_argument("--swarm-manager-port", help="Swarm manager port",
                         default=2376, type=int)
+    parser.add_argument("--docker-port", help="Dockerd port",
+                        default=2375, type=int)
     args = parser.parse_args()
-    cluster_plugin = ClusterPlugin(step, args.swarm_manager_port)
+    cluster_plugin = ClusterPlugin(step, args.swarm_manager_port, args.docker_port)
     if args.verbose:
         cluster_plugin.verbose()
     else:
