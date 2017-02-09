@@ -2,7 +2,7 @@ TypesDB "/var/lib/collectd/types/lain.db"
 
 <Plugin exec>
         Exec "collectd:docker" "/var/lib/collectd/plugins/lain/lain_docker.py" "--domain" "{{domain}}"
-        Exec "collectd:docker" "/var/lib/collectd/plugins/lain/cluster_monitor.py" "--swarm-manager-port" "{{ swarm_manager_port }}" "--docker-port" "{{ docker_port }}"
+        Exec "collectd:docker" "/var/lib/collectd/plugins/lain/cluster_monitor.py" "--swarm-manager-port" "{{ swarm_manager_port }}" "--docker-port" "{{ docker_port }}" "--ceph-fuse" "{{ client_mountpoint }}"
         Exec "collectd:docker" "/var/lib/collectd/plugins/lain/lainlet_monitor.py" "--lainlet-port" "{{ lainlet_port }}"
         Exec "collectd:docker" "/var/lib/collectd/plugins/lain/deployd_monitor.py" "--deployd-port" "{{ deployd_port }}"
 </Plugin>

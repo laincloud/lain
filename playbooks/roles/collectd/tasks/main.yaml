@@ -4,20 +4,22 @@
 
 - set_fact: graphite_vip="{{ result.ip }}"
 
+- set_fact: collectd_version="5.5.1"
+
 # Patched collectd for DATA_MAX_NAME_LEN
 - name: install collectd
-  yum: pkg=collectd
+  yum: pkg=collectd-{{ collectd_version }}
 
 - name: install collectd plugins
   yum: pkg={{ item }}
   with_items:
-    - collectd-ping
+    - collectd-ping-{{ collectd_version }}
 
 # lastest collectd without disk pkg
 - name: install collectd plugins
   yum: pkg={{ item }}
   with_items:
-    - collectd-disk
+    - collectd-disk-{{ collectd_version }}
   ignore_errors: yes
 
 - name: create collectd user

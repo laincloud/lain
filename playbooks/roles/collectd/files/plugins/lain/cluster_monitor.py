@@ -20,16 +20,17 @@ class ClusterPlugin(Plugin):
     _step = 0
     _endpoint = socket.gethostname()
 
-    def __init__(self, step, swarm_manager_port, docker_port):
+    def __init__(self, step, swarm_manager_port, docker_port, ceph_fuse):
         self._swarm_manager_port = swarm_manager_port
         self._docker_port = docker_port
         self._step = step
-        self._ip_address = socket.gethostbyname(self._endpoint)
+        self._ceph_fuse = ceph_fuse
 
     def prepare_data(self):
         self._result = []
         self._get_cali_veth_stat()
         self._get_mfs_stat()
+        self._get_ceph_stat()
         self._get_etcd_stat()
         self._get_swarm_stat()
         self._get_docker_devicemapper_stat()
@@ -87,6 +88,15 @@ class ClusterPlugin(Plugin):
             GraphiteData("lain.cluster.mfs.mounted", self._endpoint,
                          is_mounted, self._step, "status"))
 
+    def _get_ceph_stat(self):
+        '''
+        Get the mfs status
+        '''
+        is_mounted = 1 if os.path.ismount(self._ceph_fuse) else 0
+        self._result.append(
+            GraphiteData("lain.cluster.cephfuse.mounted", self._endpoint,
+                         is_mounted, self._step, "status"))
+
     def _get_etcd_stat(self):
         is_alive = 0
         try:
@@ -134,8 +144,8 @@ class ClusterPlugin(Plugin):
         meta_percent = 0
         try:
             resp = requests.get(
-                "http://%s:%s/info" % (self._ip_address, self._docker_port),
-                timeout=1)
+                "http://docker.lain:%s/info" % self._docker_port,
+                timeout=5)
             data = resp.json()
             driver_status = data["DriverStatus"]
             data_used = 0
@@ -182,8 +192,11 @@ if __name__ == "__main__":
                         default=2376, type=int)
     parser.add_argument("--docker-port", help="Dockerd port",
                         default=2375, type=int)
+    parser.add_argument("--ceph-fuse", help="Ceph fuse mountpoint",
+                        default="/data/lain/cloud-volumes", type=str)
+
     args = parser.parse_args()
-    cluster_plugin = ClusterPlugin(step, args.swarm_manager_port, args.docker_port)
+    cluster_plugin = ClusterPlugin(step, args.swarm_manager_port, args.docker_port, args.ceph_fuse)
     if args.verbose:
         cluster_plugin.verbose()
     else:

@@ -1,9 +1,0 @@
-ceph_version: 10.2.3
-
-ceph_account: lain
-ceph_password: password
-
-ceph_mountpoint: /lain
-client_mountpoint: /data/lain/cloud-volumes
-
-ceph_mon_address: ip1,ip2,ip3
