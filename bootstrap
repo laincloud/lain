@@ -149,9 +149,10 @@ def install_ansible(options):
                  "with CentOS's python-crypto package.  Remove it.")
             call('pip uninstall -y pycrypto', shell=True)
 
-        check_call('yum install -y epel-release', shell=True)
-        # ansible 2.0 hang when starting
-        check_call('yum install -y "ansible < 2.0"', shell=True)
+        check_call('yum install -y epel-release gcc python-devel openssl-devel',
+                   shell=True)
+        # NOTE: This will install python-crypto.
+        check_call('pip install ansible==1.9.6', shell=True)
 
     # Install customized plugins, eg. show timestamp for tasks
     _install_ansible_plugins(options)
