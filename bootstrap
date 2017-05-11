@@ -144,12 +144,12 @@ def install_ansible(options):
         info("Installing ansible...")
 
         # pycrypto, if installed, causes python-crypto package fail to install
-        if _is_pip_package_installed('pycrypto'):
-            warn("pycrypto, if installed via pip, is conflict "
-                 "with CentOS's python-crypto package.  Remove it.")
-            call('pip uninstall -y pycrypto', shell=True)
+        # if _is_pip_package_installed('pycrypto'):
+        #     warn("pycrypto, if installed via pip, is conflict "
+        #          "with CentOS's python-crypto package.  Remove it.")
+        #     call('pip uninstall -y pycrypto', shell=True)
 
-        check_call('yum install -y epel-release gcc python-devel openssl-devel',
+        check_call('yum install -y epel-release gcc python-devel openssl-devel python2-pip',
                    shell=True)
         # NOTE: This will install python-crypto.
         check_call('pip install ansible==1.9.6', shell=True)
