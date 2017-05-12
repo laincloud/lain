@@ -3,20 +3,16 @@
     name: ceph-fuse-{{ ceph_version }}
     state: present
 
-- name: get kernel
-  command: uname -r
-  register: kernel_info
-
 # 在centos7里， /etc/fstab 不支持 '=', 所以我们用 ':' 替代
 # 但是在用 ':' 替代之后需要修改ceph-fuse mount的代码，使其先将  ':' 替换成 '='
 
 - name: backup /sbin/mount.fuse.ceph
   command: mv /sbin/mount.fuse.ceph /sbin/mount.fuse.ceph.bak
-  when: "'3.10.0' in kernel_info.stdout"
+  when: ansible_distribution_major_version == "7"
 
 - name: update ceph mount file, 
   shell: sed -e "s/cephargs='--'\`echo \$1 | sed 's\/,\/ --\/g'\`/fs_spec=\`echo \$1 | sed \'s\/:\/=\/g\'\` \ncephargs=\'--\'\`echo \$fs_spec | sed \'s\/,\/ --\/g\'\`/g" /sbin/mount.fuse.ceph.bak >/sbin/mount.fuse.ceph
-  when: "'3.10.0' in kernel_info.stdout"
+  when: ansible_distribution_major_version == "7"
 
 - name: chmod mount.fuse.ceph
   file: path=/sbin/mount.fuse.ceph state=file mode=755 group=root owner=root
@@ -40,3 +36,31 @@
 
 - name: mount
   command: mount -a
+
+- name: init fuse.conf if not exist
+  command: touch /etc/ceph/fuse.conf
+
+- name: edit fuse.conf
+  lineinfile: dest=/etc/ceph/fuse.conf line="{{client_mountpoint}}" insertafter=EOF
+
+- name: install gevent
+  yum: pkg=python-gevent
+
+- name: copy cephmon
+  copy: src=plugins dest=/etc/ceph/ mode=0755
+
+- name: generate cephmon service
+  template: src=cephmon.service.j2 dest=/etc/systemd/system/cephmon.service
+  register: result
+
+- name: reload systemd
+  command: systemctl daemon-reload
+  when: result|changed
+
+- name: "enable cephmon"                                                                               
+  service: name=cephmon enabled=yes
+
+- name: restart cephmon
+  service: name=cephmon state=restarted
+  when: result
+
