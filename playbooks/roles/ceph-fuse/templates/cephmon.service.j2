@@ -1,0 +1,11 @@
+[Unit]
+Description=cephmonitor
+After=network.target
+
+[Service]
+LimitNOFILE=65535
+ExecStart=/usr/bin/python /etc/ceph/plugins/ceph_mon.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
