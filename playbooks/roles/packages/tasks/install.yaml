@@ -26,14 +26,14 @@
   command: pip install --upgrade --force-reinstall --use-wheel --no-index --find-links={{ pip_binary_path }}/pip/wheelhouse {{ item }}
   with_items:
     - pip
-    - python-dateutil
-    - python-etcd
-    - docker-py
-    - psutil
-    - requests
+    - python-dateutil==2.5.2
+    - python-etcd==0.4.3
+    - docker-py==1.8.0
+    - psutil==4.1.0
+    - requests==2.11.1
   register: result
   changed_when: "'Successfully installed' in result.stdout"
 
 - name: install lainctl
-  command: pip install --upgrade --force-reinstall --use-wheel --no-index --find-links={{ pip_binary_path }}/pip/wheelhouse lain_admin_cli
+  command: pip install --upgrade --force-reinstall --use-wheel --no-index --find-links={{ pip_binary_path }}/pip/wheelhouse lain_admin_cli==v2.0.1
   when: bootstrapping is defined and bootstrapping|bool
