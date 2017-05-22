@@ -93,4 +93,4 @@ def add_node(bootstrap, up_node2, up_node3):
 def scale_ipaddr_client(deploy_ipaddr, add_node):
     app_ctl.scale(CONFIG.ipaddr_client_appname, CONFIG.ipaddr_client_procname,
                   CONFIG.ipaddr_client_num_instances)
-    time.sleep(30)
+    time.sleep(60)
