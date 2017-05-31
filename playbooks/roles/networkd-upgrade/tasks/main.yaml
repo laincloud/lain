@@ -1,0 +1,22 @@
+- name: stop networkd service
+  service: name=networkd state=stopped
+  ignore_errors: yes
+
+- name: copy networkd binary file
+  copy:
+    src: networkd
+    dest: /usr/bin/networkd
+    force: yes
+    mode: 0777
+
+- name: generate /lib/systemd/system/networkd.service
+  template: src=networkd.service.j2 dest=/etc/systemd/system/networkd.service
+
+- name: systemctl daemon-reload
+  command: systemctl daemon-reload
+
+- name: systemctl restart networkd && systemctl enable networkd
+  service:
+    name: networkd
+    state: restarted
+    enabled: yes

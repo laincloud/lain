@@ -1,0 +1,150 @@
+- name: install conntrack-tools
+  yum: pkg=conntrack-tools
+
+- name: install ipset
+  yum: pkg=ipset
+
+- name: install net-tools
+  yum: pkg=net-tools
+
+- name: copy calicoctl
+  copy: src=bin/calicoctl dest=/usr/bin/calicoctl force=yes mode=0777
+
+- name: copy calico-upgrade
+  copy: src=bin/calico-upgrade dest=/usr/bin/calico-upgrade mode=0777
+
+- name: copy allocate-ipip-addr
+  command: cp /tmp/lain/calicov1.2.0/allocate-ipip-addr /usr/bin/allocate-ipip-addr
+
+- name: copy bird
+  command: cp /tmp/lain/calicov1.2.0/bird /usr/bin/bird
+
+- name: copy bird6
+  command: cp /tmp/lain/calicov1.2.0/bird6 /usr/bin/bird6
+
+- name: copy calico-felix
+  command: cp /tmp/lain/calicov1.2.0/calico-felix /usr/bin/calico-felix
+
+- name: copy confd
+  command: cp /tmp/lain/calicov1.2.0/confd /usr/bin/confd
+
+- name: copy libnetwork-plugin
+  command: cp /tmp/lain/calicov1.2.0/libnetwork-plugin /usr/bin/libnetwork-plugin
+
+- file:
+    path: /usr/bin
+    mode: 0755
+    recurse: yes
+
+- name: remove calico-node container
+  docker:
+    image: "{{ calico_node_image }}"
+    name: calico-node
+    state: absent
+
+- name: remove calico-libnetwork container
+  docker:
+    image: "{{ calico_libnetwork_image }}"
+    name: calico-libnetwork
+    state: absent
+
+- name: copy calico config files
+  copy: src=calico dest=/etc/
+
+- name: generate bird.cfg.mesh.template
+  template: src=bird.cfg.mesh.template.j2 dest=/etc/calico/confd/templates/bird.cfg.mesh.template
+
+- name: generate bird.cfg.no-mesh.template
+  template: src=bird.cfg.no-mesh.template.j2 dest=/etc/calico/confd/templates/bird.cfg.no-mesh.template
+
+- name: generate bird.toml.template
+  template: src=bird.toml.template.j2 dest=/etc/calico/confd/templates/bird.toml.template
+
+- name: generate bird6.cfg.mesh.template
+  template: src=bird6.cfg.mesh.template.j2 dest=/etc/calico/confd/templates/bird6.cfg.mesh.template
+
+- name: generate bird6.cfg.no-mesh.template
+  template: src=bird6.cfg.no-mesh.template.j2 dest=/etc/calico/confd/templates/bird6.cfg.no-mesh.template
+
+- name: generate bird6.toml.template
+  template: src=bird6.toml.template.j2 dest=/etc/calico/confd/templates/bird6.toml.template
+
+- name: generate bird6_aggr.toml
+  template: src=bird6_aggr.toml.j2 dest=/etc/calico/confd/conf.d/bird6_aggr.toml
+
+- name: generate bird_aggr.toml
+  template: src=bird_aggr.toml.j2 dest=/etc/calico/confd/conf.d/bird_aggr.toml
+
+- name: generate bird_ipam.cfg.template
+  template: src=bird_ipam.cfg.template.j2 dest=/etc/calico/confd/templates/bird_ipam.cfg.template
+
+- name: generate bird_ipam.toml
+  template: src=bird_ipam.toml.j2 dest=/etc/calico/confd/conf.d/bird_ipam.toml
+
+- name: generate calico-confd.service
+  template: src=calico-confd.service.j2 dest=/lib/systemd/system/calico-confd.service
+
+- name: generate felix.cfg
+  template: src=felix.cfg.j2 dest=/etc/calico/felix.cfg
+
+- name: generate calico.env
+  template: src=calico.env.j2 dest=/etc/calico/calico.env
+
+- name: copy calico-bird.service
+  copy: src=service/calico-bird.service dest=/lib/systemd/system/calico-bird.service
+
+- name: copy calico-bird6.service
+  copy: src=service/calico-bird6.service dest=/lib/systemd/system/calico-bird6.service
+
+- name: generate calico-confd.service
+  template: src=calico-confd.service.j2 dest=/lib/systemd/system/calico-confd.service
+
+- name: copy calico-felix.service
+  copy: src=service/calico-felix.service dest=/lib/systemd/system/calico-felix.service
+
+- name: copy calico-libnetwork.service
+  copy: src=service/calico-libnetwork.service dest=/lib/systemd/system/calico-libnetwork.service
+
+- name: update etcd data
+  command: calico-upgrade -etcd 127.0.0.1:{{ etcd_client_port }} -docker {{ node_ip }}:{{ docker_port }}
+  run_once: true
+
+- name: update default calico rules
+  command: etcdctl set /lain/config/calico_default_rule '{"inbound_rules":[],"outbound_rules":[{"action":"deny","dst_net":"{{ node_network }}","protocol":"tcp","dst_ports":[9003]},{"action":"deny","dst_net":"{{ node_network }}","protocol":"tcp","dst_ports":[9002]},{"action":"deny","dst_net":"{{ node_network }}","protocol":"tcp","dst_ports":[7001]},{"action":"deny","dst_net":"{{ node_network }}","protocol":"tcp","dst_ports":[4001]},{"action":"deny","dst_net":"{{ node_network }}","protocol":"tcp","dst_ports":[2376]},{"action":"deny","dst_net":"{{ node_network }}","protocol":"tcp","dst_ports":[2375]},{"action":"allow"}]}'
+  run_once: true
+
+- name: run confd
+  command: confd -confdir=/etc/calico/confd -onetime -node=http://127.0.0.1:{{ etcd_client_port }} -no-discover -keep-stage-file
+
+- name: systemctl daemon-reload
+  command: systemctl daemon-reload
+
+- name: enable and start calico-bird.service
+  service:
+    name: calico-bird.service
+    state: started
+    enabled: yes
+
+- name: enable and start calico-bird6.service
+  service:
+    name: calico-bird6.service
+    state: started
+    enabled: yes
+
+- name: enable and start calico-confd.service
+  service:
+    name: calico-confd.service
+    state: started
+    enabled: yes
+
+- name: enable and start calico-felix.service
+  service:
+    name: calico-felix.service
+    state: started
+    enabled: yes
+
+- name: enable and start calico-libnetwork.service
+  service:
+    name: calico-libnetwork.service
+    state: started
+    enabled: yes
