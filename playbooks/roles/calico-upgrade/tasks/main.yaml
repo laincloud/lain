@@ -14,22 +14,22 @@
   copy: src=bin/calico-upgrade dest=/usr/bin/calico-upgrade mode=0777
 
 - name: copy allocate-ipip-addr
-  command: cp /tmp/lain/calicov1.2.0/allocate-ipip-addr /usr/bin/allocate-ipip-addr
+  copy: src=bin/allocate-ipip-addr dest=/usr/bin/allocate-ipip-addr mode=0777
 
 - name: copy bird
-  command: cp /tmp/lain/calicov1.2.0/bird /usr/bin/bird
+  copy: src=bin/bird dest=/usr/bin/calico-upgrade mode=0777
 
 - name: copy bird6
-  command: cp /tmp/lain/calicov1.2.0/bird6 /usr/bin/bird6
+  copy: src=bin/bird6 dest=/usr/bin/calico-upgrade mode=0777
 
 - name: copy calico-felix
-  command: cp /tmp/lain/calicov1.2.0/calico-felix /usr/bin/calico-felix
+  copy: src=bin/calico-felix dest=/usr/bin/calico-upgrade mode=0777
 
 - name: copy confd
-  command: cp /tmp/lain/calicov1.2.0/confd /usr/bin/confd
+  copy: src=bin/confd dest=/usr/bin/confd mode=0777
 
 - name: copy libnetwork-plugin
-  command: cp /tmp/lain/calicov1.2.0/libnetwork-plugin /usr/bin/libnetwork-plugin
+  copy: src=libnetwork-plugin dest=/usr/bin/libnetwork-plugin mode=0777
 
 - file:
     path: /usr/bin
