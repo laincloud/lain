@@ -17,10 +17,10 @@
   copy: src=bin/allocate-ipip-addr dest=/usr/bin/allocate-ipip-addr mode=0777
 
 - name: copy bird
-  copy: src=bin/bird dest=/usr/bin/calico-upgrade mode=0777
+  copy: src=bin/bird dest=/usr/bin/bird mode=0777
 
 - name: copy bird6
-  copy: src=bin/bird6 dest=/usr/bin/calico-upgrade mode=0777
+  copy: src=bin/bird6 dest=/usr/bin/bird6 mode=0777
 
 - name: copy calico-felix
   copy: src=bin/calico-felix dest=/usr/bin/calico-felix mode=0777
