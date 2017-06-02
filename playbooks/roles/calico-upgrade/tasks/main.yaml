@@ -87,6 +87,9 @@
 - name: generate felix.cfg
   template: src=felix.cfg.j2 dest=/etc/calico/felix.cfg
 
+- name: generate calico.cfg
+  template: src=calico.cfg.j2 dest=/etc/calico/calico.cfg
+
 - name: generate calico.env
   template: src=calico.env.j2 dest=/etc/calico/calico.env
 
