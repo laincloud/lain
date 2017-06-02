@@ -29,7 +29,7 @@
   copy: src=bin/confd dest=/usr/bin/confd mode=0777
 
 - name: copy libnetwork-plugin
-  copy: src=libnetwork-plugin dest=/usr/bin/libnetwork-plugin mode=0777
+  copy: src=bin/libnetwork-plugin dest=/usr/bin/libnetwork-plugin mode=0777
 
 - file:
     path: /usr/bin
