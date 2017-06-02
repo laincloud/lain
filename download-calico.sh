@@ -8,4 +8,4 @@ wget https://github.com/projectcalico/bird/releases/download/v0.3.1/bird -O play
 wget https://github.com/projectcalico/bird/releases/download/v0.3.1/bird6 -O playbooks/roles/calico-upgrade/files/bin/bird6
 wget https://github.com/projectcalico/confd/releases/download/v0.11.2/confd -O playbooks/roles/calico-upgrade/files/bin/confd
 wget https://github.com/laincloud/libnetwork-plugin/releases/download/v1.1.0/libnetwork-plugin -O playbooks/roles/calico-upgrade/files/bin/libnetwork-plugin
-wget https://github.com/laincloud/calicoctl/releases/download/v1.2.1/allocateipip -O playbooks/roles/calico-upgrade/files/bin/allocateipip
+wget https://github.com/laincloud/calicoctl/releases/download/v1.2.1/allocate-ipip-addr -O playbooks/roles/calico-upgrade/files/bin/allocate-ipip-addr
