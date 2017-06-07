@@ -8,33 +8,60 @@
   yum: pkg=net-tools
 
 - name: copy calicoctl
-  copy: src=bin/calicoctl dest=/usr/bin/calicoctl force=yes mode=0777
+  copy:
+    src: bin/calicoctl
+    dest: /usr/bin/calicoctl
+    force: yes
+    mode: a+x
 
 - name: copy calico-upgrade
-  copy: src=bin/calico-upgrade dest=/usr/bin/calico-upgrade mode=0777
+  copy:
+    src: bin/calico-upgrade
+    dest: /usr/bin/calico-upgrade
+    force: yes
+    mode: a+x
 
 - name: copy allocate-ipip-addr
-  copy: src=bin/allocate-ipip-addr dest=/usr/bin/allocate-ipip-addr mode=0777
+  copy:
+    src: bin/allocate-ipip-addr
+    dest: /usr/bin/allocate-ipip-addr
+    force: yes
+    mode: a+x
 
 - name: copy bird
-  copy: src=bin/bird dest=/usr/bin/bird mode=0777
+  copy:
+    src: bin/bird
+    dest: /usr/bin/bird
+    force: yes
+    mode: a+x
 
 - name: copy bird6
-  copy: src=bin/bird6 dest=/usr/bin/bird6 mode=0777
+  copy:
+    src: bin/bird6
+    dest: /usr/bin/bird6
+    force: yes
+    mode: a+x
 
 - name: copy calico-felix
-  copy: src=bin/calico-felix dest=/usr/bin/calico-felix mode=0777
+  copy:
+    src: bin/calico-felix
+    dest: /usr/bin/calico-felix
+    force: yes
+    mode: a+x
 
 - name: copy confd
-  copy: src=bin/confd dest=/usr/bin/confd mode=0777
+  copy:
+    src: bin/confd
+    dest: /usr/bin/confd
+    force: yes
+    mode: a+x
 
 - name: copy libnetwork-plugin
-  copy: src=bin/libnetwork-plugin dest=/usr/bin/libnetwork-plugin mode=0777
-
-- file:
-    path: /usr/bin
-    mode: 0755
-    recurse: yes
+  copy:
+  src: bin/libnetwork-plugin
+  dest: /usr/bin/libnetwork-plugin
+  force: yes
+  mode: a+x
 
 - name: remove calico-node container
   docker:
