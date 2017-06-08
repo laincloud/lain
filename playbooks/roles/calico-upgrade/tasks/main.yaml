@@ -58,10 +58,10 @@
 
 - name: copy libnetwork-plugin
   copy:
-  src: bin/libnetwork-plugin
-  dest: /usr/bin/libnetwork-plugin
-  force: yes
-  mode: a+x
+    src: bin/libnetwork-plugin
+    dest: /usr/bin/libnetwork-plugin
+    force: yes
+    mode: a+x
 
 - name: remove calico-node container
   docker:
