@@ -11,6 +11,7 @@
     - lvault
     - registry
     - hedwig
+    - streamrouter
 
 - name: check if lainlet container exists
   command: docker inspect lainlet-binary

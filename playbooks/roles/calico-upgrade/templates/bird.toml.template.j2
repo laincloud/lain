@@ -1,0 +1,14 @@
+{% raw %}
+[template]
+src = "bird.cfg.{{if (json (getv "/node_mesh")).enabled}}mesh{{else}}no-mesh{{end}}.template"
+dest = "/etc/calico/confd/config/bird.cfg"
+prefix = "/calico/bgp/v1"
+keys = [
+{% endraw %}
+    {{ '{{if (json (getv "/node_mesh")).enabled}}"/host"{{else}}"/host/' }}{{ ansible_nodename }}{{ '"{{end}},' }}
+{% raw %}
+    "/global"
+]
+check_cmd = "bird -p -c {{"{{"}}.src{{"}}"}}"
+reload_cmd = "pkill -HUP bird || true"
+{% endraw %}

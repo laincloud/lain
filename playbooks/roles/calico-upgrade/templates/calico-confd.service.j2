@@ -1,0 +1,11 @@
+[Unit]
+Description=Calico confd
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+Restart=on-failure
+ExecStart=/usr/bin/confd -confdir=/etc/calico/confd -interval=5 -watch -no-discover --log-level=debug -node=http://127.0.0.1:{{ etcd_client_port }}
+
+[Install]
+WantedBy=multi-user.target

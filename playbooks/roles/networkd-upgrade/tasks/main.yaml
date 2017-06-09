@@ -1,0 +1,15 @@
+- name: stop networkd service
+  service: name=networkd state=stopped
+
+- name: copy networkd binary file
+  copy:
+    src: networkd
+    dest: /usr/bin/networkd
+    force: yes
+    mode: a+x
+
+- name: systemctl restart networkd && systemctl enable networkd
+  service:
+    name: networkd
+    state: restarted
+    enabled: yes

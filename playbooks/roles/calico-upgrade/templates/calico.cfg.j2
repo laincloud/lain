@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: calicoApiConfig
+metadata: {}
+spec:
+  datastoreType: etcdv2
+  etcdAuthority: ""
+  etcdCACertFile: ""
+  etcdCertFile: ""
+  etcdEndpoints: http://127.0.0.1:{{ etcd_client_port }}
+  etcdKeyFile: ""
+  etcdPassword: ""
+  etcdScheme: ""
+  etcdUsername: ""
+  k8sAPIEndpoint: ""
+  k8sAPIToken: ""
+  k8sCAFile: ""
+  k8sCertFile: ""
+  k8sDisableNodePoll: false
+  k8sInsecureSkipTLSVerify: false
+  k8sKeyFile: ""
+  kubeconfig: ""

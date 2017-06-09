@@ -1,0 +1,12 @@
+[Unit]
+Description=Calico bird
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+Restart=on-failure
+ExecStartPre=/usr/bin/mkdir -p /var/run/calico
+ExecStart=/usr/bin/bird -R -s /var/run/calico/bird.ctl -d -c /etc/calico/confd/config/bird.cfg
+
+[Install]
+WantedBy=multi-user.target
