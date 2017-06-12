@@ -149,7 +149,7 @@ def install_ansible(options):
         #          "with CentOS's python-crypto package.  Remove it.")
         #     call('pip uninstall -y pycrypto', shell=True)
 
-        check_call('yum install -y epel-release gcc python-devel openssl-devel',
+        check_call('yum install -y epel-release gcc python-devel openssl-devel libffi-devel',
                    shell=True)
         # NOTE: This will install python-crypto.
         check_call('yum install -y python2-pip', shell=True)
