@@ -7,6 +7,23 @@
 - name: install net-tools
   yum: pkg=net-tools
 
+- name: copy etcd-backup.sh
+  copy:
+    src: etcd/etcd-backup.sh
+    dest: /usr/bin/etcd-backup.sh
+    force: yes
+    mode: a+x
+
+- name: copy etcd-restore.sh
+  copy:
+    src: etcd/etcd-restore.sh
+    dest: /usr/bin/etcd-restore.sh
+    force: yes
+    mode: a+x
+
+- name: backup etcd data
+  shell: /usr/bin/etcd-backup.sh > /var/etcd/etcd.properties
+
 - name: copy calicoctl
   copy:
     src: bin/calicoctl
@@ -114,8 +131,8 @@
 - name: generate felix.cfg
   template: src=felix.cfg.j2 dest=/etc/calico/felix.cfg
 
-- name: generate calico.cfg
-  template: src=calico.cfg.j2 dest=/etc/calico/calico.cfg
+- name: generate calicoctl.cfg
+  template: src=calicoctl.cfg.j2 dest=/etc/calico/calicoctl.cfg
 
 - name: generate calico.env
   template: src=calico.env.j2 dest=/etc/calico/calico.env
