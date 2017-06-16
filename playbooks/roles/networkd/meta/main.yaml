@@ -1,4 +1,5 @@
 dependencies:
+  - role: etcd
   - role: images
     images:
       - networkd-binary
