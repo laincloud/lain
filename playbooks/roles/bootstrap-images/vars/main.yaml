@@ -5,7 +5,7 @@
     "calico-node": "calico_node:v0.19.0",
     "calico-libnetwork": "calico_node-libnetwork:v0.8.0",
     "swarm": "swarm:1.2.5",
-    "rebellion": "rebellion:2.0.4",
+    "rebellion": "rebellion:v2.3.0",
     "pip_binary": "pip-binary:1495177245",
     "networkd-binary": "networkd-binary:0.1.17",
     "deployd-binary": "deployd:2.0.3",

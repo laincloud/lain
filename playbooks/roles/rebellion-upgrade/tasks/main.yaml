@@ -1,0 +1,15 @@
+# !Caution: this task only applies for rebellion v2.3.0 -> higher
+- name: pull new rebellion image
+  command: docker pull registry.lain/rebellion:{{ upgrade_version }}
+
+- name: tag new rebellion image
+  command: docker tag registry.lain/rebellion:{{ upgrade_version }} rebellion:{{ upgrade_version }}
+
+- name: update rebellion.service configuration
+  template: src=rebellion.service.j2 dest=/etc/systemd/system/rebellion.service
+  notify:
+    - reload systemd for rebellion
+- meta: flush_handlers
+
+- name: restart rebellion
+  service: name=rebellion enabled=yes state=restarted
