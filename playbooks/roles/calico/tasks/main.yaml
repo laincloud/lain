@@ -1,9 +1,3 @@
-- name: deploy calicoctl
-  copy: src=/tmp/lain/calicoctl dest=/usr/bin/calicoctl mode=ugo+x
-
-- name: add calico needed env
-  template: src=calico.sh.j2 dest=/etc/profile.d/calico.sh
-
 - name: load kernel modules needed by calico
   modprobe: name={{ item }} state=present
   with_items:
@@ -13,22 +7,205 @@
 - name: ensure modules auto load
   copy: src=calico.conf dest=/etc/modules-load.d/calico.conf
 
-- name: inspect existing container
-  docker_inspect: name=calico-node type=container
-  register: result
-  ignore_errors: yes
+- name: install conntrack-tools
+  yum: pkg=conntrack-tools
 
-- name: start calico node
-  shell: calicoctl node --libnetwork --node-image={{ calico_node_image }} --libnetwork-image={{ calico_libnetwork_image }} --ip {{ node_ip }}
+- name: install ipset
+  yum: pkg=ipset
+
+- name: install net-tools
+  yum: pkg=net-tools
+
+- name: copy calicoctl
+  copy:
+    src: bin/calicoctl
+    dest: /usr/bin/calicoctl
+    force: yes
+    mode: a+x
+
+- name: copy startup
+  copy:
+    src: bin/startup
+    dest: /usr/bin/startup
+    force: yes
+    mode: a+x
+
+- name: copy allocate-ipip-addr
+  copy:
+    src: bin/allocate-ipip-addr
+    dest: /usr/bin/allocate-ipip-addr
+    force: yes
+    mode: a+x
+
+- name: copy bird
+  copy:
+    src: bin/bird
+    dest: /usr/bin/bird
+    force: yes
+    mode: a+x
+
+- name: copy bird6
+  copy:
+    src: bin/bird6
+    dest: /usr/bin/bird6
+    force: yes
+    mode: a+x
+
+- name: copy calico-felix
+  copy:
+    src: bin/calico-felix
+    dest: /usr/bin/calico-felix
+    force: yes
+    mode: a+x
+
+- name: copy confd
+  copy:
+    src: bin/confd
+    dest: /usr/bin/confd
+    force: yes
+    mode: a+x
+
+- name: copy libnetwork-plugin
+  copy:
+    src: bin/libnetwork-plugin
+    dest: /usr/bin/libnetwork-plugin
+    force: yes
+    mode: a+x
+
+- name: copy calico config files
+  copy: src=calico dest=/etc/
+
+- name: generate ippool.yml
+  template: src=ippool.yml.j2 dest=/etc/calico/ippool.yml
+
+- name: generate bird.cfg.mesh.template
+  template: src=bird.cfg.mesh.template.j2 dest=/etc/calico/confd/templates/bird.cfg.mesh.template
+
+- name: generate bird.cfg.no-mesh.template
+  template: src=bird.cfg.no-mesh.template.j2 dest=/etc/calico/confd/templates/bird.cfg.no-mesh.template
+
+- name: generate bird.toml.template
+  template: src=bird.toml.template.j2 dest=/etc/calico/confd/templates/bird.toml.template
+
+- name: generate bird6.cfg.mesh.template
+  template: src=bird6.cfg.mesh.template.j2 dest=/etc/calico/confd/templates/bird6.cfg.mesh.template
+
+- name: generate bird6.cfg.no-mesh.template
+  template: src=bird6.cfg.no-mesh.template.j2 dest=/etc/calico/confd/templates/bird6.cfg.no-mesh.template
+
+- name: generate bird6.toml.template
+  template: src=bird6.toml.template.j2 dest=/etc/calico/confd/templates/bird6.toml.template
+
+- name: generate bird6_aggr.toml
+  template: src=bird6_aggr.toml.j2 dest=/etc/calico/confd/conf.d/bird6_aggr.toml
+
+- name: generate bird_aggr.toml
+  template: src=bird_aggr.toml.j2 dest=/etc/calico/confd/conf.d/bird_aggr.toml
+
+- name: generate bird_ipam.cfg.template
+  template: src=bird_ipam.cfg.template.j2 dest=/etc/calico/confd/templates/bird_ipam.cfg.template
+
+- name: generate bird_ipam.toml
+  template: src=bird_ipam.toml.j2 dest=/etc/calico/confd/conf.d/bird_ipam.toml
+
+- name: generate calico-confd.service
+  template: src=calico-confd.service.j2 dest=/lib/systemd/system/calico-confd.service
+
+- name: generate felix.cfg
+  template: src=felix.cfg.j2 dest=/etc/calico/felix.cfg
+
+- name: generate calicoctl.cfg
+  template: src=calicoctl.cfg.j2 dest=/etc/calico/calicoctl.cfg
+
+- name: generate calico.env
+  template: src=calico.env.j2 dest=/etc/calico/calico.env
+
+- name: copy calico-bird.service
+  copy: src=service/calico-bird.service dest=/lib/systemd/system/calico-bird.service
+
+- name: copy calico-bird6.service
+  copy: src=service/calico-bird6.service dest=/lib/systemd/system/calico-bird6.service
+
+- name: generate calico-confd.service
+  template: src=calico-confd.service.j2 dest=/lib/systemd/system/calico-confd.service
+
+- name: copy calico-felix.service
+  copy: src=service/calico-felix.service dest=/lib/systemd/system/calico-felix.service
+
+- name: copy calico-libnetwork.service
+  copy: src=service/calico-libnetwork.service dest=/lib/systemd/system/calico-libnetwork.service
+
+- name: run startup
+  command: startup
   environment:
     ETCD_AUTHORITY: 127.0.0.1:{{ etcd_client_port }}
-  when: |
-      result|failed
-      or not result.State.Running
-      or "IP=%s" % node_ip not in result.Config.Env
-      or "ETCD_AUTHORITY=127.0.0.1:%s" % etcd_client_port not in result.Config.Env
+    IP: '{{ node_ip }}'
 
-- include: profile.yaml
+- name: run confd
+  command: confd -confdir=/etc/calico/confd -onetime -node=http://127.0.0.1:{{ etcd_client_port }} -no-discover -keep-stage-file
+
+- name: systemctl daemon-reload
+  command: systemctl daemon-reload
+
+- name: enable and start calico-bird.service
+  service:
+    name: calico-bird.service
+    state: started
+    enabled: yes
+
+- name: enable and start calico-bird6.service
+  service:
+    name: calico-bird6.service
+    state: started
+    enabled: yes
+
+- name: enable and start calico-confd.service
+  service:
+    name: calico-confd.service
+    state: started
+    enabled: yes
+
+- name: enable and start calico-felix.service
+  service:
+    name: calico-felix.service
+    state: started
+    enabled: yes
+
+- name: enable and start calico-libnetwork.service
+  service:
+    name: calico-libnetwork.service
+    state: started
+    enabled: yes
+
+- name: create calico ippool
+  command: calicoctl apply -f /etc/calico/ippool.yml
+
+- name: check if some network exist
+  shell: docker network ls | grep {{ item }}
+  with_items:
+    - "registry"
+  register: result
+  changed_when: False
+  ignore_errors: yes
+
+- name: create network
+  shell: docker network create --driver calico --ipam-driver calico-ipam --subnet={{ calico_default_network }} {{ item }}
+  with_items:
+    - "lain"
+    - "tinydns"
+    - "console"
+    - "webrouter"
+    - "registry"
+    - "backupctl"
+    - "lvault"
+  when: result|failed
+
+- name: apply calico profile
+  command: calicoctl apply -f /etc/calico/profile.yml
+
+- name: set default calico rules
+  command: etcdctl set /lain/config/calico_default_rule '{"inbound_rules":[],"outbound_rules":[{"action":"deny","dst_net":"{{ node_network }}","protocol":"tcp","dst_ports":[9003]},{"action":"deny","dst_net":"{{ node_network }}","protocol":"tcp","dst_ports":[9002]},{"action":"deny","dst_net":"{{ node_network }}","protocol":"tcp","dst_ports":[7001]},{"action":"deny","dst_net":"{{ node_network }}","protocol":"tcp","dst_ports":[4001]},{"action":"deny","dst_net":"{{ node_network }}","protocol":"tcp","dst_ports":[2376]},{"action":"deny","dst_net":"{{ node_network }}","protocol":"tcp","dst_ports":[2375]},{"action":"allow"}]}'
+  run_once: true
 
 - name: store subdir config in etcd
   etcd_set_key:

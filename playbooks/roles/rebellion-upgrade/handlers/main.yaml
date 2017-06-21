@@ -1,0 +1,2 @@
+- name: reload systemd for rebellion
+  command: systemctl daemon-reload

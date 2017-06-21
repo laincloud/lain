@@ -22,4 +22,6 @@ playbooks/roles/binary/files/*
 **/*.egg-info
 venv/
 playbooks/roles/calico-upgrade/files/bin
+playbooks/roles/calico/files/bin
 playbooks/roles/networkd-upgrade/files
+playbooks/roles/networkd/files

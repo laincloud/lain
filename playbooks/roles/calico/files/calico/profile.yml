@@ -1,0 +1,173 @@
+- apiVersion: v1
+  kind: profile
+  metadata:
+    name: backupctl
+    tags:
+    - backupctl
+  spec:
+    egress:
+    - action: allow
+      destination: {}
+      source: {}
+    ingress:
+    - action: allow
+      destination: {}
+      source:
+        tag: lain
+    - action: allow
+      destination: {}
+      source:
+        tag: backupctl
+- apiVersion: v1
+  kind: profile
+  metadata:
+    name: console
+    tags:
+    - console
+  spec:
+    egress:
+    - action: allow
+      destination: {}
+      source: {}
+    ingress:
+    - action: allow
+      destination: {}
+      source:
+        tag: lain
+    - action: allow
+      destination: {}
+      source:
+        tag: console
+- apiVersion: v1
+  kind: profile
+  metadata:
+    name: lain
+    tags:
+    - lain
+  spec:
+    egress:
+    - action: allow
+      destination: {}
+      source: {}
+    ingress:
+    - action: allow
+      destination: {}
+      source:
+        tag: lain
+- apiVersion: v1
+  kind: profile
+  metadata:
+    name: lvault
+    tags:
+    - lvault
+  spec:
+    egress:
+    - action: allow
+      destination: {}
+      source: {}
+    ingress:
+    - action: allow
+      destination: {}
+      source:
+        tag: lain
+    - action: allow
+      destination: {}
+      source:
+        tag: lvault
+- apiVersion: v1
+  kind: profile
+  metadata:
+    name: registry
+    tags:
+    - registry
+  spec:
+    egress:
+    - action: allow
+      destination: {}
+      source: {}
+    ingress:
+    - action: allow
+      destination: {}
+      source:
+        tag: lain
+    - action: allow
+      destination: {}
+      source:
+        tag: registry
+- apiVersion: v1
+  kind: profile
+  metadata:
+    name: tinydns
+    tags:
+    - tinydns
+  spec:
+    egress:
+    - action: allow
+      destination: {}
+      source: {}
+    ingress:
+    - action: allow
+      destination:
+        ports:
+        - 5555
+      protocol: udp
+      source: {}
+    - action: allow
+      destination:
+        ports:
+        - 53
+      protocol: udp
+      source: {}
+    - action: allow
+      destination: {}
+      source:
+        tag: lain
+    - action: allow
+      destination: {}
+      source:
+        tag: tinydns
+- apiVersion: v1
+  kind: profile
+  metadata:
+    name: webrouter
+    tags:
+    - webrouter
+    - lain
+  spec:
+    egress:
+    - action: allow
+      destination: {}
+      source: {}
+    ingress:
+    - action: allow
+      destination:
+        ports:
+        - 80
+      protocol: tcp
+      source: {}
+    - action: allow
+      destination:
+        ports:
+        - 8080
+      protocol: tcp
+      source: {}
+    - action: allow
+      destination:
+        ports:
+        - 8443
+      protocol: tcp
+      source: {}
+    - action: allow
+      destination:
+        ports:
+        - 443
+      protocol: tcp
+      source: {}
+    - action: allow
+      destination: {}
+      source:
+        tag: lain
+    - action: allow
+      destination: {}
+      source:
+        tag: webrouter

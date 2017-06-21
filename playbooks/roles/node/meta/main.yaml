@@ -6,7 +6,6 @@ dependencies:
   - role: firewall
   - role: dnsmasq
   - role: manager
-  - role: docker
   - role: calico
   - role: ssl
   - role: lainlet

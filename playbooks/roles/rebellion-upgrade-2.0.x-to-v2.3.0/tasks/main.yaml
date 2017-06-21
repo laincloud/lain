@@ -1,0 +1,21 @@
+# !Caution: this task only applies for rebellion 2.0.x -> v2.3.0
+- name: pull new rebellion image
+  command: docker pull registry.lain/rebellion:v2.3.0
+
+- name: tag new rebellion image
+  command: docker tag registry.lain/rebellion:v2.3.0 rebellion:v2.3.0
+
+- name: prepare clean log script
+  copy: src=clean_logs.py dest=/tmp/clean_logs.py mode="u+x"
+
+- name: update rebellion.service configuration
+  template: src=rebellion.service.j2 dest=/etc/systemd/system/rebellion.service
+  notify:
+    - reload systemd for rebellion
+- meta: flush_handlers
+
+- name: clean log files
+  command: python /tmp/clean_logs.py
+
+- name: restart rebellion
+  service: name=rebellion enabled=yes state=restarted
