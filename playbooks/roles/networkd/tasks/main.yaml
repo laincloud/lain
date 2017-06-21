@@ -1,46 +1,20 @@
-- name: check if networkd binary container exists
-  command: docker inspect networkd-binary
-  register: check_container
-  ignore_errors: yes
-  changed_when: False
+- name: copy networkd binary file
+  copy:
+    src: networkd
+    dest: /usr/bin/networkd
+    force: yes
+    mode: a+x
 
-- name: create networkd binary container
-  command: docker create --name networkd-binary {{ bootstrap_images['networkd-binary'] }} /bin/bash
-  when: check_container|failed
+- name: generate networkd.service
+  template:
+    src: networkd.service.j2
+    dest: /etc/systemd/system/networkd.service
 
-- name: extract files from networkd binary container
-  command: docker cp networkd-binary:/binary/lain/networkd/networkd /tmp/networkd
+- name: systemctl daemon-reload
+  command: systemctl daemon-reload
 
-- name: remove networkd binary container
-  command: docker rm networkd-binary
-
-- name: test if networkd binary path exists
-  stat: path=/usr/bin/networkd
-  register: result
-
-- name: get stat of old networkd
-  stat: path=/usr/bin/networkd get_md5=yes
-  register: old_stat
-  when: result.stat.exists
-
-- name: get stat of new networkd
-  stat: path=/tmp/networkd get_md5=yes
-  register: new_stat
-
-- name: stop networkd service
-  service: name=networkd enabled=yes state=stopped
-  when: result.stat.exists and old_stat.stat.md5 != new_stat.stat.md5
-
-- name: networkd binary
-  shell: cp /tmp/networkd /usr/bin/networkd && chmod +x /usr/bin/networkd
-  # TODO wait for ansible 2.0
-  #copy: remote_src=True src=/tmp/networkd dest=/usr/bin/networkd mode=0755
-  when: not result.stat.exists or old_stat.stat.md5 != new_stat.stat.md5
-
-- template: src=networkd.service.j2 dest=/etc/systemd/system/networkd.service
-  notify:
-    - reload systemd for networkd
-    - restart networkd
-
-- meta: flush_handlers
-- service: name=networkd enabled=yes state=started
+- name: systemctl start networkd && systemctl enable networkd
+  service:
+    name: networkd
+    state: started
+    enabled: yes

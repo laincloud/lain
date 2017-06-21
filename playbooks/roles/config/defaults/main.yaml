@@ -43,8 +43,6 @@ bootstrap_webrouter_image: "{{ bootstrap_images.webrouter }}"
 # Calico configurations
 calico_ipip: no
 calico_default_network: 172.20.0.0/16
-calico_node_image: "{{ bootstrap_images['calico-node'] }}"
-calico_libnetwork_image: "{{ bootstrap_images['calico-libnetwork'] }}"
 
 # Docker configurations
 docker_ver: 1.12.1-1.el7.centos
