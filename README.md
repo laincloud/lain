@@ -3,6 +3,8 @@
 [![MIT license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/MIT)
 [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/laincloud/opensource)
 
+[![Throughput Graph](https://graphs.waffle.io/laincloud/lain/throughput.svg)](https://waffle.io/laincloud/lain/metrics/throughput)
+
 Lain 是一个基于 docker 的 PaaS 系统。
 
 其面向技术栈多样寻求高效运维方案的高速发展中的组织，devops 人力缺乏的 startup ，个人开发者。
