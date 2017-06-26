@@ -13,8 +13,8 @@
 - name: systemctl daemon-reload
   command: systemctl daemon-reload
 
-- name: systemctl start networkd && systemctl enable networkd
+- name: systemctl restart networkd && systemctl enable networkd
   service:
     name: networkd
-    state: started
+    state: restarted
     enabled: yes

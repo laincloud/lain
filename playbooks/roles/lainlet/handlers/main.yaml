@@ -1,5 +1,0 @@
-- name: reload systemd for lainlet
-  command: systemctl daemon-reload
-
-- name: restart lainlet
-  service: name=lainlet state=restarted

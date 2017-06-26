@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 filename="lain-pre-1476939656.tar.gz"
 if [ ! -f "$filename" ]; then
     wget https://lain.oss-cn-beijing.aliyuncs.com/${filename}
@@ -8,8 +10,21 @@ pre_dir=playbooks/roles/binary/files/
 [ -d $pre_dir ] || mkdir $pre_dir
 tar -xzvf $filename -C playbooks/roles/binary/files/
 
+mkdir -p playbooks/roles/networkd/files
+mkdir -p playbooks/roles/deployd/files
+mkdir -p playbooks/roles/lainlet/files
+mkdir -p playbooks/roles/calico/files/bin
+
 if [ ! -f "playbooks/roles/networkd/files/networkd" ]; then
-    wget https://github.com/laincloud/networkd/releases/download/v0.1.22/networkd -O playbooks/roles/networkd/files/networkd
+    wget https://github.com/laincloud/networkd/releases/download/v2.3.0/networkd -O playbooks/roles/networkd/files/networkd
+fi
+
+if [ ! -f "playbooks/roles/deployd/files/deployd" ]; then
+    wget https://github.com/laincloud/deployd/releases/download/v2.3.0/deployd -O playbooks/roles/deployd/files/deployd
+fi
+
+if [ ! -f "playbooks/roles/lainlet/files/lainlet" ]; then
+    wget https://github.com/laincloud/lainlet/releases/download/v2.0.5/lainlet -O playbooks/roles/lainlet/files/lainlet
 fi
 
 if [ ! -f "playbooks/roles/calico/files/bin/calicoctl" ]; then

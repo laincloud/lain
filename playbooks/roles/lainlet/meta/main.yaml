@@ -1,6 +1,2 @@
 dependencies:
   - role: config
-  - role: etcd
-  - role: images
-    images:
-      - lainlet
