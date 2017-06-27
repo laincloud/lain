@@ -137,9 +137,6 @@
 
 - name: run startup
   command: startup
-  environment:
-    ETCD_AUTHORITY: 127.0.0.1:{{ etcd_client_port }}
-    IP: '{{ node_ip }}'
 
 - name: run confd
   command: confd -confdir=/etc/calico/confd -onetime -node=http://127.0.0.1:{{ etcd_client_port }} -no-discover -keep-stage-file

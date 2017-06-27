@@ -15,46 +15,24 @@ mkdir -p playbooks/roles/deployd/files
 mkdir -p playbooks/roles/lainlet/files
 mkdir -p playbooks/roles/calico/files/bin
 
-if [ ! -f "playbooks/roles/networkd/files/networkd" ]; then
-    wget https://github.com/laincloud/networkd/releases/download/v2.3.0/networkd -O playbooks/roles/networkd/files/networkd
-fi
+wget -c https://github.com/laincloud/networkd/releases/download/v2.3.0/networkd -O playbooks/roles/networkd/files/networkd
 
-if [ ! -f "playbooks/roles/deployd/files/deployd" ]; then
-    wget https://github.com/laincloud/deployd/releases/download/v2.3.0/deployd -O playbooks/roles/deployd/files/deployd
-fi
+wget -c https://github.com/laincloud/deployd/releases/download/v2.3.0/deployd -O playbooks/roles/deployd/files/deployd
 
-if [ ! -f "playbooks/roles/lainlet/files/lainlet" ]; then
-    wget https://github.com/laincloud/lainlet/releases/download/v2.0.5/lainlet -O playbooks/roles/lainlet/files/lainlet
-fi
+wget -c https://github.com/laincloud/lainlet/releases/download/v2.0.5/lainlet -O playbooks/roles/lainlet/files/lainlet
 
-if [ ! -f "playbooks/roles/calico/files/bin/calicoctl" ]; then
-    wget https://github.com/projectcalico/calicoctl/releases/download/v1.2.1/calicoctl -O playbooks/roles/calico/files/bin/calicoctl
-fi
+wget -c https://github.com/projectcalico/calicoctl/releases/download/v1.2.1/calicoctl -O playbooks/roles/calico/files/bin/calicoctl
 
-if [ ! -f "playbooks/roles/calico/files/bin/calico-felix" ]; then
-    wget https://github.com/projectcalico/felix/releases/download/2.2.2/calico-felix -O playbooks/roles/calico/files/bin/calico-felix
-fi
+wget -c https://github.com/projectcalico/felix/releases/download/2.2.2/calico-felix -O playbooks/roles/calico/files/bin/calico-felix
 
-if [ ! -f "playbooks/roles/calico/files/bin/bird" ]; then
-    wget https://github.com/projectcalico/bird/releases/download/v0.3.1/bird -O playbooks/roles/calico/files/bin/bird
-fi
+wget -c https://github.com/projectcalico/bird/releases/download/v0.3.1/bird -O playbooks/roles/calico/files/bin/bird
 
-if [ ! -f "playbooks/roles/calico/files/bin/bird6" ]; then
-    wget https://github.com/projectcalico/bird/releases/download/v0.3.1/bird6 -O playbooks/roles/calico/files/bin/bird6
-fi
+wget -c https://github.com/projectcalico/bird/releases/download/v0.3.1/bird6 -O playbooks/roles/calico/files/bin/bird6
 
-if [ ! -f "playbooks/roles/calico/files/bin/confd" ]; then
-    wget https://github.com/projectcalico/confd/releases/download/v0.11.2/confd -O playbooks/roles/calico/files/bin/confd
-fi
+wget -c https://github.com/projectcalico/confd/releases/download/v0.11.2/confd -O playbooks/roles/calico/files/bin/confd
 
-if [ ! -f "playbooks/roles/calico/files/bin/libnetwork-plugin" ]; then
-    wget https://github.com/laincloud/libnetwork-plugin/releases/download/v1.1.0/libnetwork-plugin -O playbooks/roles/calico/files/bin/libnetwork-plugin
-fi
+wget -c https://github.com/laincloud/libnetwork-plugin/releases/download/v1.1.0/libnetwork-plugin -O playbooks/roles/calico/files/bin/libnetwork-plugin
 
-if [ ! -f "playbooks/roles/calico/files/bin/allocate-ipip-addr" ]; then
-    wget https://github.com/laincloud/calicoctl/releases/download/v1.2.1/allocate-ipip-addr -O playbooks/roles/calico/files/bin/allocate-ipip-addr
-fi
+wget -c https://github.com/laincloud/calicoctl/releases/download/v1.2.1/allocate-ipip-addr -O playbooks/roles/calico/files/bin/allocate-ipip-addr
 
-if [ ! -f "playbooks/roles/calico/files/bin/startup" ]; then
-    wget https://github.com/laincloud/calicoctl/releases/download/v1.2.1/startup -O playbooks/roles/calico/files/bin/startup
-fi
+wget -c https://github.com/laincloud/calicoctl/releases/download/v1.2.1/startup -O playbooks/roles/calico/files/bin/startup
