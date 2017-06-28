@@ -22,3 +22,5 @@ dependencies:
   - role: dnsmasq
 
   - role: rsync
+
+  - role: mysql

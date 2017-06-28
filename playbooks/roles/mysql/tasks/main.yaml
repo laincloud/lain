@@ -1,0 +1,20 @@
+- name: run container
+  command: |
+    docker run -d
+        --name mysql_container
+        --net=host
+        -e MYSQL_ALLOW_EMPTY_PASSWORD=yes
+        -v {{ mysql_data_dir }}:/var/lib/mysql
+        {{ mysql_image }}
+
+- name: wait to make sure MySQL being started
+  wait_for: port=3306 state=started timeout=15
+
+- name: initialize databases
+  command: |
+    docker exec mysql_container mysql -uroot -e "
+      CREATE DATABASE console;
+      CREATE USER console@'%' identified by 'console';
+      GRANT ALL ON console.* to console@'%';
+      FLUSH PRIVILEGES;
+    "

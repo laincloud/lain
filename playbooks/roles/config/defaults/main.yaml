@@ -90,6 +90,12 @@ lainlet_port: 9001
 # Manager configurations
 manager_home: /root
 
+# MySQL configurations
+# Caution: this data dir is in temp use.
+# The database must be transferred to other stable DB machines in production environment
+mysql_data_dir: "{{ lain_data_dir }}/mysql"
+mysql_image: "{{ bootstrap_images.mysql }}"
+
 # Python pip configurations
 pip_binary_image: "{{ bootstrap_images.pip_binary }}"
 pip_binary_cp_path: "{{ lain_data_dir }}/aux/binary/{{ pip_binary_image.replace('/', '_') }}"
