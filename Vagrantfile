@@ -5,7 +5,7 @@ Vagrant.configure(2) do |config|
   (1..3).each do |i|
     nodename = "node#{i}"
 
-    config.vm.define nodename do |node|
+    config.vm.define nodename, primary: i == 1, autostart: i == 1 do |node|
 
       node.vm.box = "laincloud/centos-lain"
       node.vm.hostname = nodename
