@@ -2,3 +2,5 @@
   kind: ipPool
   metadata:
     cidr: {{ calico_default_network }}
+  spec:
+    nat-outgoing: true
