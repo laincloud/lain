@@ -27,5 +27,5 @@
   when: is_lain_manager and result|success
 
 - name: recycle the used ip
-  shell: calicoctl ipam release {{ recycle_ip }}
+  shell: calicoctl ipam release --ip {{ recycle_ip }}
   when: is_lain_manager and result|success
