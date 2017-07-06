@@ -14,7 +14,7 @@
 
 - name: stop deployd service
   service: name=deployd state=stopped
-  when: deployd|success
+  when: deployd.stat.exists
 
 - name: test if networkd binary path exists
   stat: path=/usr/bin/networkd

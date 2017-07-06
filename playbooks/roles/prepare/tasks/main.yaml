@@ -9,12 +9,22 @@
 - name: enable selinux 
   selinux: policy=targeted state=permissive
 
+- name: get stat of nscd.service
+  stat: path=/etc/systemd/system/nscd.service
+  register: nscd
+  ignore_errors: yes
+
 - name: disable nscd
   service: name=nscd enabled=no state=stopped
+  when: nscd.stat.exists
 
 - name: load node info from etcd
   command: etcdctl get /lain/nodes/nodes/{{ node_name }}:{{ node_ip }}:{{ ssh_port }}
   register: result
+  ignore_errors: yes
+
+- name: delete any interface calico created previously
+  command: for interface in $(ip link show | grep cali | awk '{print $2}' | awk -F':' '{print $1}'); do ip link delete ${interface}; done
   ignore_errors: yes
 
 - set_fact:

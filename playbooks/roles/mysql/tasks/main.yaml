@@ -13,8 +13,7 @@
 - name: initialize databases
   command: |
     docker exec mysql_container mysql -uroot -e "
-      CREATE DATABASE console;
-      CREATE USER console@'%' identified by 'console';
-      GRANT ALL ON console.* to console@'%';
+      CREATE DATABASE IF NOT EXISTS console;
+      GRANT ALL ON console.* TO console@'%' IDENTIFIED BY 'console';
       FLUSH PRIVILEGES;
     "
