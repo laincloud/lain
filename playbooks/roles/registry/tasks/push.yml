@@ -1,3 +1,7 @@
+- name: restart calico-felix
+  service: name=calico-felix state=restarted
+  ignore_errors: yes
+
 - name: wait_for registry ready
   command: curl -m 2 http://registry.lain/v2/
   register: result
