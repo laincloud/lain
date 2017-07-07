@@ -22,9 +22,10 @@ Lain 是一个基于 docker 的 PaaS 系统。
 
 ## Latest Release
 
-- 最新版是2.1.0 
-[下载](https://github.com/laincloud/lain/archive/2.1.0.tar.gz)
-[release note](https://github.com/laincloud/lain/releases/tag/2.1.0)
+最新版是2.1.0。
+
+- [下载](https://github.com/laincloud/lain/archive/2.1.0.tar.gz)
+- [Release note](https://github.com/laincloud/lain/releases/tag/v2.1.0)
 
 ## Getting started
 
