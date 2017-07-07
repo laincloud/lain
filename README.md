@@ -20,6 +20,12 @@ Lain 是一个基于 docker 的 PaaS 系统。
 - 统一开发测试生产三环境
 - 持续交付工作流的良好支持
 
+## Latest Release
+
+- 最新版是2.1.0 
+[下载](https://github.com/laincloud/lain/archive/2.1.0.tar.gz)
+[release note](https://github.com/laincloud/lain/releases/tag/2.1.0)
+
 ## Getting started
 
 完整的文档在[这里](https://laincloud.gitbooks.io/white-paper/content/)，其中：
