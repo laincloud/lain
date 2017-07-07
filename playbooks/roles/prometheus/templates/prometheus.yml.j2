@@ -1,0 +1,17 @@
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+scrape_configs:
+  - job_name: "node"
+    static_configs:
+{% for host in consul_servers %}
+      - targets: ['{{ host.ip }}:9100']
+        labels: {'host': '{{ host.name }}'}
+{% endfor %}
+
+  - job_name: 'consul'
+    static_configs:
+{% for host in consul_servers %}
+      - targets: ['{{ host.ip }}:9102']
+        labels: {'host': '{{ host.name }}'}
+{% endfor %}

@@ -1,0 +1,10 @@
+[Unit]
+Description=prometheus statsd-exporter
+After=network.target
+
+[Service]
+Restart=on-failure
+ExecStart=/usr/bin/statsd_exporter -statsd.mapping-config=/etc/prometheus/statsd_exporter.conf -statsd.add-suffix=false
+
+[Install]
+WantedBy=multi-user.target

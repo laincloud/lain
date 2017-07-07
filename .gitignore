@@ -27,3 +27,5 @@ playbooks/roles/networkd-upgrade/files
 playbooks/roles/networkd/files
 playbooks/roles/lainlet/files
 playbooks/roles/deployd/files
+playbooks/roles/consul/files/bin
+playbooks/roles/prometheus/files/bin

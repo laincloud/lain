@@ -1,0 +1,11 @@
+[Unit]
+Description=prometheus
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+Restart=on-failure
+ExecStart=/usr/bin/prometheus -config.file=/etc/prometheus/prometheus.yml  -storage.local.path=/var/lib/prometheus/data
+
+[Install]
+WantedBy=multi-user.target
