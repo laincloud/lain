@@ -27,7 +27,16 @@ Lain 是一个基于 docker 的 PaaS 系统。
 - [下载](https://github.com/laincloud/lain/archive/2.1.0.tar.gz)
 - [Release note](https://github.com/laincloud/lain/releases/tag/v2.1.0)
 
-## Getting started
+## Quick Start
+
+```shell
+curl -fsSL https://github.com/laincloud/lain/archive/2.1.0.tar.gz | tar xf -
+cd lain-2.1.0
+vagrant up
+vagrant ssh
+# In the Vagrant machine
+cd /vagrant && sudo ./bootstrap -r docker.io/laincloud
+```
 
 完整的文档在[这里](https://laincloud.gitbooks.io/white-paper/content/)，其中：
 - [Demo Cluster](https://laincloud.gitbooks.io/white-paper/quickstart/demo.html) 展示了如何快速启动一个 Demo 集群
