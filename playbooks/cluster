@@ -73,6 +73,7 @@ def list_inventory():
     nodes = list_nodes()
     managers = list_node_group('managers')
     etcd_members = list_node_group('etcd-members')
+    consul_servers = list_node_group('consul-servers')
     deployd_nodes = list_node_group('deployd')
     web_routers = list_node_group('web-routers')
     swarm_managers = list_node_group('swarm-managers')
@@ -90,6 +91,10 @@ def list_inventory():
         'ansible_ssh_private_key_file': '/root/.ssh/lain',
         'etcd_members': [{'name': node_name, 'ip': nodes[node_name].ip}
                          for node_name in etcd_members],
+        'consul_server_ips': [nodes[node_name].ip
+                           for node_name in consul_servers],
+        'consul_servers': [{'name': node_name, 'ip': nodes[node_name].ip}
+                         for node_name in consul_servers],
     }
     group_vars.update(cluster_config)
 
@@ -110,6 +115,14 @@ def list_inventory():
             'hosts': clean_nodes.keys(),
             'vars': group_vars,
         },
+        'etcd': {
+            'hosts': etcd_members.keys(),
+            'vars': group_vars,
+        },
+        'consul': {
+            'hosts': consul_servers.keys(),
+            'vars': group_vars,
+        },
     }
 
     mfs_config = cluster_config.get("moosefs", "").split(":")
@@ -125,6 +138,7 @@ def list_inventory():
             'node_name': node.name,
             'is_lain_manager': node.name in managers,
             'is_etcd_member': node.name in etcd_members,
+            'is_consul_server': node.name in consul_servers,
             'is_web_router': node.name in web_routers,
             'is_swarm_manager': node.name in swarm_managers,
             'is_deployd_node': node.name in deployd_nodes,

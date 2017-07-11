@@ -1,0 +1,64 @@
+- name: copy prometheus
+  copy:
+    src: bin/prometheus-1.7.1.linux-amd64/prometheus
+    dest: /usr/bin/prometheus
+    force: yes
+    mode: a+x
+  when: ansible_nodename  == consul_servers[0].name
+
+- name: copy node_exporter
+  copy:
+    src: bin/node_exporter-0.14.0.linux-amd64/node_exporter
+    dest: /usr/bin/node_exporter
+    force: yes
+    mode: a+x
+
+- name: copy statsd_exporter
+  copy:
+    src: bin/statsd_exporter-0.4.0.linux-amd64/statsd_exporter
+    dest: /usr/bin/statsd_exporter
+    force: yes
+    mode: a+x
+
+- name: copy prometheus.service
+  copy: src=prometheus.service dest=/lib/systemd/system/prometheus.service
+  when: ansible_nodename  == consul_servers[0].name
+
+- name: copy node_exporter.service
+  copy: src=node_exporter.service dest=/lib/systemd/system/node_exporter.service
+
+- name: copy statsd_exporter.service
+  copy: src=statsd_exporter.service dest=/lib/systemd/system/statsd_exporter.service
+
+- file:
+    path: /etc/prometheus
+    state: directory
+
+- name: generate prometheus.yml
+  template: src=prometheus.yml.j2 dest=/etc/prometheus/prometheus.yml
+  when: ansible_nodename  == consul_servers[0].name
+
+- name: generate statsd_exporter.conf
+  template: src=statsd_exporter.conf.j2 dest=/etc/prometheus/statsd_exporter.conf
+
+- name: systemctl daemon-reload
+  command: systemctl daemon-reload
+
+- name: enable and start prometheus.service
+  service:
+    name: prometheus.service
+    state: started
+    enabled: yes
+  when: ansible_nodename  == consul_servers[0].name
+
+- name: enable and start node_exporter.service
+  service:
+    name: node_exporter.service
+    state: started
+    enabled: yes
+
+- name: enable and start statsd_exporter.service
+  service:
+    name: statsd_exporter.service
+    state: started
+    enabled: yes

@@ -1,0 +1,28 @@
+- name: copy consul binary file
+  copy:
+    src: bin/consul
+    dest: /usr/bin/consul
+    force: yes
+    mode: a+x
+
+- name: creates /etc/consul
+  file: path=/etc/consul state=directory
+
+- name: generate consul.json
+  template:
+    src: consul.json.j2
+    dest: /etc/consul/consul.json
+
+- name: copy consul.service
+  copy:
+    src: consul.service
+    dest: /etc/systemd/system/consul.service
+
+- name: systemctl daemon-reload
+  command: systemctl daemon-reload
+
+- name: systemctl restart consul && systemctl enable consul
+  service:
+    name: consul
+    state: restarted
+    enabled: yes

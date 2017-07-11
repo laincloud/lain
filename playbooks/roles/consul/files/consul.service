@@ -1,0 +1,10 @@
+[Unit]
+Description=Consul Agent
+After=network.target
+
+[Service]
+Restart=on-failure
+ExecStart=/usr/bin/consul agent -config-file=/etc/consul/consul.json
+
+[Install]
+WantedBy=multi-user.target

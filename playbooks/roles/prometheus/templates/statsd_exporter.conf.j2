@@ -1,0 +1,275 @@
+consul.*.runtime.*
+name="consul_runtime"
+type="$2"
+host="{{ ansible_nodename }}"
+
+consul.runtime.total_gc_pause_ns
+name="consul_runtime_total_gc_pause_ns"
+type="$2"
+host="{{ ansible_nodename }}"
+
+consul.consul.health.service.query-tag.*.*.*
+name="consul_health_service_query_tag"
+query="$1.$2.$3"
+host="{{ ansible_nodename }}"
+
+consul.consul.health.service.query-tag.*.*.*.*
+name="consul_health_service_query_tag"
+query="$1.$2.$3.$4"
+host="{{ ansible_nodename }}"
+
+consul.consul.health.service.query-tag.*.*.*.*.*
+name="consul_health_service_query_tag"
+query="$1.$2.$3.$4.$5"
+host="{{ ansible_nodename }}"
+
+consul.consul.health.service.query-tag.*.*.*.*.*.*
+name="consul_health_service_query_tag"
+query="$1.$2.$3.$4.$5.$6"
+host="{{ ansible_nodename }}"
+
+consul.consul.health.service.query-tag.*.*.*.*.*.*.*
+name="consul_health_service_query_tag"
+query="$1.$2.$3.$4.$5.$6.$7"
+host="{{ ansible_nodename }}"
+
+consul.consul.health.service.query-tag.*.*.*.*.*.*.*.*
+name="consul_health_service_query_tag"
+query="$1.$2.$3.$4.$5.$6.$7.$8"
+host="{{ ansible_nodename }}"
+
+consul.consul.health.service.query-tag.*.*.*.*.*.*.*.*.*
+name="consul_health_service_query_tag"
+query="$1.$2.$3.$4.$5.$6.$7.$8.$9"
+host="{{ ansible_nodename }}"
+
+consul.consul.health.service.query-tag.*.*.*.*.*.*.*.*.*.*
+name="consul_health_service_query_tag"
+query="$1.$2.$3.$4.$5.$6.$7.$8.$9.$10"
+host="{{ ansible_nodename }}"
+
+consul.consul.health.service.query-tag.*.*.*.*.*.*.*.*.*.*.*
+name="consul_health_service_query_tag"
+query="$1.$2.$3.$4.$5.$6.$7.$8.$9.$10.$11"
+host="{{ ansible_nodename }}"
+
+consul.consul.health.service.query-tag.*.*.*.*.*.*.*.*.*.*.*.*
+name="consul_health_service_query_tag"
+query="$1.$2.$3.$4.$5.$6.$7.$8.$9.$10.$11.$12"
+host="{{ ansible_nodename }}"
+
+consul.consul.fsm.persist
+name="consul_fsm_persist"
+host="{{ ansible_nodename }}"
+
+consul.consul.catalog.deregister
+name="consul_catalog_deregister"
+host="{{ ansible_nodename }}"
+
+consul.consul.http.PUT.v1.agent.service_register
+name="consul_http_PUT_v1_agent_service_register"
+host="{{ ansible_nodename }}"
+
+consul.consul.http.GET.v1.kv.*
+name="consul_http_GET_v1_kv"
+host="{{ ansible_nodename }}"
+
+consul.consul.http.GET.v1.internal.ui.nodes
+name="consul_http_GET_v1_internal_ui_nodes"
+host="{{ ansible_nodename }}"
+
+consul.consul.http.GET.v1.internal.ui.node.*
+name="consul_http_GET_v1_internal_ui_node"
+host="{{ ansible_nodename }}"
+
+consul.consul.http.GET.v1.health.service.*
+name="consul_http_GET_v1_health_service"
+host="{{ ansible_nodename }}"
+
+consul.consul.http.GET.v1.catalog.datacenters
+name="consul_http_GET_v1_catalog_datacenters"
+host="{{ ansible_nodename }}"
+
+consul.consul.http.GET.v1.acl.list
+name="consul_http_GET_v1_acl_list"
+host="{{ ansible_nodename }}"
+
+consul.consul.dns.domain_query.*.*.*.*.*
+name="consul_dns_domain_query"
+query="$1.$2.$3.$4.$5"
+host="{{ ansible_nodename }}"
+
+consul.consul.health.service.not-found.*
+name="consul_health_service_not_found"
+host="{{ ansible_nodename }}"
+query="$1"
+
+consul.consul.health.service.query.*
+name="consul_health_service_query"
+query="$1"
+host="{{ ansible_nodename }}"
+
+consul.*.memberlist.health.score
+name="consul_memberlist_health_score"
+host="{{ ansible_nodename }}"
+
+consul.serf.queue.*
+name="consul_serf_events"
+type="$1"
+host="{{ ansible_nodename }}"
+
+consul.serf.snapshot.appendLine
+name="consul_serf_snapshot_appendLine"
+type="$1"
+host="{{ ansible_nodename }}"
+
+consul.serf.coordinate.adjustment-ms
+name="consul_serf_coordinate_adjustment_ms"
+host="{{ ansible_nodename }}"
+
+consul.consul.rpc.query
+name="consul_rpc_query"
+host="{{ ansible_nodename }}"
+
+consul.*.consul.session_ttl.active
+name="consul_session_ttl_active"
+host="{{ ansible_nodename }}"
+
+consul.raft.rpc.*
+name="consul_raft_rpc"
+type="$1"
+host="{{ ansible_nodename }}"
+
+consul.raft.rpc.appendEntries.storeLogs
+name="consul_raft_rpc_appendEntries_storeLogs"
+type="$1"
+host="{{ ansible_nodename }}"
+
+consul.raft.fsm.apply
+name="consul_raft_fsm_apply"
+host="{{ ansible_nodename }}"
+
+consul.raft.leader.lastContact
+name="consul_raft_leader_lastcontact"
+host="{{ ansible_nodename }}"
+
+consul.raft.leader.dispatchLog
+name="consul_raft_leader_dispatchLog"
+host="{{ ansible_nodename }}"
+
+consul.raft.commitTime
+name="consul_raft_commitTime"
+host="{{ ansible_nodename }}"
+
+consul.raft.replication.appendEntries.logs.*.*.*.*
+name="consul_raft_replication_appendEntries_logs"
+host="{{ ansible_nodename }}"
+query="${1}.${2}.${3}.${4}"
+
+consul.raft.replication.appendEntries.rpc.*.*.*.*
+name="consul_raft_replication_appendEntries_rpc"
+host="{{ ansible_nodename }}"
+query="${1}.${2}.${3}.${4}"
+
+consul.raft.replication.heartbeat.*.*.*.*
+name="consul_raft_replication_heartbeat"
+host="{{ ansible_nodename }}"
+query="${1}.${2}.${3}.${4}"
+
+consul.consul.rpc.request
+name="consul_rpc_requests"
+host="{{ ansible_nodename }}"
+
+consul.consul.rpc.accept_conn
+name="consul_rpc_accept_conn"
+host="{{ ansible_nodename }}"
+
+consul.memberlist.udp.*
+name="consul_memberlist_udp"
+type="$1"
+host="{{ ansible_nodename }}"
+
+consul.memberlist.tcp.*
+name="consul_memberlist_tcp"
+type="$1"
+host="{{ ansible_nodename }}"
+
+consul.memberlist.gossip
+name="consul_memberlist_gossep"
+host="{{ ansible_nodename }}"
+
+consul.memberlist.probeNode
+name="consul_memberlist_probenode"
+host="{{ ansible_nodename }}"
+
+consul.memberlist.pushPullNode
+name="consul_memberlist_pushpullnode"
+host="{{ ansible_nodename }}"
+
+consul.consul.http.GET.v1.catalog.datacenters
+name="consul_http_GET_catalog_datacenters"
+host="{{ ansible_nodename }}"
+
+consul.consul.http.GET.v1.coordinate.nodes
+name="consul_http_GET_coordinate_nodes"
+host="{{ ansible_nodename }}"
+
+consul.consul.http.GET.v1.health.service.*
+name="consul_http_GET_health_service"
+host="{{ ansible_nodename }}"
+
+consul.consul.http.GET.v1.internal.ui.nodes.*
+name="consul_http_GET_internal_ui_nodes"
+host="{{ ansible_nodename }}"
+
+consul.consul.http.GET.v1.internal.ui.services
+name="consul_http_GET_internal_ui_services"
+host="{{ ansible_nodename }}"
+
+consul.consul.http.GET.v1.session.node.*
+name="consul_http_GET_session_node"
+host="{{ ansible_nodename }}"
+
+consul.consul.http.GET.v1.kv.*.*.*
+name="consul_http_GET_kv"
+host="{{ ansible_nodename }}"
+
+consul.consul.leader.barrier
+name="consul_leader_barrier"
+host="{{ ansible_nodename }}"
+
+consul.consul.leader.reconcileMember
+name="consul_leader_reconcileMember"
+host="{{ ansible_nodename }}"
+
+consul.consul.leader.reconcile
+name="consul_leader_reconcile"
+host="{{ ansible_nodename }}"
+
+consul.consul.fsm.coordinate.batch-update
+name="consul_fsm_coordinate_batch_update"
+host="{{ ansible_nodename }}"
+
+consul.consul.fsm.register
+name="consul_fsm_register"
+host="{{ ansible_nodename }}"
+
+consul.consul.fsm.deregister
+name="consul_fsm_deregister"
+host="{{ ansible_nodename }}"
+
+consul.consul.catalog.register
+name="consul_catalog_register"
+host="{{ ansible_nodename }}"
+
+consul.consul.catalog.deregister
+name="consul_catalog_deregister"
+host="{{ ansible_nodename }}"
+
+consul.consul.fsm.tombstone.reap
+name="consul_fsm_tombstone_reap"
+host="{{ ansible_nodename }}"
+
+consul.consul.leader.reapTombstones
+name="consul_leader_reapTombstones"
+host="{{ ansible_nodename }}"
