@@ -91,10 +91,8 @@ def list_inventory():
         'ansible_ssh_private_key_file': '/root/.ssh/lain',
         'etcd_members': [{'name': node_name, 'ip': nodes[node_name].ip}
                          for node_name in etcd_members],
-        'consul_server_ips': [nodes[node_name].ip
+        'consul_servers': [nodes[node_name].ip
                            for node_name in consul_servers],
-        'consul_servers': [{'name': node_name, 'ip': nodes[node_name].ip}
-                         for node_name in consul_servers],
     }
     group_vars.update(cluster_config)
 

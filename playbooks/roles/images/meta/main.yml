@@ -1,3 +1,4 @@
 dependencies:
   - role: config
+  - role: bootstrap-images
   - role: libraries
