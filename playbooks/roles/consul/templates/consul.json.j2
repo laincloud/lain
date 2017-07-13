@@ -2,13 +2,10 @@
 {% if is_consul_server %}
   "bootstrap_expect": {{consul_servers|length}},
 {% endif %}
-  "retry_join": [{% for ip in consul_server_ips | difference(ansible_all_ipv4_addresses) %}"{{ ip }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+  "retry_join": [{% for ip in consul_servers | difference(ansible_all_ipv4_addresses) %}"{{ ip }}"{% if not loop.last %}, {% endif %}{% endfor %}],
   "data_dir": "/var/lib/consul",
   "server": {{ "true" if is_consul_server else "false" }},
   "bind_addr": "{{ node_ip }}",
   "client_addr": "0.0.0.0",
-  "disable_update_check": true,
-  "telemetry": {
-        "statsd_address": "127.0.0.1:9125"
-  }
+  "disable_update_check": true
 }
