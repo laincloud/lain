@@ -128,7 +128,9 @@ def list_inventory():
     hostvars = {}
     for node in chain(nodes.itervalues(),
                       new_nodes.itervalues(),
-                      clean_nodes.itervalues()):
+                      clean_nodes.itervalues(),
+                      etcd_members.itervalues(),
+                      consul_servers.itervalues()):
         v = {
             'ansible_ssh_host': node.ip,
             'ansible_ssh_port': node.ssh_port,
