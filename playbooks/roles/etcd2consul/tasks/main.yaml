@@ -34,3 +34,6 @@
     name: docker.service
     state: started
     enabled: yes
+
+- name: delete docker network endpoint
+  command: consul kv delete -recurse /docker/network/v1.0/endpoint/
