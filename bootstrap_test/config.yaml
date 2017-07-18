@@ -12,4 +12,4 @@ ipaddr:
   client:
     appname: ipaddr-client
     procname: web
-    num_instances: 4
+    num_instances: 2
