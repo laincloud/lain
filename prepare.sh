@@ -14,6 +14,7 @@ mkdir -p playbooks/roles/networkd/files
 mkdir -p playbooks/roles/deployd/files
 mkdir -p playbooks/roles/lainlet/files
 mkdir -p playbooks/roles/calico/files/bin
+mkdir -p playbooks/roles/consul/files/bin
 
 wget -c https://github.com/laincloud/networkd/releases/download/v2.3.0/networkd.xz -O playbooks/roles/networkd/files/networkd.xz
 
@@ -37,6 +38,8 @@ wget -c https://github.com/projectcalico/bird/releases/download/v0.3.1/bird -O p
 
 wget -c https://github.com/projectcalico/bird/releases/download/v0.3.1/bird6 -O playbooks/roles/calico/files/bin/bird6
 
+wget -c https://releases.hashicorp.com/consul/0.8.5/consul_0.8.5_linux_amd64.zip -O playbooks/roles/consul/files/bin/consul_0.8.5_linux_amd64.zip
+
 unxz -kf playbooks/roles/networkd/files/networkd.xz
 unxz -kf playbooks/roles/deployd/files/deployd.xz
 unxz -kf playbooks/roles/lainlet/files/lainlet.xz
@@ -46,3 +49,4 @@ unxz -kf playbooks/roles/calico/files/bin/startup.xz
 unxz -kf playbooks/roles/calico/files/bin/calico-felix.xz
 unxz -kf playbooks/roles/calico/files/bin/confd.xz
 unxz -kf playbooks/roles/calico/files/bin/libnetwork-plugin.xz
+unzip -o playbooks/roles/consul/files/bin/consul_0.8.5_linux_amd64.zip -d playbooks/roles/consul/files/bin

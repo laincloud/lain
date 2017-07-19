@@ -2,6 +2,7 @@ dependencies:
   - role: config
   - role: libraries
   - role: etcd
+  - role: consul
   - role: prepare
   - role: firewall
   - role: dnsmasq

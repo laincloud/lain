@@ -4,6 +4,8 @@ dependencies:
   # store cluster configs in etcd
   - role: bootstrap-etcd
 
+  - role: consul
+
   # load all required images
   - role: bootstrap-docker
 
