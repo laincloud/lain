@@ -10,41 +10,41 @@ import app_ctl
 
 @pytest.fixture(scope="session")
 def up_node1():
-    subproc.check_call(['sudo', 'vagrant', 'destroy', '-f', 'node1'])
-    subproc.check_call(['sudo', 'vagrant', 'up', 'node1'])
+    subproc.check_call(['vagrant', 'destroy', '-f', 'node1'])
+    subproc.check_call(['vagrant', 'up', 'node1'])
     yield "node1 is ready"
 
     print("Destroying node1...")
-    subproc.call(['sudo', 'vagrant', 'destroy', '-f', 'node1'])
+    subproc.call(['vagrant', 'destroy', '-f', 'node1'])
     print("Node1 is destroyed.")
 
 
 @pytest.fixture(scope="session")
 def up_node2():
-    subproc.check_call(['sudo', 'vagrant', 'destroy', '-f', 'node2'])
-    subproc.check_call(['sudo', 'vagrant', 'up', 'node2'])
+    subproc.check_call(['vagrant', 'destroy', '-f', 'node2'])
+    subproc.check_call(['vagrant', 'up', 'node2'])
     yield "node2 is ready"
 
     print("Destroying node2...")
-    subproc.call(['sudo', 'vagrant', 'destroy', '-f', 'node2'])
+    subproc.call(['vagrant', 'destroy', '-f', 'node2'])
     print("Node2 is destroyed.")
 
 
 @pytest.fixture(scope="session")
 def up_node3():
-    subproc.check_call(['sudo', 'vagrant', 'destroy', '-f', 'node3'])
-    subproc.check_call(['sudo', 'vagrant', 'up', 'node3'])
+    subproc.check_call(['vagrant', 'destroy', '-f', 'node3'])
+    subproc.check_call(['vagrant', 'up', 'node3'])
     yield "node3 is ready"
 
     print("Destroying node3...")
-    subproc.call(['sudo', 'vagrant', 'destroy', '-f', 'node3'])
+    subproc.call(['vagrant', 'destroy', '-f', 'node3'])
     print("Node3 is destroyed.")
 
 
 @pytest.fixture(scope="session")
 def bootstrap(up_node1):
     subproc.check_call([
-        'sudo', 'vagrant', 'ssh', 'node1', '-c',
+        'vagrant', 'ssh', 'node1', '-c',
         'sudo /vagrant/bootstrap -m https://l2ohopf9.mirror.aliyuncs.com -r docker.io/laincloud --vip={}'.
         format(CONFIG.vip)
     ])
@@ -53,7 +53,7 @@ def bootstrap(up_node1):
 @pytest.fixture(scope="session")
 def prepare_demo_images(bootstrap):
     subproc.check_call([
-        'sudo', 'vagrant', 'ssh', 'node1', '-c',
+        'vagrant', 'ssh', 'node1', '-c',
         'sudo sh /vagrant/bootstrap_test/prepare_demo_images.sh'
     ])
 
@@ -78,12 +78,12 @@ def deploy_ipaddr(reposit_ipaddr):
 @pytest.fixture(scope="session")
 def add_node(bootstrap, up_node2, up_node3):
     subproc.check_call([
-        'sudo', 'vagrant', 'ssh', 'node1', '-c',
+        'vagrant', 'ssh', 'node1', '-c',
         'cd /vagrant/bootstrap_test && sudo ansible-playbook \
                 -i host_vars/test-nodes distribute_ssh_key.yaml'
     ])
     subproc.check_call([
-        'sudo', 'vagrant', 'ssh', 'node1', '-c',
+        'vagrant', 'ssh', 'node1', '-c',
         'sudo lainctl node add -p /vagrant/playbooks node2:192.168.77.22 ' +
         'node3:192.168.77.23'
     ])
@@ -93,4 +93,4 @@ def add_node(bootstrap, up_node2, up_node3):
 def scale_ipaddr_client(deploy_ipaddr, add_node):
     app_ctl.scale(CONFIG.ipaddr_client_appname, CONFIG.ipaddr_client_procname,
                   CONFIG.ipaddr_client_num_instances)
-    time.sleep(60)
+    time.sleep(120)
