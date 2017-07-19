@@ -20,6 +20,7 @@
     - nodes
     - managers
     - etcd-members
+    - consul-servers
     - web-routers
     - swarm-managers
     - deployd

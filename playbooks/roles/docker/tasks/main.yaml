@@ -22,12 +22,12 @@
 
 # Restarting docker is a big deal.  User must allow it explicitly.
 - name: render docker config for test
-  template: src=docker.j2 dest=/tmp/docker.conf
+  template: src=daemon.json.j2 dest=/tmp/docker.conf
 - name: get stat of rendered docker config
   stat: path=/tmp/docker.conf
   register: new_docker_conf_stat
 - name: get stat of current docker config
-  stat: path=/etc/systemd/system/docker.service
+  stat: path=/etc/docker/daemon.json
   register: current_docker_conf_stat
 - name: quit if restarting docker daemon is not allowed explicitly
   fail: msg="You must specify -e allow_restart_docker=yes to process"
@@ -38,9 +38,12 @@
 - name: set docker graph dir
   file: path={{ docker_graph_dir }} state=directory
 
+- name: mkdir /etc/docker
+  file: path=/etc/docker state=directory
+
 # When is not bootstrapping or add node, do not allow to restart docker
 - name: config docker
-  template: src=docker.j2 dest=/etc/systemd/system/docker.service
+  template: src=daemon.json.j2 dest=/etc/docker/daemon.json
   notify:
     - reload systemd for docker
     - restart docker
