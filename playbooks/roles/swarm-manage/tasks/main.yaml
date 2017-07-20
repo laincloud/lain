@@ -12,7 +12,7 @@
   command: etcdctl ls {{ swarm_discovery_path }}/{{ node_ip }}:{{ docker_port }}
   register: result
   until: result|success
-  retries: 5
+  retries: 50
   delay: 5
   changed_when: False
 

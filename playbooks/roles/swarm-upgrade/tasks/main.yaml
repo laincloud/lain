@@ -22,7 +22,7 @@
   command: etcdctl ls {{ swarm_discovery_path }}/{{ node_ip }}:{{ docker_port }}
   register: result
   until: result|success
-  retries: 5
+  retries: 50
   delay: 5
   changed_when: False
 
@@ -52,7 +52,7 @@
   shell: "docker -H swarm.lain:{{ swarm_manager_port }} info | grep 'Nodes: ' | awk '{ print $2 }'"
   register: swarm_cluster_nodes
   until: swarm_cluster_nodes.stdout|int == {{ groups['nodes'] | length }}
-  retries: 5
+  retries: 50
   delay: 5
   changed_when: False
 
