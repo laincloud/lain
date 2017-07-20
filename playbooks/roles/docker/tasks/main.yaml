@@ -57,7 +57,7 @@
   command: docker version -f "\{\{.Server.Version\}\}"
   register: current_docker_version
   until: current_docker_version.stdout
-  retries: 5
+  retries: 50
   delay: 5
   changed_when: False
 

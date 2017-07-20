@@ -2,7 +2,7 @@
   command: curl -m 2 http://registry.lain/v2/
   register: result
   until: "result.stdout.startswith('{')"
-  retries: 5
+  retries: 50
   delay: 5
   changed_when: False
 
