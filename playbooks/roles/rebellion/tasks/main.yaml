@@ -15,7 +15,7 @@
   shell: "docker ps | grep rebellion.service"
   register: result
   until: result|success
-  retries: 5
+  retries: 50
   delay: 5
   changed_when: False
 

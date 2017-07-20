@@ -28,6 +28,6 @@
   command: mount /mfs
   register: mount_result
   until: mount_result|success
-  retries: 5
+  retries: 50
   delay: 5
   when: result|failed

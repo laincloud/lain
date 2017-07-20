@@ -12,7 +12,7 @@
   shell: "docker -H tcp://{{ node_ip }}:{{ swarm_manager_port }} info | grep 'Nodes: ' | awk '{ print $2 }'"
   register: swarm_cluster_nodes
   until: swarm_cluster_nodes.stdout|int > 0
-  retries: 5
+  retries: 50
   delay: 5
   changed_when: False
 

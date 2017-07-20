@@ -32,7 +32,7 @@
   shell: etcdctl cluster-health | grep "cluster is healthy"
   register: health_result
   until: health_result|success
-  retries: 5
+  retries: 50
   delay: 5
   changed_when: False
 
@@ -40,7 +40,7 @@
   command: etcdctl set /lain/test test
   register: result
   until: result|success
-  retries: 5
+  retries: 50
   delay: 5
   changed_when: False
 
