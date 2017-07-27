@@ -5,9 +5,9 @@
 
 [![Throughput Graph](https://graphs.waffle.io/laincloud/lain/throughput.svg)](https://waffle.io/laincloud/lain/metrics/throughput)
 
-Lain 是一个基于 docker 的 PaaS 系统。
+Lain 是一个基于 Docker 的 PaaS 系统。
 
-其面向技术栈多样寻求高效运维方案的高速发展中的组织，devops 人力缺乏的 startup ，个人开发者。
+其面向技术栈多样寻求高效运维方案的高速发展中的组织，DevOps 人力缺乏的 startup ，个人开发者。
 
 统一高效的开发工作流，降低应用运维复杂度；在 IaaS / 私有 IDC 裸机的基础上直接提供应用开发，集成，部署，运维的一揽子解决方案。
 
@@ -64,4 +64,4 @@ cd /vagrant && sudo ./bootstrap -r docker.io/laincloud
 
 ## LICENSE
 
-Lain is released under the [MIT license](LICENSE).
+Lain is licensed under the [MIT license](LICENSE).
