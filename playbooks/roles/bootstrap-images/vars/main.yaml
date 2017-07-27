@@ -4,7 +4,6 @@
   "bootstrap_images": {
     "swarm": "swarm:1.2.5",
     "rebellion": "rebellion:v2.3.0",
-    "pip_binary": "pip-binary:1495177245",
     "mysql": "mysql-server:5.6.30",
     "registry": "registry:release-1498029368-2c74d73cef3f020dd1dd6fcf9e1933112a2c67cc",
     "registry-meta": "registry:meta-1498029368-2c74d73cef3f020dd1dd6fcf9e1933112a2c67cc",
