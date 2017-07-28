@@ -24,13 +24,13 @@ Lain 是一个基于 Docker 的 PaaS 系统。
 
 最新版是2.1.0。
 
-- [下载](https://github.com/laincloud/lain/archive/2.1.0.tar.gz)
+- [下载](https://github.com/laincloud/lain/archive/v2.1.0.tar.gz)
 - [Release note](https://github.com/laincloud/lain/releases/tag/v2.1.0)
 
 ## Quick Start
 
 ```shell
-curl -fsSL https://github.com/laincloud/lain/archive/2.1.0.tar.gz | tar xf -
+curl -fsSL https://github.com/laincloud/lain/archive/v2.1.0.tar.gz | tar xf -
 cd lain-2.1.0
 vagrant up
 vagrant ssh
