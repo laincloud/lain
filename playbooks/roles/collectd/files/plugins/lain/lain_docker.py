@@ -13,6 +13,7 @@ CONFIGS = {}
 
 
 class Plugin:
+
     @classmethod
     def create_record(cls, metric, value, lain_info, metric_type="GAUGE"):
         interval = CONFIGS['interval']
@@ -26,15 +27,21 @@ class Plugin:
 
 
 class CpuStats(Plugin):
+
     @classmethod
     def get(cls, stats, lain_info):
-        # docker cpu stats is nanoseconds, plus 100 for percent, *100/1e9 = /1e7
-        cls.create_record("cpu.total", int(int(stats["cpu_stats"]["cpu_usage"]["total_usage"])/1e7), lain_info)
-        cls.create_record("cpu.user", int(int(stats["cpu_stats"]["cpu_usage"]["usage_in_usermode"])/1e7), lain_info)
-        cls.create_record("cpu.kernel", int(int(stats["cpu_stats"]["cpu_usage"]["usage_in_kernelmode"])/1e7), lain_info)
+        # docker cpu stats is nanoseconds, plus 100 for percent, *100/1e9 =
+        # /1e7
+        cls.create_record("cpu.total", int(
+            int(stats["cpu_stats"]["cpu_usage"]["total_usage"]) / 1e7), lain_info)
+        cls.create_record("cpu.user", int(
+            int(stats["cpu_stats"]["cpu_usage"]["usage_in_usermode"]) / 1e7), lain_info)
+        cls.create_record("cpu.kernel", int(
+            int(stats["cpu_stats"]["cpu_usage"]["usage_in_kernelmode"]) / 1e7), lain_info)
 
 
 class MemoryStats(Plugin):
+
     @classmethod
     def get(cls, stats, lain_info):
         usage = stats["memory_stats"]["usage"]
@@ -62,12 +69,25 @@ class MemoryStats(Plugin):
     "sectors_recursive": []
 }
 """
+
+# blkio-io_service_bytes_recursive-253-0-READ
+BLKIO_KEY_FORMAT = 'blkio.%s-%s-%s-%s'
+
+
 class BlkioStats(Plugin):
+
     @classmethod
     def get(cls, stats, lain_info):
         for stat, value in stats["blkio_stats"].iteritems():
+            blk_stats = {}
             for item in value:
-                cls.create_record("blkio.%s-%s" % (stat, item['op']), item['value'], lain_info, "COUNTER")
+                key = BLKIO_KEY_FORMAT % (
+                    stat, item['major'], item['minor'], item['op'])
+                blk_stats[key] = item['value']
+
+            for key, value in blk_stats.iteritems():
+                cls.create_record(
+                    key, value, lain_info, "COUNTER")
 
 
 """
@@ -82,14 +102,18 @@ class BlkioStats(Plugin):
     "tx_packets": 0
 },
 """
+
+
 class NetworkStats(Plugin):
+
     @classmethod
     def get(cls, stats, lain_info):
         if "networks" not in stats:
             return
         for interface in stats["networks"]:
             for stat in stats["networks"][interface]:
-                cls.create_record("net.%s-%s" % (interface, stat), stats["networks"][interface][stat], lain_info, "COUNTER")
+                cls.create_record("net.%s-%s" % (interface, stat),
+                                  stats["networks"][interface][stat], lain_info, "COUNTER")
 
 
 class Docker:
@@ -123,7 +147,6 @@ class Docker:
         return result
 
 
-
 class Lainlet(object):
 
     def __init__(self, url, hostname):
@@ -149,7 +172,8 @@ class Lainlet(object):
         return info
 
     def get_depends(self):
-        # portal: DOMAIN.app.[SERVICE|RESOURCE].portal.PORTALNAME.APPNAME.NODENAME.(instance.NO.)
+        # portal:
+        # DOMAIN.app.[SERVICE|RESOURCE].portal.PORTALNAME.APPNAME.NODENAME.(instance.NO.)
         url = "%s/v2/depends" % (self.url)
         r = urllib.urlopen(url)
         depends = json.loads(r.read())
@@ -158,12 +182,14 @@ class Lainlet(object):
             for host, hval in val.iteritems():
                 for app, aval in hval.iteritems():
                     service_name, _, _ = key.rsplit('.', 2)
-                    service_name = service_name.replace('.', '_')  # for resource
+                    service_name = service_name.replace(
+                        '.', '_')  # for resource
                     name = "%s-%s-%s" % (key, host, app)
                     info[name] = {}
                     info[name]['app_name'] = app
                     info[name]['node_name'] = host
-                    info[name]['portal_name'] = json.loads(aval['Annotation'])['service_name']
+                    info[name]['portal_name'] = json.loads(
+                        aval['Annotation'])['service_name']
                     info[name]['service_name'] = service_name
                     info[name]['proc_name'] = None
                     info[name]['proc_type'] = None
@@ -207,9 +233,9 @@ CLASSES = [CpuStats, MemoryStats, NetworkStats, BlkioStats]
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--lainlet-endpoint", help="lainlet endpoint",
-                default="http://lainlet.lain:9001", type=str)
+                        default="http://lainlet.lain:9001", type=str)
     parser.add_argument("--domain", help="lain domain",
-                default="lain.local", type=str)
+                        default="lain.local", type=str)
     args = parser.parse_args()
     CONFIGS['domain'] = args.domain.replace('.', '_')
     lainlet = Lainlet(args.lainlet_endpoint, CONFIGS['hostname'])
@@ -225,7 +251,8 @@ if __name__ == "__main__":
             container_name = container["Names"][0].strip('/')
             container_id = container["Id"]
             stats = Docker.get_stats(container_id)
-            lain_info = lainlet.get_info(containers, depends, container_id, container_name)
+            lain_info = lainlet.get_info(
+                containers, depends, container_id, container_name)
 
             for klass in CLASSES:
                 klass.get(stats, lain_info)
