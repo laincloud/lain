@@ -13,6 +13,13 @@ Vagrant.configure(2) do |config|
       node.vm.provider "virtualbox" do |v|
         v.memory = i == 1 ? 1536 : 512
       end
+      
+      if i == 1
+        node.vm.provision "shell",
+          inline: "sudo /vagrant/bootstrap "\
+                  "-m https://l2ohopf9.mirror.aliyuncs.com "\
+                  "-r docker.io/laincloud --vip=192.168.77.201"
+      end
 
       node.vm.network "private_network", ip: "192.168.77.2#{i}"
 
