@@ -43,6 +43,9 @@ cd /vagrant && sudo ./bootstrap -r docker.io/laincloud
 - [Install](https://laincloud.gitbooks.io/white-paper/quickstart/install.html) 展示了如何从头开始构建 Lain 集群
 - [LAIN App Demo](https://laincloud.gitbooks.io/white-paper/quickstart/app-demo.html) 展示了如何在 Lain 集群上部署应用
 
+## LAIN 用户微信群
+![微信群](static/lain-wechat-group.jpg)
+
 ## Contributors
 
 - @[Qiangning Hong](https://github.com/hongqn)
