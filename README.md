@@ -33,9 +33,13 @@ Lain 是一个基于 Docker 的 PaaS 系统。
 curl -fsSL https://github.com/laincloud/lain/archive/v2.1.0.tar.gz | tar xf -
 cd lain-2.1.0
 vagrant up
-vagrant ssh
-# In the Vagrant machine
-cd /vagrant && sudo ./bootstrap -r docker.io/laincloud
+# Config DNS in local shell
+sudo bash -c 'echo "192.168.77.201  console.lain.local" >> /etc/hosts'
+```
+
+初始化完成后即可在浏览器访问console:
+```
+http://console.lain.local
 ```
 
 完整的文档在[这里](https://laincloud.gitbooks.io/white-paper/content/)，其中：
