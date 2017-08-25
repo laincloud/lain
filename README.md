@@ -2,7 +2,6 @@
 
 [![MIT license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/MIT)
 [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/laincloud/opensource)
-
 [![Throughput Graph](https://graphs.waffle.io/laincloud/lain/throughput.svg)](https://waffle.io/laincloud/lain/metrics/throughput)
 
 Lain 是一个基于 Docker 的 PaaS 系统。
@@ -48,7 +47,7 @@ http://console.lain.local
 - [LAIN App Demo](https://laincloud.gitbooks.io/white-paper/quickstart/app-demo.html) 展示了如何在 Lain 集群上部署应用
 
 ## LAIN 用户微信群
-![微信群](static/lain-wechat-group.jpg)
+<img src="https://github.com/laincloud/files/raw/master/images/lwg.JPG" width="400">
 
 ## Contributors
 
