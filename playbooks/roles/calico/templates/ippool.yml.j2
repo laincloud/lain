@@ -3,4 +3,9 @@
   metadata:
     cidr: {{ calico_default_network }}
   spec:
+{% if calico_ipip|bool %}
+    ipip:
+        enabled: true
+        mode: always
+{% endif %}
     nat-outgoing: true
