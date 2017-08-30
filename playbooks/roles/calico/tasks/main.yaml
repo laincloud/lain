@@ -77,6 +77,7 @@
 
 - name: generate ippool.yml
   template: src=ippool.yml.j2 dest=/etc/calico/ippool.yml
+  when: bootstrapping is defined and bootstrapping|bool
 
 - name: generate bird.cfg.mesh.template
   template: src=bird.cfg.mesh.template.j2 dest=/etc/calico/confd/templates/bird.cfg.mesh.template
@@ -176,6 +177,7 @@
 
 - name: create calico ippool
   command: calicoctl apply -f /etc/calico/ippool.yml
+  when: bootstrapping is defined and bootstrapping|bool
 
 - name: check if some network exist
   shell: docker network ls | grep {{ item }}
