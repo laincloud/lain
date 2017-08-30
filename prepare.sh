@@ -2,6 +2,20 @@
 
 set -e
 
+NETWORKD_VERSION="v2.3.1"
+DEPLOYD_VERSION="v2.3.1"
+LAINLET_VERSION="v2.3.3"
+CALICOCTL_VERSION="v1.2.2"
+ALLOCATE_IPIP_ADDR_VERSION="v1.2.2"
+STARTUP_VERSION="v1.2.2"
+CALICO_FELIX_VERSION="2.2.2"
+CONFD_VERSION="v0.11.2"
+LIBNETWORK_PLUGIN_VERSION="v1.1.0"
+BIRD_VERSION="v0.3.1"
+BIRD6_VERSION="v0.3.1"
+CONSUL_VERSION="0.8.5"
+BINARY_URL_PREFIX="https://lain.oss-cn-beijing.aliyuncs.com/binary"
+
 filename="lain-pre-1476939656.tar.gz"
 if [ ! -f "$filename" ]; then
     wget https://lain.oss-cn-beijing.aliyuncs.com/${filename}
@@ -16,29 +30,18 @@ mkdir -p playbooks/roles/lainlet/files
 mkdir -p playbooks/roles/calico/files/bin
 mkdir -p playbooks/roles/consul/files/bin
 
-wget -c https://github.com/laincloud/networkd/releases/download/v2.3.0/networkd.xz -O playbooks/roles/networkd/files/networkd.xz
-
-wget -c https://github.com/laincloud/deployd/releases/download/v2.3.0/deployd.xz -O playbooks/roles/deployd/files/deployd.xz
-
-wget -c https://github.com/laincloud/lainlet/releases/download/v2.3.0/lainlet.xz -O playbooks/roles/lainlet/files/lainlet.xz
-
-wget -c https://github.com/laincloud/calicoctl/releases/download/v1.2.1/calicoctl.xz -O playbooks/roles/calico/files/bin/calicoctl.xz
-
-wget -c https://github.com/laincloud/calicoctl/releases/download/v1.2.1/allocate-ipip-addr.xz -O playbooks/roles/calico/files/bin/allocate-ipip-addr.xz
-
-wget -c https://github.com/laincloud/calicoctl/releases/download/v1.2.1/startup.xz -O playbooks/roles/calico/files/bin/startup.xz
-
-wget -c https://github.com/laincloud/felix/releases/download/2.2.2/calico-felix.xz -O playbooks/roles/calico/files/bin/calico-felix.xz
-
-wget -c https://github.com/laincloud/confd/releases/download/v0.11.2/confd.xz -O playbooks/roles/calico/files/bin/confd.xz
-
-wget -c https://github.com/laincloud/libnetwork-plugin/releases/download/v1.1.0/libnetwork-plugin.xz -O playbooks/roles/calico/files/bin/libnetwork-plugin.xz
-
-wget -c https://github.com/projectcalico/bird/releases/download/v0.3.1/bird -O playbooks/roles/calico/files/bin/bird
-
-wget -c https://github.com/projectcalico/bird/releases/download/v0.3.1/bird6 -O playbooks/roles/calico/files/bin/bird6
-
-wget -c https://releases.hashicorp.com/consul/0.8.5/consul_0.8.5_linux_amd64.zip -O playbooks/roles/consul/files/bin/consul_0.8.5_linux_amd64.zip
+wget -c ${BINARY_URL_PREFIX}/networkd/releases/download/${NETWORKD_VERSION}/networkd.xz -O playbooks/roles/networkd/files/networkd.xz
+wget -c ${BINARY_URL_PREFIX}/deployd/releases/download/${DEPLOYD_VERSION}/deployd.xz -O playbooks/roles/deployd/files/deployd.xz
+wget -c ${BINARY_URL_PREFIX}/lainlet/releases/download/${LAINLET_VERSION}/lainlet.xz -O playbooks/roles/lainlet/files/lainlet.xz
+wget -c ${BINARY_URL_PREFIX}/calicoctl/releases/download/${CALICOCTL_VERSION}/calicoctl.xz -O playbooks/roles/calico/files/bin/calicoctl.xz
+wget -c ${BINARY_URL_PREFIX}/calicoctl/releases/download/${ALLOCATE_IPIP_ADDR_VERSION}/allocate-ipip-addr.xz -O playbooks/roles/calico/files/bin/allocate-ipip-addr.xz
+wget -c ${BINARY_URL_PREFIX}/calicoctl/releases/download/${STARTUP_VERSION}/startup.xz -O playbooks/roles/calico/files/bin/startup.xz
+wget -c ${BINARY_URL_PREFIX}/felix/releases/download/${CALICO_FELIX_VERSION}/calico-felix.xz -O playbooks/roles/calico/files/bin/calico-felix.xz
+wget -c ${BINARY_URL_PREFIX}/confd/releases/download/${CONFD_VERSION}/confd.xz -O playbooks/roles/calico/files/bin/confd.xz
+wget -c ${BINARY_URL_PREFIX}/libnetwork-plugin/releases/download/${LIBNETWORK_PLUGIN_VERSION}/libnetwork-plugin.xz -O playbooks/roles/calico/files/bin/libnetwork-plugin.xz
+wget -c ${BINARY_URL_PREFIX}/bird/releases/download/${BIRD_VERSION}/bird.xz -O playbooks/roles/calico/files/bin/bird.xz
+wget -c ${BINARY_URL_PREFIX}/bird/releases/download/${BIRD6_VERSION}/bird6.xz -O playbooks/roles/calico/files/bin/bird6.xz
+wget -c ${BINARY_URL_PREFIX}/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip -O playbooks/roles/consul/files/bin/consul_${CONSUL_VERSION}_linux_amd64.zip
 
 unxz -kf playbooks/roles/networkd/files/networkd.xz
 unxz -kf playbooks/roles/deployd/files/deployd.xz
@@ -49,4 +52,6 @@ unxz -kf playbooks/roles/calico/files/bin/startup.xz
 unxz -kf playbooks/roles/calico/files/bin/calico-felix.xz
 unxz -kf playbooks/roles/calico/files/bin/confd.xz
 unxz -kf playbooks/roles/calico/files/bin/libnetwork-plugin.xz
-unzip -o playbooks/roles/consul/files/bin/consul_0.8.5_linux_amd64.zip -d playbooks/roles/consul/files/bin
+unxz -kf playbooks/roles/calico/files/bin/bird.xz
+unxz -kf playbooks/roles/calico/files/bin/bird6.xz
+unzip -o playbooks/roles/consul/files/bin/consul_${CONSUL_VERSION}_linux_amd64.zip -d playbooks/roles/consul/files/bin
