@@ -11,7 +11,7 @@ import app_ctl
 @pytest.fixture(scope="session")
 def up_node1():
     subproc.check_call(['vagrant', 'destroy', '-f', 'node1'])
-    subproc.check_call(['vagrant', 'up', 'node1'])
+    subproc.check_call(['vagrant', 'up', 'node1', '--no-provision'])
     yield "node1 is ready"
 
     print("Destroying node1...")
