@@ -42,9 +42,8 @@ http://console.lain.local
 ```
 
 完整的文档在[这里](https://laincloud.gitbooks.io/white-paper/content/)，其中：
-- [Demo Cluster](https://laincloud.gitbooks.io/white-paper/quickstart/demo.html) 展示了如何快速启动一个 Demo 集群
-- [Install](https://laincloud.gitbooks.io/white-paper/quickstart/install.html) 展示了如何从头开始构建 Lain 集群
-- [LAIN App Demo](https://laincloud.gitbooks.io/white-paper/quickstart/app-demo.html) 展示了如何在 Lain 集群上部署应用
+- [Install](https://laincloud.gitbooks.io/white-paper/install/cluster.html) 展示了如何从头开始构建 Lain 集群
+- [LAIN App Demo](https://laincloud.gitbooks.io/white-paper/tutorial/first-lain-app.html) 展示了如何在 Lain 集群上部署应用
 
 ## LAIN 用户微信群
 <img src="https://github.com/laincloud/files/raw/master/images/lwg.JPG" width="400">
