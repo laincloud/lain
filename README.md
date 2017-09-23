@@ -45,9 +45,6 @@ http://console.lain.local
 - [Install](https://laincloud.gitbooks.io/white-paper/install/cluster.html) 展示了如何从头开始构建 Lain 集群
 - [LAIN App Demo](https://laincloud.gitbooks.io/white-paper/tutorial/first-lain-app.html) 展示了如何在 Lain 集群上部署应用
 
-## LAIN 用户微信群
-<img src="https://github.com/laincloud/files/raw/master/images/lwg.JPG" width="400">
-
 ## Contributors
 
 - @[Qiangning Hong](https://github.com/hongqn)
