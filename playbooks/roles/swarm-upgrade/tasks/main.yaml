@@ -33,7 +33,7 @@
   notify:
     - reload systemd for swarm-manage
     - stop swarm manager
-  when: node_name not in {{ manager_list }}
+  when: node_name not in manager_list
 - meta: flush_handlers
 
 - name: config swarm manager
@@ -41,12 +41,12 @@
   notify:
     - restart swarm manager
     - reload systemd for swarm-manage
-  when: node_name in {{ manager_list }}
+  when: node_name in manager_list
 - meta: flush_handlers
 
 - name: ensure swarm manager started
   service: name=swarm-manager enabled=yes state=started
-  when: node_name in {{ manager_list }}
+  when: node_name in manager_list
 
 - name: waiting for swarm manager to collect information from cluster nodes
   shell: "docker -H swarm.lain:{{ swarm_manager_port }} info | grep 'Nodes: ' | awk '{ print $2 }'"
