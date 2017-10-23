@@ -34,5 +34,4 @@
 - name: wait for console ready
   wait_for: host=localhost port={{ bootstrap_console_port }} timeout=10
 
-
 # vim: set filetype=ansible.yaml:

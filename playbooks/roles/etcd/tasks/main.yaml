@@ -1,8 +1,16 @@
+- name: copy etcd
+  copy:
+    src: etcd-{{ etcd_ver }}-4.el7.x86_64.rpm
+    dest: /opt/etcd-{{ etcd_ver }}-4.el7.x86_64.rpm
+    force: yes
+    mode: 0644
+
 - name: create etcd user
   user: name=etcd createhome=no
 
 - name: install etcd
-  yum: pkg=etcd-{{ etcd_ver }}
+  command: rpm -i /opt/etcd-{{ etcd_ver }}-4.el7.x86_64.rpm
+  ignore_errors: True
 
 - name: get etcd member list
   local_action: shell etcdctl member list  | awk '{print $2}' | awk '{print substr($1, 6)}'

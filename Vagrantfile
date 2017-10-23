@@ -11,7 +11,7 @@ Vagrant.configure(2) do |config|
       node.vm.hostname = nodename
 
       node.vm.provider "virtualbox" do |v|
-        v.memory = i == 1 ? 1536 : 512
+        v.memory = i == 1 ? 1536 : 768
       end
       
       if i == 1

@@ -72,6 +72,7 @@ def main():
                            "docker will run on loop-lvm if this is not given, but loop-lvm is not proposed")
     parser.add_option('--ipip', action='store_true',
                       help="calico using ip tunnel")
+    parser.add_option('--pypi-mirror',action='store_true',help='use the third party python mirror')
     options, args = parser.parse_args()
 
     if options.download_only:
@@ -126,7 +127,7 @@ def download(options):
 
 def bootstrap(options):
     install_ansible(options)
-    exec_prepare()
+    exec_prepare(options)
     apply_bootstrap_playbook(options)
     apply_site_playbook(options)
 
@@ -134,10 +135,9 @@ def bootstrap(options):
          "      ansible-playbook -i playbooks/cluster playbooks/site.yaml")
 
 
-def exec_prepare():
+def exec_prepare(options):
     os.chdir(here)
     check_call(['bash', 'prepare.sh'])
-
 
 def install_ansible(options):
     if not which('ansible-playbook'):
@@ -148,13 +148,15 @@ def install_ansible(options):
         #     warn("pycrypto, if installed via pip, is conflict "
         #          "with CentOS's python-crypto package.  Remove it.")
         #     call('pip uninstall -y pycrypto', shell=True)
-
         check_call('yum install -y wget unzip epel-release gcc python-devel openssl-devel libffi-devel',
                    shell=True)
         # NOTE: This will install python-crypto.
         check_call('yum install -y python2-pip', shell=True)
-        check_call('pip install ansible==1.9.6', shell=True)
-
+        check_call('pip install --upgrade pip', shell=True)
+        if options.pypi_mirror:
+            check_call('pip install -i https://pypi.mirrors.ustc.edu.cn/simple/ ansible==1.9.6', shell=True)
+        else:
+            check_call('pip install ansible==1.9.6', shell=True)
     # Install customized plugins, eg. show timestamp for tasks
     _install_ansible_plugins(options)
 

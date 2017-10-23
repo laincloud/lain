@@ -45,7 +45,7 @@ def up_node3():
 def bootstrap(up_node1):
     subproc.check_call([
         'vagrant', 'ssh', 'node1', '-c',
-        'sudo /vagrant/bootstrap -m https://l2ohopf9.mirror.aliyuncs.com -r docker.io/laincloud --vip={}'.
+        'sudo /vagrant/bootstrap --pypi-mirror -m https://l2ohopf9.mirror.aliyuncs.com -r docker.io/laincloud --vip={}'.
         format(CONFIG.vip)
     ])
 
