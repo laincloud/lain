@@ -10,10 +10,19 @@
 - name: install collectd
   yum: pkg=collectd-{{ collectd_version }}
 
-- name: install collectd plugins
+- name: install collectd plugins and dependencies
   yum: pkg={{ item }}
   with_items:
     - collectd-ping-{{ collectd_version }}
+    - gcc
+    - python-devel
+    - python-pip
+
+- name: install python libs
+  command: pip install docker-py psutil==4.1.0
+  environment:
+    http_proxy: "{{ http_proxy }}"
+    https_proxy: "{{ https_proxy }}"
 
 # lastest collectd without disk pkg
 - name: install collectd plugins
