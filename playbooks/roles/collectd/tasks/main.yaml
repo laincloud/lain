@@ -52,8 +52,11 @@
 - name: ensure conf dir
   file: path=/etc/collectd.d state=directory
 
-- name: deploy collectd lain config
-  template: src=lain.conf.j2 dest=/etc/collectd.d/lain.conf
+- name: deploy collectd plugins config
+  template: src={{ item }}.j2 dest=/etc/collectd.d/{{ item }}
+  with_items:
+    - docker_daemon_monitor.conf
+    - lain.conf
   notify: restart collectd
 
 - name: ensure collectd running
