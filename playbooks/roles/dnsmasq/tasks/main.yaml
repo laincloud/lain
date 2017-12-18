@@ -1,7 +1,7 @@
-# dnsmasq
-# TODO: support more distro
 - name: install dnsmasq
-  yum: pkg=/tmp/lain/dnsmasq-2.75-1.el7.centos.x86_64.rpm
+  package:
+    name: dnsmasq
+    state: present
 
 - name: ensure dnsmasq.hosts
   file: path="{{ dnsmasq_hosts_path }}" state=touch
@@ -17,6 +17,18 @@
 - set_fact: dnsmasq_server_port="{{ result.port }}"
   when: result|success
 
+- name: adjust dnsmasq service unit file
+  lineinfile:
+    path: "{{ dnsmasq_service_path }}"
+    regexp: "^PIDFile="
+    line: "# PIDFile=/var/run/dnsmasq.pid"
+  notify:
+    - reload systemd for dnsmasq
+    - restart dnsmasq
+  when: ansible_distribution == "Ubuntu" and
+        (bootstrapping|bool or target|default('') == 'new_nodes')
+- meta: flush_handlers
+
 - name: check if dnsmasq.servers exists
   stat: path="{{ dnsmasq_servers_path }}"
   register: dnsmasq_servers_result
@@ -26,6 +38,7 @@
   when: result|success and not dnsmasq_servers_result.stat.exists
   notify:
     - restart dnsmasq
+- meta: flush_handlers
 
 - name: ensure dnsmasq.servers
   file: path="{{ dnsmasq_servers_path }}" state=touch
@@ -35,6 +48,7 @@
   template: src=dnsmasq.conf.j2 dest=/etc/dnsmasq.conf
   notify:
     - restart dnsmasq
+- meta: flush_handlers
 
 - name: enable and start dnsmasq service
   service: name=dnsmasq enabled=yes state=started

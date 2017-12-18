@@ -5,7 +5,7 @@ After=network-online.target
 
 [Service]
 Restart=on-failure
-ExecStartPre=/usr/bin/mkdir -p /var/run/calico
+ExecStartPre=/usr/bin/env mkdir -p /var/run/calico
 ExecStart=/usr/bin/bird -R -s /var/run/calico/bird.ctl -d -c /etc/calico/confd/config/bird.cfg
 
 [Install]

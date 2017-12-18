@@ -1,4 +1,5 @@
 dependencies:
+  - role: os-dependent-vars
   - role: config
   - role: firewall
   - role: etcd

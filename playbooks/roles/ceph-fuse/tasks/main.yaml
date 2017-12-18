@@ -1,5 +1,5 @@
 - name: install ceph-fuse
-  yum: 
+  yum:
     name: ceph-fuse-{{ ceph_version }}
     state: present
 
@@ -10,7 +10,7 @@
   command: mv /sbin/mount.fuse.ceph /sbin/mount.fuse.ceph.bak
   when: ansible_distribution_major_version == "7"
 
-- name: update ceph mount file, 
+- name: update ceph mount file,
   shell: sed -e "s/cephargs='--'\`echo \$1 | sed 's\/,\/ --\/g'\`/fs_spec=\`echo \$1 | sed \'s\/:\/=\/g\'\` \ncephargs=\'--\'\`echo \$fs_spec | sed \'s\/,\/ --\/g\'\`/g" /sbin/mount.fuse.ceph.bak >/sbin/mount.fuse.ceph
   when: ansible_distribution_major_version == "7"
 
@@ -44,7 +44,7 @@
   lineinfile: dest=/etc/ceph/fuse.conf line="{{client_mountpoint}}" insertafter=EOF
 
 - name: install gevent
-  yum: pkg=python-gevent
+  package: name=python-gevent state=present
 
 - name: copy cephmon
   copy: src=plugins dest=/etc/ceph/ mode=0755
@@ -57,10 +57,9 @@
   command: systemctl daemon-reload
   when: result|changed
 
-- name: "enable cephmon"                                                                               
+- name: "enable cephmon"
   service: name=cephmon enabled=yes
 
 - name: restart cephmon
   service: name=cephmon state=restarted
   when: result
-

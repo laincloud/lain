@@ -1,5 +1,5 @@
 - name: install rsync
-  yum: pkg=rsync
+  package: name=rsync state=present
 
 - name: get network segment
   command: etcdctl get /lain/config/node_network
@@ -39,15 +39,15 @@
   register: config_result
 
 - name: generate service configration
-  template: src=rsyncd.sysconfig.j2 dest=/etc/sysconfig/rsyncd
+  template: src=rsyncd.service.j2 dest={{ rsync_service_path }}
   register: service_result
 
 - name: reload systemd for rsync
   command: systemctl daemon-reload
 
-- name: restart the rsyncd
-  service: name=rsyncd enabled=yes state=restarted
+- name: restart the "{{ rsync_service_name }}"
+  service: name="{{ rsync_service_name }}" enabled=yes state=restarted
   when: secrets_result|changed or config_result|changed or service_result|changed
 
-- name: ensure rsyncd started
-  service: name=rsyncd enabled=yes state=started
+- name: ensure "{{ rsync_service_name }}" started
+  service: name="{{ rsync_service_name }}" enabled=yes state=started

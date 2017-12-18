@@ -1,5 +1,5 @@
 - name: install pip
-  yum: pkg=python-pip
+  package: name=python-pip state=present
 
 - name: install python packages
   command: pip install --upgrade --force-reinstall {{ item }}

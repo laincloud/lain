@@ -43,8 +43,9 @@ wget  ${BINARY_URL_PREFIX}/libnetwork-plugin/releases/download/${LIBNETWORK_PLUG
 wget  ${BINARY_URL_PREFIX}/bird/releases/download/${BIRD_VERSION}/bird.xz -O playbooks/roles/calico/files/bin/bird.xz
 wget  ${BINARY_URL_PREFIX}/bird/releases/download/${BIRD6_VERSION}/bird6.xz -O playbooks/roles/calico/files/bin/bird6.xz
 wget  ${BINARY_URL_PREFIX}/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip -O playbooks/roles/consul/files/bin/consul_${CONSUL_VERSION}_linux_amd64.zip
-wget  http://lain.oss-cn-beijing.aliyuncs.com/etcd-${ETCD_VERSION}-4.el7.x86_64.rpm -O playbooks/roles/etcd/files/etcd-${ETCD_VERSION}-4.el7.x86_64.rpm
-
+wget https://github.com/coreos/etcd/releases/download/v${ETCD_VERSION}/etcd-v${ETCD_VERSION}-linux-amd64.tar.gz -O - | tar xz -C /tmp
+wget https://download.docker.com/linux/ubuntu/dists/trusty/pool/stable/amd64/docker-ce_17.09.1~ce-0~ubuntu_amd64.deb -O  playbooks/roles/binary/files/lain/docker-ce_17.09.1_ubuntu_14.04_amd64.deb
+wget https://download.docker.com/linux/ubuntu/dists/xenial/pool/stable/amd64/docker-ce_17.09.1~ce-0~ubuntu_amd64.deb -O  playbooks/roles/binary/files/lain/docker-ce_17.09.1_ubuntu_16.04_amd64.deb
 
 unxz -kf playbooks/roles/networkd/files/networkd.xz
 unxz -kf playbooks/roles/deployd/files/deployd.xz
@@ -58,3 +59,4 @@ unxz -kf playbooks/roles/calico/files/bin/libnetwork-plugin.xz
 unxz -kf playbooks/roles/calico/files/bin/bird.xz
 unxz -kf playbooks/roles/calico/files/bin/bird6.xz
 unzip -o playbooks/roles/consul/files/bin/consul_${CONSUL_VERSION}_linux_amd64.zip -d playbooks/roles/consul/files/bin
+cp /tmp/etcd-v${ETCD_VERSION}-linux-amd64/etcd* playbooks/roles/etcd/files

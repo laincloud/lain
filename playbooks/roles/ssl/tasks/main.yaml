@@ -1,19 +1,18 @@
 - include: ca.yaml
   when: is_lain_manager
 
-- name: copy self-signed CA root
+- name: copy self-signed CA root(CentOS)
   copy: src="{{ manager_home }}/.certs/rootCA.crt" dest=/etc/pki/ca-trust/source/anchors/
+  when: ansible_distribution=="CentOS"
 
-- name: get rootCA stat
-  stat: path=/etc/pki/ca-trust/source/anchors/rootCA.crt
-  register: src_stat
-  changed_when: False
+- name: copy self-signed CA root(Ubuntu)
+  copy: src="{{ manager_home }}/.certs/rootCA.crt" dest=/usr/local/share/ca-certificates/
+  when: ansible_distribution=="Ubuntu"
 
-- name: get cert bundle stat
-  stat: path=/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt
-  register: dest_stat
-  changed_when: False
-
-- name: trust self-sigend CA root
+- name: trust self-sigend CA root(CentOS)
   command: update-ca-trust extract
-  when: src_stat.stat.mtime > dest_stat.stat.mtime  # src is newer
+  when: ansible_distribution=="CentOS"
+
+- name: trust self-sigend CA root(Ubuntu)
+  command: update-ca-certificates
+  when: ansible_distribution=="Ubuntu"

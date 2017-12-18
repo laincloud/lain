@@ -2,11 +2,13 @@
 
 from subprocess import Popen, PIPE
 
+from ansible.module_utils.basic import AnsibleModule
+
 
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            images=dict(required=True),
+            images=dict(type='list', required=True),
         ),
     )
 
@@ -20,6 +22,5 @@ def main():
         module.fail_json(msg=stderr)
 
 
-from ansible.module_utils.basic import *
-
-main()
+if __name__ == '__main__':
+    main()

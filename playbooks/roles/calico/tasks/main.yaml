@@ -8,13 +8,15 @@
   copy: src=calico.conf dest=/etc/modules-load.d/calico.conf
 
 - name: install conntrack-tools
-  yum: pkg=conntrack-tools
+  package:
+    name: "{{conntrack_pkt_name }}"
+    state: present
 
 - name: install ipset
-  yum: pkg=ipset
+  package: name=ipset state=present
 
 - name: install net-tools
-  yum: pkg=net-tools
+  package: name=net-tools state=present
 
 - name: copy calicoctl
   copy:

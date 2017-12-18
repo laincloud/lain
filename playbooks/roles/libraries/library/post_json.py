@@ -7,9 +7,9 @@ import json
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            url=dict(required=True),
-            body=dict(required=True),
-            header=dict(required=False),
+            url=dict(type='str', required=True),
+            body=dict(type='dict', required=True),
+            header=dict(type='dict', required=False),
         )
     )
 

@@ -2,21 +2,26 @@
 # TODO: should refine firewall configuration instead to disable it.
 - name: disable firewalld
   service: name=firewalld enabled=no state=stopped
+  when: ansible_distribution=="CentOS"
 
 - name: mask firewalld
   shell: systemctl mask firewalld
+  when: ansible_distribution=="CentOS"
 
-- name: install iptables-services
-  yum: pkg=iptables-services
+- name: install iptables
+  package:
+    name: "{{ iptables_pkt_name }}"
+    state: present
 
 - name: enable iptables services
   service: name=iptables enabled=yes
+  when: ansible_distribution == "CentOS"
 
 - name: deploy init iptables script
   template: src=iptables.sh.j2 dest=/tmp/iptables.sh
 
 - name: init iptables
-  shell: sh /tmp/iptables.sh
+  shell: bash /tmp/iptables.sh
 
 - name: deploy /etc/sysconfig/iptables
-  template: src=iptables.save.j2 dest=/etc/sysconfig/iptables mode=600
+  template: src=iptables.save.j2 dest="{{ iptables_save_path }}" mode=600

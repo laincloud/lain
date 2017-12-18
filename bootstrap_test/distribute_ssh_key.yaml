@@ -2,7 +2,7 @@
 - hosts: localhost
   tasks:
   - name: install sshpass
-    yum: pkg=sshpass state=latest
+    package: name=sshpass state=latest
 
 - hosts: test_nodes
   gather_facts: no

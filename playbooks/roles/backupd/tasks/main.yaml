@@ -37,7 +37,7 @@
   when: ostat|failed or nstat|failed or "{{ostat.stat.md5|default('old')}}" != "{{nstat.stat.md5|default('new')}}"
 
 - name: install rsync
-  yum: name=rsync
+  package: name=rsync state=present
 
 - name: create backup directory
   file: path="{{ backup_dir }}/{{ node_ip }}" state=directory

@@ -4,7 +4,7 @@ After=syslog.target network.target
 
 [Service]
 User=root
-ExecStartPre=/usr/bin/mkdir -p /var/run/calico
+ExecStartPre=/usr/bin/env mkdir -p /var/run/calico
 ExecStart=/usr/bin/calico-felix
 KillMode=process
 Restart=on-failure

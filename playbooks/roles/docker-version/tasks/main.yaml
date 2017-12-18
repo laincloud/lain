@@ -19,6 +19,7 @@
 # TODO: support more distro
 - name: install(update) lvm2 and device-mapper
   yum: name=lvm2,device-mapper state=latest
+  when: ansible_distribution == "CentOS"
 
 - name: install docker from OS package manage system
   yum: pkg={{ item }}
@@ -26,6 +27,12 @@
     - "/tmp/lain/docker-engine-selinux-{{ docker_version }}.noarch.rpm"
     - "/tmp/lain/docker-engine-{{ docker_version }}.x86_64.rpm"
   register: pkg
+  when: ansible_distribution == "CentOS"
+
+- name: install docker for ubuntu
+  apt:
+    deb: "/tmp/lain/docker-ce_17.09.1_ubuntu_{{ansible_distribution_version}}_amd64.deb"
+  when: ansible_distribution == "Ubuntu"
 
 - name: remove default Docker keys, avoid issues with Swarm
   file: path=/etc/docker/key.json state=absent
@@ -36,7 +43,7 @@
   when: docker_device == "" and node_info is defined
 
 - include: devicemapper.yaml
-  when: docker_device != ""
+  when: docker_device != "" and ansible_distribution == "CentOS"
 
 # Restarting docker is a big deal.  User must allow it explicitly.
 - name: render docker config for test
@@ -68,4 +75,3 @@
   retries: 50
   delay: 5
   changed_when: False
-
