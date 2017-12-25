@@ -1,5 +1,5 @@
 - name: install rsyslog
-  yum: pkg=rsyslog
+  package: name=rsyslog state=present
 
 - name: copy rsyslog.conf
   copy: src=rsyslog.conf dest=/etc/rsyslog.conf backup=yes

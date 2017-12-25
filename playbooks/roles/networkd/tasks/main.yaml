@@ -5,6 +5,11 @@
     force: yes
     mode: a+x
 
+- name: install arping
+  # package name is iputils-arping not arping
+  package: name=iputils-arping state=present
+  when: ansible_distribution=="Ubuntu"
+
 - name: generate networkd.service
   template:
     src: networkd.service.j2

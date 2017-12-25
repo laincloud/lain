@@ -1,13 +1,16 @@
 - name: ensure epel exists
   yum: pkg=epel-release
+  when: ansible_distribution == "CentOS"
 
 - name: create data dir
   file: path={{ lain_data_dir }} state=directory
 
 - yum: pkg=libselinux-python
+  when: ansible_distribution == "CentOS"
 
-- name: enable selinux 
+- name: enable selinux
   selinux: policy=targeted state=permissive
+  when: ansible_distribution == "CentOS"
 
 - name: get stat of nscd.service
   stat: path=/etc/systemd/system/nscd.service

@@ -9,7 +9,7 @@
     {% if node_labels is defined %}
 "labels": [{% for label in node_labels %}"{{ label }}"{% if not loop.last %}, {% endif %}{% endfor %}],
     {% endif -%}
-    "insecure-registries": ["registry.lain","registry.{{ domain }}"{% if registry_mirror is defined %},"{{ registry_mirror|replace('http://', '')|replace('https://', '') }}"{% endif -%}{% if registry_bootstrap is defined %},"{{ registry_bootstrap|replace('http://', '')|replace('https://', '') }}"{% endif -%}],
+    "insecure-registries": ["registry.lain","registry.{{ domain }}"{% if registry_mirror is defined %},"{{ registry_mirror|replace('http://', '')|replace('https://', '') }}"{% endif -%}],
     "dns": ["{{ node_ip }}"],
     "selinux-enabled": true,
     "graph": "{{ docker_graph_dir }}",

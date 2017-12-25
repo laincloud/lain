@@ -1,16 +1,18 @@
+- file: path=/etc/etcd state=directory mode=0755
+
 - name: copy etcd
   copy:
-    src: etcd-{{ etcd_ver }}-4.el7.x86_64.rpm
-    dest: /opt/etcd-{{ etcd_ver }}-4.el7.x86_64.rpm
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
     force: yes
-    mode: 0644
+    mode: "{{ item.mode }}"
+  with_items:
+    - { src: 'etcd', dest: '/usr/bin/etcd', mode: "0755" }
+    - { src: 'etcdctl', dest: '/usr/bin/etcdctl', mode: "0755" }
+    - { src: 'etcdctl_comp', dest: '/usr/share/bash-completion/completions/etcdctl', mode: "0644"}
 
 - name: create etcd user
   user: name=etcd createhome=no
-
-- name: install etcd
-  command: rpm -i /opt/etcd-{{ etcd_ver }}-4.el7.x86_64.rpm
-  ignore_errors: True
 
 - name: get etcd member list
   local_action: shell etcdctl member list  | awk '{print $2}' | awk '{print substr($1, 6)}'
@@ -51,6 +53,3 @@
   retries: 50
   delay: 5
   changed_when: False
-
-- name: Ship etcdctl bash-completion script
-  copy: src=etcdctl_comp dest=/usr/share/bash-completion/completions/etcdctl

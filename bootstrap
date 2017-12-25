@@ -9,6 +9,7 @@ from distutils.spawn import find_executable as which
 from uuid import uuid4
 import socket
 import json
+import platform
 
 try:
     from shlex import quote as shellquote
@@ -148,15 +149,22 @@ def install_ansible(options):
         #     warn("pycrypto, if installed via pip, is conflict "
         #          "with CentOS's python-crypto package.  Remove it.")
         #     call('pip uninstall -y pycrypto', shell=True)
-        check_call('yum install -y wget unzip epel-release gcc python-devel openssl-devel libffi-devel',
-                   shell=True)
-        # NOTE: This will install python-crypto.
-        check_call('yum install -y python2-pip', shell=True)
+        distname = platform.linux_distribution()[0]
+        if distname == "Ubuntu":
+            check_call("sed -i s/archive.ubuntu.com/mirrors.ustc.edu.cn/g /etc/apt/sources.list", shell=True)
+            check_call("apt update", shell=True)
+            check_call("apt-get install -y wget unzip build-essential python2.7-dev libssl-dev libffi-dev", shell=True)
+            check_call('apt-get install -y python-pip', shell=True)
+        else:
+            check_call('yum install -y wget unzip epel-release gcc python-devel openssl-devel libffi-devel',
+                    shell=True)
+            # NOTE: This will install python-crypto.
+            check_call('yum install -y python2-pip', shell=True)
         check_call('pip install --upgrade pip', shell=True)
         if options.pypi_mirror:
-            check_call('pip install -i https://pypi.mirrors.ustc.edu.cn/simple/ ansible==1.9.6', shell=True)
+            check_call('pip install -i https://pypi.mirrors.ustc.edu.cn/simple/ ansible==2.4.2', shell=True)
         else:
-            check_call('pip install ansible==1.9.6', shell=True)
+            check_call('pip install ansible==2.4.2', shell=True)
     # Install customized plugins, eg. show timestamp for tasks
     _install_ansible_plugins(options)
 

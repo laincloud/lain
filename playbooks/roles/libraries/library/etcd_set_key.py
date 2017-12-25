@@ -2,15 +2,18 @@
 
 from urllib2 import urlopen, HTTPError
 import json
+import os
 from subprocess import check_call
+
+from ansible.module_utils.basic import AnsibleModule
 
 
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            key=dict(required=True),
-            value=dict(required=True),
-            etcd_client_port=dict(default="4001"),
+            key=dict(type='str', required=True),
+            value=dict(type='str', required=True),
+            etcd_client_port=dict(type='str', default="4001"),
         ),
     )
 
@@ -30,7 +33,8 @@ def main():
         return data['node']['value']
 
     def set_key(key, value):
-        check_call(['etcdctl', 'set', key, value])
+        with open(os.devnull, 'w') as fnull:
+            check_call(['etcdctl', 'set', key, value], stdout=fnull)
 
     current_value = get_key(key)
 
@@ -38,8 +42,9 @@ def main():
         module.exit_json(changed=False)
 
     set_key(key, value)
+
     module.exit_json(changed=True)
 
 
-from ansible.module_utils.basic import *
-main()
+if __name__ == '__main__':
+    main()

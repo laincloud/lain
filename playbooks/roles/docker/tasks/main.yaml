@@ -1,6 +1,7 @@
 # TODO: support more distro
 - name: install(update) lvm2 and device-mapper
   yum: name=lvm2,device-mapper state=latest
+  when: ansible_distribution == "CentOS"
 
 - name: install docker from OS package manage system
   yum: pkg={{ item }}
@@ -8,6 +9,15 @@
     - "/tmp/lain/docker-engine-selinux-{{ docker_ver }}.noarch.rpm"
     - "/tmp/lain/docker-engine-{{ docker_ver }}.x86_64.rpm"
   register: pkg
+  when: ansible_distribution == "CentOS"
+
+- name: install docker for ubuntu
+  apt:
+    deb: "/tmp/lain/docker-ce_17.09.1_ubuntu_{{ansible_distribution_version}}_amd64.deb"
+  when: ansible_distribution == "Ubuntu"
+
+- name: systemctl daemon-reload
+  command: systemctl daemon-reload
 
 - name: remove default Docker keys, avoid issues with Swarm
   file: path=/etc/docker/key.json state=absent
@@ -18,7 +28,7 @@
   when: docker_device == "" and node_info is defined
 
 - include: devicemapper.yaml
-  when: docker_device != ""
+  when: docker_device != "" and ansible_distribution == "CentOS"
 
 # Restarting docker is a big deal.  User must allow it explicitly.
 - name: render docker config for test
@@ -48,6 +58,18 @@
     - reload systemd for docker
     - restart docker
   when: bootstrapping|bool or target|default('') == 'new_nodes'
+
+- name: config docker service
+  lineinfile:
+    path: "{{docker_service_path}}"
+    regexp: "^ExecStart=/usr/bin/dockerd"
+    line: "ExecStart=/usr/bin/dockerd"
+  notify:
+    - reload systemd for docker
+    - restart docker
+  when: ansible_distribution == "Ubuntu" and
+        (bootstrapping|bool or target|default('') == 'new_nodes')
+
 - meta: flush_handlers
 
 - name: ensure docker started
@@ -67,6 +89,7 @@
   with_items:
     - "{{ bootstrap_volumes_dir }}"
     - "{{ docker_volumes_dir }}"
+  when: ansible_distribution == "CentOS"
 
 - copy: src=docker-enter dest=/usr/bin/docker-enter mode=755
 
@@ -77,5 +100,5 @@
 
 - name: remove all containers
   command: docker rm -f {{ item }}
-  with_items: containers.stdout_lines
+  with_items: "{{ containers.stdout_lines }}"
   when: remove_all_containers|bool

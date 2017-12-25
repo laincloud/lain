@@ -1,1 +1,1 @@
-- copy: src=plugins/ dest=/usr/share/ansible_plugins/
+- copy: src=plugins/ dest=/usr/share/ansible/plugins/

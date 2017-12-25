@@ -6,9 +6,11 @@
     {% if registry_mirror is defined %}
 "registry-mirrors": ["{{ registry_mirror }}"],
     {% endif -%}
-    "insecure-registries": ["registry.lain","registry.{{ domain }}"{% if registry_mirror is defined %},"{{ registry_mirror|replace('http://', '')|replace('https://', '') }}"{% endif -%}{% if registry_bootstrap is defined %},"{{ registry_bootstrap|replace('http://', '')|replace('https://', '') }}"{% endif -%}],
+    "insecure-registries": ["registry.lain","registry.{{ domain }}"{% if registry_mirror is defined %},"{{ registry_mirror|replace('http://', '')|replace('https://', '') }}"{% endif -%}],
     "dns": ["{{ node_ip }}"],
+    {% if ansible_distribution == "CentOS" %}
     "selinux-enabled": true,
+    {% endif -%}
     "graph": "{{ docker_graph_dir }}",
     "hosts": ["unix:///var/run/docker.sock","tcp://{{ node_ip }}:{{ docker_port }}"],
     "log-driver": "syslog",

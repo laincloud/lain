@@ -1,5 +1,5 @@
 - name: install rsyslog
-  yum: pkg=rsyslog
+  package: name=rsyslog state=present
 
 - name: config rebellion
   template: src=rebellion.service.j2 dest=/etc/systemd/system/rebellion.service
