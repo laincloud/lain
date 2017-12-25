@@ -21,8 +21,11 @@ playbooks/roles/binary/files/*
 **/dist
 **/*.egg-info
 venv/
+playbooks/bootstrap.retry
 playbooks/roles/calico-upgrade/files/bin
 playbooks/roles/calico/files/bin
+playbooks/roles/etcd/files/etcd
+playbooks/roles/etcd/files/etcdctl
 playbooks/roles/networkd-upgrade/files
 playbooks/roles/networkd/files
 playbooks/roles/lainlet/files

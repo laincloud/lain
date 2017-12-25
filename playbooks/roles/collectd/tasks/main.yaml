@@ -63,6 +63,7 @@
   with_items:
     - docker_daemon_monitor.conf
     - lain.conf
+    - node_monitor.conf
   notify: restart collectd
 
 - name: ensure collectd running

@@ -27,9 +27,6 @@ class Plugin(object):
     def shutdown(self):
         collectd.info("docker_daemon_monitor plugin has been shutdown.")
 
-    def __timeout_handler(self, signum, frame):
-        raise IOError("docker hangs")
-
 
 docker_daemon = Plugin()
 
