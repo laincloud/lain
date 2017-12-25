@@ -6,8 +6,8 @@ import requests
 
 class Plugin(object):
     DOCKER_URL_PREFIX = "http://docker.lain:2375"
-    READ_INTERVAL = 300  # 300 seconds
-    TIMEOUT = 3  # 3 seconds
+    READ_INTERVAL = 600  # 600 seconds
+    TIMEOUT = 6  # 6 seconds
     NAME = "lain.cluster.node"
 
     def init(self):
@@ -35,10 +35,29 @@ class Plugin(object):
             metric.values = [docekr_used_cpu_cores]
             metric.dispatch()
         except Exception as e:
-            collectd.error("read failed, exception: {}".format(e))
+            collectd.error(
+                "read_docker_used_cpu_cores() failed, exception: {}".format(e))
+
+    def read_rebellion_status(self):
+        try:
+            params = {"filters": '{"name": ["rebellion.service"]}'}
+            containers = requests.get(
+                "{}/containers/json".format(self.DOCKER_URL_PREFIX),
+                params=params,
+                timeout=self.TIMEOUT).json()
+            metric = collectd.Values()
+            metric.plugin = self.NAME
+            metric.plugin_instance = "rebellion_service"
+            metric.type = "val"
+            metric.values = [len(containers)]
+            metric.dispatch()
+        except Exception as e:
+            collectd.error(
+                "read_rebellion_status() failed, exception: {}".format(e))
 
     def read(self):
         self.read_docker_used_cpu_cores()
+        self.read_rebellion_status()
 
     def shutdown(self):
         collectd.info("node_monitor plugin has been shutdown.")
@@ -52,9 +71,8 @@ class Plugin(object):
         system_delta = stats["cpu_stats"]["system_cpu_usage"] - stats[
             "precpu_stats"]["system_cpu_usage"]
         if cpu_delta > 0 and system_delta > 0:
-            return (
-                float(cpu_delta) / system_delta
-            ) * len(stats["cpu_stats"]["cpu_usage"]["percpu_usage"])
+            return (float(cpu_delta) / system_delta
+                    ) * len(stats["cpu_stats"]["cpu_usage"]["percpu_usage"])
 
         return 0
 
