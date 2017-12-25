@@ -9,7 +9,7 @@ ExecStart=/usr/bin/docker run \
           {{ swarm_image }} join \
           --addr={{ node_ip }}:{{ docker_port }} \
           etcd://{{ node_ip }}:{{ etcd_client_port }}/lain/swarm
-ExecStop=/usr/bin/docker stop %n
+ExecStop=/bin/bash -c '/usr/bin/docker stop %n || true'
 Restart=always
 
 [Install]
