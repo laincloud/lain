@@ -141,7 +141,11 @@
 - name: run startup
   command: startup
 
-- name: run confd
+# Why run twice? Please see [here](https://github.com/projectcalico/calicoctl/blob/v1.2.1/calico_node/filesystem/etc/rc.local#L60)
+- name: run confd the first time
+  command: confd -confdir=/etc/calico/confd -onetime -node=http://127.0.0.1:{{ etcd_client_port }} -no-discover -keep-stage-file
+
+- name: run confd the second time
   command: confd -confdir=/etc/calico/confd -onetime -node=http://127.0.0.1:{{ etcd_client_port }} -no-discover -keep-stage-file
 
 - name: systemctl daemon-reload
