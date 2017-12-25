@@ -8,11 +8,11 @@
 
 - name: install collectd(CentOS)
   yum: pkg=collectd-{{ collectd_version }}
-  when: ansible-distribution=="CentOS"
+  when: ansible_distribution=="CentOS"
 
 - name: install collectd(Ubuntu)
   apt: name=collectd=5.5.1-1build2 state=installed
-  when: ansible-distribution=="Ubuntu"
+  when: ansible_distribution=="Ubuntu"
 
 - name: install collectd plugins and dependencies
   yum: pkg={{ item }}
@@ -21,7 +21,7 @@
     - gcc
     - python-devel
     - python-pip
-  when: ansible-distribution=="CentOS"
+  when: ansible_distribution=="CentOS"
 
 - name: install python libs
   command: pip install docker-py psutil==4.1.0
@@ -35,7 +35,7 @@
   with_items:
     - collectd-disk-{{ collectd_version }}
   ignore_errors: yes
-  when: ansible-distribution=="CentOS"
+  when: ansible_distribution=="CentOS"
 
 - name: create collectd user
   user: name=collectd createhome=no append=yes groups=docker system=yes
