@@ -4,8 +4,10 @@ Requires=docker.service
 After=docker.service
 
 [Service]
+ExecStartPre=-/usr/bin/docker stop %n
+ExecStartPre=-/usr/bin/docker rm %n
 ExecStart=/usr/bin/docker run \
-          --name %n --rm --network=host \
+          --name %n --restart=always --network=host \
           -e LAINLET_PORT={{ lainlet_port }} \
           -v {{ lain_data_dir }}/volumes/:/data/lain/volumes/:ro \
           -v {{ lain_data_dir }}/rebellion/var/lib/filebeat/:/var/lib/filebeat \
@@ -14,7 +16,6 @@ ExecStart=/usr/bin/docker run \
           -v /var/log/:/var/log/syslog/:ro \
           {{ rebellion_image }}
 ExecStop=/bin/bash -c '/usr/bin/docker stop %n || true'
-Restart=always
 
 [Install]
 WantedBy=multi-user.target
