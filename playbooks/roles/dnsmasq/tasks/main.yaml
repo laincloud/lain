@@ -1,7 +1,7 @@
 - name: install dnsmasq
   package:
     name: dnsmasq
-    state: present
+    state: latest
 
 - name: ensure dnsmasq.hosts
   file: path="{{ dnsmasq_hosts_path }}" state=touch
