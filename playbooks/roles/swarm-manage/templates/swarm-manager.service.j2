@@ -3,16 +3,17 @@ Description=docker swarm manager
 After=docker.service
 
 [Service]
+ExecStartPre=-/usr/bin/docker stop %n
+ExecStartPre=-/usr/bin/docker rm %n
 ExecStart=/usr/bin/docker run \
           --name %n \
-          --rm \
+          --restart=always \
           -p {{ swarm_manager_port }}:{{ docker_port }} \
           {{ swarm_image }} manage \
           --replication \
           --addr={{ node_ip }}:{{ swarm_manager_port }} \
           etcd://{{ node_ip }}:{{ etcd_client_port }}/lain/swarm
 ExecStop=/bin/bash -c '/usr/bin/docker stop %n || true'
-Restart=always
 
 [Install]
 WantedBy=multi-user.target

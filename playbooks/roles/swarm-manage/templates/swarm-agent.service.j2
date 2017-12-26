@@ -3,14 +3,15 @@ Description=docker swarm agent
 After=docker.service
 
 [Service]
+ExecStartPre=-/usr/bin/docker stop %n
+ExecStartPre=-/usr/bin/docker rm %n
 ExecStart=/usr/bin/docker run \
           --name %n \
-          --rm \
+          --restart=always \
           {{ swarm_image }} join \
           --addr={{ node_ip }}:{{ docker_port }} \
           etcd://{{ node_ip }}:{{ etcd_client_port }}/lain/swarm
 ExecStop=/bin/bash -c '/usr/bin/docker stop %n || true'
-Restart=always
 
 [Install]
 WantedBy=multi-user.target
