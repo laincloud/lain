@@ -64,6 +64,7 @@
     - docker_daemon_monitor.conf
     - lain.conf
     - node_monitor.conf
+    - rebellion_monitor.conf
   notify: restart collectd
 
 - name: ensure collectd running

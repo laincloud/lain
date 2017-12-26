@@ -38,26 +38,8 @@ class Plugin(object):
             collectd.error(
                 "read_docker_used_cpu_cores() failed, exception: {}".format(e))
 
-    def read_rebellion_status(self):
-        try:
-            params = {"filters": '{"name": ["rebellion.service"]}'}
-            containers = requests.get(
-                "{}/containers/json".format(self.DOCKER_URL_PREFIX),
-                params=params,
-                timeout=self.TIMEOUT).json()
-            metric = collectd.Values()
-            metric.plugin = self.NAME
-            metric.plugin_instance = "rebellion_service"
-            metric.type = "val"
-            metric.values = [len(containers)]
-            metric.dispatch()
-        except Exception as e:
-            collectd.error(
-                "read_rebellion_status() failed, exception: {}".format(e))
-
     def read(self):
         self.read_docker_used_cpu_cores()
-        self.read_rebellion_status()
 
     def shutdown(self):
         collectd.info("node_monitor plugin has been shutdown.")
@@ -77,9 +59,8 @@ class Plugin(object):
         return 0
 
 
-node_monitor = Plugin()
-
 if __name__ != "__main__":
+    node_monitor = Plugin()
     collectd.register_init(node_monitor.init)
     collectd.register_read(node_monitor.read, node_monitor.READ_INTERVAL)
     collectd.register_shutdown(node_monitor.shutdown)
