@@ -1,17 +1,9 @@
 - name: check if having lain container running on this node
-  shell: docker ps | grep "registry.{{ domain }}" | wc -l
+  shell: docker ps | grep -v .portal.portal | grep "registry.{{ domain }}" | wc -l
   register: result
 
 - fail: msg="still having lain container running on this node, check if by `docker ps`"
   when: result.stdout != '0'
-
-- shell: calicoctl status | grep "not running"
-  register: result
-  ignore_errors: yes
-
-- name: stop calico node
-  command: calicoctl node stop --force
-  when: result|failed
 
 - name: stop networkd
   service: name=networkd state=stopped
@@ -27,9 +19,6 @@
 
 - name: stop lainlet
   service: name=lainlet state=stopped
-
-- name: stop etcd
-  service: name=etcd state=stopped
 
 - name: stop rebellion
   service: name=rebellion state=stopped
@@ -53,3 +42,18 @@
 
 - name: stop rsyncd
   service: name=rsyncd state=stopped
+
+- name: stop calico 
+  service: name={{item}} state=stopped
+  with_items: 
+    - "calico-bird"
+    - "calico-bird6"
+    - "calico-confd"
+    - "calico-felix"
+    - "calico-libnetwork"
+
+- name: stop etcd
+  service: name=etcd state=stopped
+
+- name: stop consul
+  service: name=consul state=stopped
