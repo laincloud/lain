@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
+from __future__ import print_function
 
 import os
 import sys
@@ -160,6 +161,12 @@ def install_ansible(options):
                     shell=True)
             # NOTE: This will install python-crypto.
             check_call('yum install -y python2-pip', shell=True)
+        # ensure the default pip is pip2
+        try:
+            check_call('pip -V | grep python2', shell=True)
+        except CalledProcessError:
+            print("the default pip must be pip2")
+            sys.exit(-1)
         check_call('pip install --upgrade pip', shell=True)
         if options.pypi_mirror:
             check_call('pip install -i https://pypi.mirrors.ustc.edu.cn/simple/ ansible==2.4.2', shell=True)
