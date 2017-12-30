@@ -17,11 +17,16 @@
 - set_fact: dnsmasq_server_port="{{ result.port }}"
   when: result|success
 
-- name: adjust dnsmasq service unit file
+- name: stop dnsmasq before change service unit file(Ubuntu)
+  service: name=dnsmasq enabled=yes state=stopped
+  when: ansible_distribution == "Ubuntu" and
+        (bootstrapping|bool or target|default('') == 'new_nodes')
+
+- name: adjust dnsmasq service unit file(PIDFile)
   lineinfile:
     path: "{{ dnsmasq_service_path }}"
     regexp: "^PIDFile="
-    line: "# PIDFile=/var/run/dnsmasq.pid"
+    line: "PIDFile=/var/run/dnsmasq.pid"
   notify:
     - reload systemd for dnsmasq
     - restart dnsmasq
