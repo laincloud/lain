@@ -1,16 +1,17 @@
 {
-    {% if docker_device != "" %}
+
+    {% if ansible_distribution == "CentOS" %}
+      {% if docker_device != "" %}
 "storage-driver": "devicemapper",
     "storage-opts": ["dm.datadev={{ devicemapper_data_dir }}","dm.metadatadev={{ devicemapper_metadata_dir }}"],
+      {% endif -%}
+    "selinux-enabled": true,
     {% endif -%}
     {% if registry_mirror is defined %}
 "registry-mirrors": ["{{ registry_mirror }}"],
     {% endif -%}
     "insecure-registries": ["registry.lain","registry.{{ domain }}"{% if registry_mirror is defined %},"{{ registry_mirror|replace('http://', '')|replace('https://', '') }}"{% endif -%}],
     "dns": ["{{ node_ip }}"],
-    {% if ansible_distribution == "CentOS" %}
-    "selinux-enabled": true,
-    {% endif -%}
     "graph": "{{ docker_graph_dir }}",
     "hosts": ["unix:///var/run/docker.sock","tcp://{{ node_ip }}:{{ docker_port }}"],
     "log-driver": "syslog",
