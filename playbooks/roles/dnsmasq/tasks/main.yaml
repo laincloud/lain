@@ -29,7 +29,6 @@
     line: "PIDFile=/var/run/dnsmasq.pid"
   notify:
     - reload systemd for dnsmasq
-    - restart dnsmasq
   when: ansible_distribution == "Ubuntu" and
         (bootstrapping|bool or target|default('') == 'new_nodes')
 - meta: flush_handlers
@@ -43,7 +42,6 @@
   when: result|success and not dnsmasq_servers_result.stat.exists
   notify:
     - restart dnsmasq
-- meta: flush_handlers
 
 - name: ensure dnsmasq.servers
   file: path="{{ dnsmasq_servers_path }}" state=touch
