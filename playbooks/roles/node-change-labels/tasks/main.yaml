@@ -1,0 +1,38 @@
+- name: read current /etc/docker/daemon.json
+  command: cat /etc/docker/daemon.json
+  register: result
+
+- name: set old_docker_daemon_json
+  set_fact:
+    old_docker_daemon_json: '{{ result.stdout | from_json }}'
+
+- name: set old_labels
+  set_fact:
+    old_labels: '{{ old_docker_daemon_json.labels | default([]) }}'
+
+- name: merge diff_labels to old_labels when change_type == add
+  set_fact:
+    new_labels: '{{ old_labels | union(diff_labels) }}'
+  when: change_type == "add"
+
+- name: delete diff_labels from old_labels when change_type == delete
+  set_fact:
+    new_labels: '{{ old_labels | difference(diff_labels) }}'
+  when: change_type == "delete"
+
+- name: set new_docker_daemon_json
+  set_fact:
+    new_docker_daemon_json: '{{ old_docker_daemon_json | combine({"labels": new_labels}) | to_nice_json }}'
+
+- name: generate new /etc/docker/daemon.json
+  template:
+    src: docker-daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: 0644
+
+- name: restart docker
+  service:
+    name: docker
+    state: reloaded

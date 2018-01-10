@@ -83,6 +83,7 @@ def list_inventory():
     new_nodes = list_node_group('new')
     removing_nodes = list_node_group('removing')
     clean_nodes = list_node_group('clean')
+    changing_labels_nodes = list_node_group('changing_labels')
 
     cluster_config = get_config()
 
@@ -119,6 +120,10 @@ def list_inventory():
         },
         'consul': {
             'hosts': consul_servers.keys(),
+            'vars': group_vars,
+        },
+        'changing_labels_nodes': {
+            'hosts': changing_labels_nodes.keys(),
             'vars': group_vars,
         },
     }
