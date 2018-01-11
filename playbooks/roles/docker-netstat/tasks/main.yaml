@@ -1,0 +1,18 @@
+- name: copy docker-netstat
+  copy:
+    src: bin/docker-netstat
+    dest: /usr/bin/docker-netstat
+    force: yes
+    mode: a+x
+
+- name: generate docker-netstat.service
+  template: src=docker-netstat.service.j2 dest=/lib/systemd/system/docker-netstat.service
+
+- name: systemctl daemon-reload
+  command: systemctl daemon-reload
+
+- name: enable and start docker-netstat.service
+  service:
+    name: docker-netstat.service
+    state: started
+    enabled: yes

@@ -1,0 +1,11 @@
+[Unit]
+Description=Docker Netstat
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+Restart=on-failure
+ExecStart=/usr/bin/docker-netstat -docker {{ node_ip }}:{{ docker_port }} -host {{ graphite_vip }} -port {{ graphite_port }}
+
+[Install]
+WantedBy=multi-user.target
