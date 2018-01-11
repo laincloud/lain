@@ -32,3 +32,4 @@ playbooks/roles/lainlet/files
 playbooks/roles/deployd/files
 playbooks/roles/consul/files/bin
 playbooks/roles/etcd2consul/files/bin
+playbooks/roles/docker-netstat/files/bin

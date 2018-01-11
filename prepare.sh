@@ -47,6 +47,8 @@ wget https://github.com/coreos/etcd/releases/download/v${ETCD_VERSION}/etcd-v${E
 wget https://download.docker.com/linux/ubuntu/dists/trusty/pool/stable/amd64/docker-ce_17.09.1~ce-0~ubuntu_amd64.deb -O  playbooks/roles/binary/files/lain/docker-ce_17.09.1_ubuntu_14.04_amd64.deb
 wget https://download.docker.com/linux/ubuntu/dists/xenial/pool/stable/amd64/docker-ce_17.09.1~ce-0~ubuntu_amd64.deb -O  playbooks/roles/binary/files/lain/docker-ce_17.09.1_ubuntu_16.04_amd64.deb
 
+wget -c https://github.com/laincloud/docker-netstat/releases/download/v1.0/docker-netstat -O playbooks/roles/docker-netstat/files/bin/docker-netstat
+
 unxz -kf playbooks/roles/networkd/files/networkd.xz
 unxz -kf playbooks/roles/deployd/files/deployd.xz
 unxz -kf playbooks/roles/lainlet/files/lainlet.xz
