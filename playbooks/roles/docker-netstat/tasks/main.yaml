@@ -11,8 +11,8 @@
 - name: systemctl daemon-reload
   command: systemctl daemon-reload
 
-- name: enable and start docker-netstat.service
+- name: enable and restart docker-netstat.service
   service:
     name: docker-netstat.service
-    state: started
+    state: restarted
     enabled: yes
