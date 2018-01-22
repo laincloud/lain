@@ -14,5 +14,5 @@
   changed_when: "'Successfully installed' in result.stdout"
 
 - name: install lainctl
-  command: pip install --upgrade --force-reinstall lain-admin-cli==v2.0.3
+  command: pip install --upgrade --force-reinstall lain-admin-cli==v2.1.2
   when: bootstrapping is defined and bootstrapping|bool
