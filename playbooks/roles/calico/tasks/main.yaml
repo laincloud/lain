@@ -140,6 +140,9 @@
 
 - name: run startup
   command: startup
+  environment:
+    IP: "{{ node_ip }}"
+    NODENAME: "{{ node_name }}"
 
 # Why run twice? Please see [here](https://github.com/projectcalico/calicoctl/blob/v1.2.1/calico_node/filesystem/etc/rc.local#L60)
 - name: run confd the first time
