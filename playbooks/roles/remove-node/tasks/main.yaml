@@ -41,11 +41,11 @@
   ignore_errors: yes
 
 - name: stop rsyncd
-  service: name=rsyncd state=stopped
+  service: name="{{rsync_service_name}}" state=stopped
 
-- name: stop calico 
+- name: stop calico
   service: name={{item}} state=stopped
-  with_items: 
+  with_items:
     - "calico-bird"
     - "calico-bird6"
     - "calico-confd"

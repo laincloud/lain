@@ -6,6 +6,7 @@ dependencies:
   - role: prepare
   - role: firewall
   - role: dnsmasq
+  - role: dns-hijack
   - role: manager
   - role: docker
   - role: calico

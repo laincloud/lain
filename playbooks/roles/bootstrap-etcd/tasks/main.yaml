@@ -34,6 +34,15 @@
     value: " {{ ssl_data | to_json }}"
     etcd_client_port: "{{ etcd_client_port }}"
 
+- set_fact:
+    protected_apps_data: ["console", "registry", "tinydns", "sso", "webrouter", "lvault"]
+
+- name: protect important apps
+  etcd_set_key:
+    key: /lain/config/protected_apps
+    value: " {{ protected_apps_data | to_json }} "
+    etcd_client_port: "{{ etcd_client_port }}"
+
 - name: store cluster config in etcd
   etcd_set_key:
     key: /lain/config/{{ item.key }}
