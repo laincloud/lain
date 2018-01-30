@@ -91,7 +91,15 @@
     - "{{ docker_volumes_dir }}"
   when: ansible_distribution == "CentOS"
 
-- copy: src=docker-enter dest=/usr/bin/docker-enter mode=755
+- name: copy docker-enter
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    force: yes
+    mode: "{{ item.mode }}"
+  with_items:
+    - { src: 'docker-enter', dest: '/usr/bin/docker-enter', mode: "0755" }
+    - { src: 'docker-enter-comp', dest: '/usr/share/bash-completion/completions/docker-enter', mode: "0644"}
 
 - name: gather existing containers
   command: docker ps -aq
