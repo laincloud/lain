@@ -51,7 +51,9 @@ when "ubuntu"
           node.vm.provision "shell",
                             inline: "sed -i 's/^PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config && "\
                                     "systemctl restart sshd &&" \
-                                    "echo 'root:vagrant'  | chpasswd"
+                                    "echo 'root:vagrant'  | chpasswd &&" \
+                                    "sed -i s/archive.ubuntu.com/mirrors.ustc.edu.cn/g /etc/apt/sources.list && " \
+                                    "apt update && apt install -y python"
         end
         node.vm.network "private_network", ip: "192.168.77.2#{i}"
       end
