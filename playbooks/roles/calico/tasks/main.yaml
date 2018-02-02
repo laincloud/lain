@@ -141,7 +141,7 @@
 - name: run startup
   command: startup
   environment:
-    IP: "{{ node_network }}"
+    IP: "{{ node_ip }}/24"
     NODENAME: "{{ node_name }}"
 
 # Why run twice? Please see [here](https://github.com/projectcalico/calicoctl/blob/v1.2.1/calico_node/filesystem/etc/rc.local#L60)
