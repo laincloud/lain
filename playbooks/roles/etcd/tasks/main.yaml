@@ -21,6 +21,13 @@
   ignore_errors: yes
   changed_when: False
 
+- name: get wanted member list
+  local_action: shell etcdctl ls /lain/nodes/etcd-members/ | awk -F '[/:]' '{print $5}'
+  register: wanted_member_list
+  failed_when: wanted_member_list.stdout == ""
+  ignore_errors: yes
+  changed_when: False
+
 - name: checking whether is adding or removing etcd member
   set_fact:
     adding_etcd_member: "{{ node_name not in member_list.stdout_lines and is_etcd_member}}"
@@ -31,6 +38,13 @@
   set_fact:
     delete_existing_etcd: true
   when: adding_etcd_member|bool or removing_etcd_member|bool
+
+- name: check if it is safe to change etcd(also backup etcd if yes)
+  etcd_prepare_update:
+    current_members: "{{ member_list.stdout_lines }}"
+    wanted_members: "{{ wanted_member_list.stdout_lines }}"
+    is_lain_manager: "{{ is_lain_manager }}"
+    node_name: "{{node_name}}"
 
 # begin to reset etcd
 - include: etcd-reset.yaml
