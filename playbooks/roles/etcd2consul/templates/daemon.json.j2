@@ -14,9 +14,6 @@
     "dns": ["{{ node_ip }}"],
     "graph": "{{ docker_graph_dir }}",
     "hosts": ["unix:///var/run/docker.sock","tcp://{{ node_ip }}:{{ docker_port }}"],
-    "log-driver": "syslog",
-    "log-opts": {
-        "syslog-address": "tcp://127.0.0.1:514"
-    },
+    "log-driver": "none",
     "cluster-store": "consul://127.0.0.1:8500"
 }

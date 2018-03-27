@@ -1,0 +1,31 @@
+- name: read current /etc/docker/daemon.json
+  command: cat /etc/docker/daemon.json
+  register: result
+
+- name: set old_docker_daemon_json
+  set_fact:
+    old_docker_daemon_json: '{{ result.stdout | from_json }}'
+    new_docker_daemon_json: {}
+
+- name: initialize new_docker_daemon_json without `log-opts`
+  set_fact:
+    new_docker_daemon_json: '{{ new_docker_daemon_json | combine({item.key: item.value}) }}'
+  when: item.key != "log-opts"
+  with_dict: '{{ old_docker_daemon_json }}'
+
+- name: set `log-driver` to none in new_docker_daemon_json
+  set_fact:
+    new_docker_daemon_json: '{{ new_docker_daemon_json | combine({"log-driver": "none"}) | to_nice_json }}'
+
+- name: generate new /etc/docker/daemon.json
+  template:
+    src: docker-daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: 0644
+
+- name: restart docker
+  service:
+    name: docker
+    state: restarted

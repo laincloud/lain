@@ -6,7 +6,7 @@ import requests
 
 
 class Plugin(object):
-    DOCKER_INFO_URL = "http://docker.lain:2375/info"
+    DOCKER_PS_URL = "http://docker.lain:2375/containers/json"
     READ_INTERVAL = 60  # 60 seconds
     TIMEOUT = 5  # 5 seconds
 
@@ -16,12 +16,13 @@ class Plugin(object):
     def read(self):
         metric = collectd.Values()
         metric.plugin = "lain.cluster.docker_daemon"
-        metric.plugin_instance = "docker_info_time"
+        metric.plugin_instance = "docker_ps_time"
         metric.type = "val"
         start_at = time.time()
-        requests.get(self.DOCKER_INFO_URL, timeout=self.TIMEOUT)
-        docker_info_time = time.time() - start_at
-        metric.values = [docker_info_time]
+        requests.get(
+            self.DOCKER_PS_URL, params={"limit": 1}, timeout=self.TIMEOUT)
+        docker_ps_time = time.time() - start_at
+        metric.values = [docker_ps_time]
         metric.dispatch()
 
     def shutdown(self):
