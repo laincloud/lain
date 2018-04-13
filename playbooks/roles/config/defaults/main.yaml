@@ -86,6 +86,7 @@ removing_etcd_member: false
 # Lainlet configurations
 lainlet_image: "{{ bootstrap_images.lainlet }}"
 lainlet_port: 9001
+lainlet_grpc_port: 9000
 
 # Manager configurations
 manager_home: /root
