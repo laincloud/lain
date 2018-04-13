@@ -6,6 +6,7 @@ After=network.target
 LimitNOFILE=65535
 ExecStart=/usr/bin/lainlet \
           -web=:{{ lainlet_port }} \
+          -grpc.addr=:{{ lainlet_grpc_port }} \
           -etcd={{ node_ip }}:{{ etcd_client_port }} \
           -ip={{ node_ip }} \
           -debug
