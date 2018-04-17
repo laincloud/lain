@@ -1,0 +1,50 @@
+# ansible bug: get_url fails to retrieve https url through http proxy, so just use command
+- name: get networkd:v2.4.0
+  command: wget https://lain.oss-cn-beijing.aliyuncs.com/binary/networkd/releases/download/v2.4.0/networkd.xz -O /tmp/networkd.xz
+
+- name: unxz networkd.xz
+  command: unxz -kf /tmp/networkd.xz
+
+- name: set etcd domains from /etc/dnsmasq.conf
+  command: etcdctl set /lain/config/domains/{{ item.split('/')[-2] }} '{"ips":[],"type":"node"}'
+  with_lines: cat /etc/dnsmasq.conf
+  when: item | regex_search('(^address=)') and not item | regex_search('(^address=/lain.local)')
+
+- name: set etcd domain for *.lain.local
+  command: etcdctl set /lain/config/domains/*.lain.local '{"ips":[],"type":"webrouter"}'
+
+- name: load dnshijack keys from etcd
+  command: etcdctl ls /lain/config/dnshijack
+  register: hijack_domain_list
+  ignore_errors: yes
+  changed_when: False
+
+- name : load dnshijack settings from etcd
+  command: etcdctl get {{ item.1 }}
+  register: hijack_ip_list
+  with_indexed_items: "{{ hijack_domain_list.stdout_lines }}"
+  when: hijack_domain_list|success and hijack_domain_list.stdout != ""
+  changed_when: False
+
+- name: set etcd domains from dnshijack
+  command: etcdctl set /lain/config/domains/*.{{ item.1.split('/')[-1] }} '{"ips":["{{ hijack_ip_list.results[item.0].stdout }}"],"type":""}'
+  with_indexed_items: "{{ hijack_domain_list.stdout_lines }}"
+  when: hijack_domain_list|success and hijack_domain_list.stdout != ""
+
+- name: load dnsmasq_addresses keys from etcd
+  command: etcdctl ls /lain/config/dnsmasq_addresses
+  register: dnsmasq_domain_list
+  ignore_errors: yes
+  changed_when: False
+
+- name: load dnsmasq_addresses settings from etcd
+  command: etcdctl get {{ item }}
+  register: dnsmasq_ip_list
+  with_items: " {{ dnsmasq_domain_list.stdout_lines  }} "
+  when: dnsmasq_domain_list|success and dnsmasq_domain_list.stdout != ""
+  changed_when: False
+
+- name: set etcd domains from dnsmasq_addresses
+  command: etcdctl set /lain/config/domains/{{ item.1.split('/')[-1] }} '{{ dnsmasq_ip_list.results[item.0].stdout }}'
+  with_indexed_items: "{{ dnsmasq_domain_list.stdout_lines }}"
+  when: dnsmasq_domain_list|success and dnsmasq_domain_list.stdout != ""

@@ -1,0 +1,45 @@
+- name: backup original networkd
+  copy:
+    remote_src: True
+    src: /usr/bin/networkd
+    dest: /usr/bin/networkd.back
+    force: yes
+ 
+- name: backup original networkd.service
+  copy:
+    remote_src: True
+    src: /etc/systemd/system/networkd.service
+    dest: /etc/systemd/system/networkd.service.back
+    force: yes
+
+- name: copy networkd binary file
+  copy:
+    src: /tmp/networkd
+    dest: /usr/bin/networkd
+    force: yes
+    mode: a+x
+
+- name: install arping
+  # package name is iputils-arping not arping
+  package: name=iputils-arping state=present
+  when: ansible_distribution=="Ubuntu"
+
+- name: generate networkd.service
+  template:
+    src: networkd.service.j2
+    dest: /etc/systemd/system/networkd.service
+
+- name: systemctl stop dnsmasq && systemctl disable dnsmasq
+  service:
+    name: dnsmasq
+    state: stopped
+    enabled: no
+    
+- name: systemctl daemon-reload
+  command: systemctl daemon-reload
+
+- name: systemctl restart networkd && systemctl enable networkd
+  service:
+    name: networkd
+    state: restarted
+    enabled: yes
