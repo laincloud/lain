@@ -1,0 +1,29 @@
+- name: rollback networkd
+  copy: 
+    remote_src: True
+    src: /usr/bin/networkd.back
+    dest: /usr/bin/networkd
+    force: yes
+
+- name: rollback networkd.service
+  copy:
+    remote_src: True
+    src: /etc/systemd/system/networkd.service.back
+    dest: /etc/systemd/system/networkd.service
+    force: yes
+
+- name: systemctl daemon-reload
+  command: systemctl daemon-reload
+
+- name: systemctl restart networkd && systemctl enable networkd
+  service:
+    name: networkd
+    state: restarted
+    enabled: yes
+
+- name: systemctl restart dnsmasq && systemctl enable dnsmasq
+  service:
+    name: dnsmasq
+    state: started
+    enabled: yes
+
