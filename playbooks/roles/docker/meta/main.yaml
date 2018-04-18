@@ -4,5 +4,5 @@ dependencies:
   - role: libraries
   - role: rsyslog
   - role: etcd
-  - role: dnsmasq
+  - role: binary
   - role: firewall

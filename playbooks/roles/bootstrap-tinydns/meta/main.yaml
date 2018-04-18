@@ -1,5 +1,5 @@
 dependencies:
-  - role: dnsmasq
+  - role: binary
   - role: firewall
   - role: bootstrap-console-deploy
     app: tinydns

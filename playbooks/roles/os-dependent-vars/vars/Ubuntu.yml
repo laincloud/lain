@@ -7,7 +7,6 @@ iptables_pkt_name: iptables-persistent
 iptables_save_path: /etc/iptables/iptables
 
 docker_service_path: /lib/systemd/system/docker.service
-dnsmasq_service_path: /lib/systemd/system/dnsmasq.service
 
 collectd_conf_path: /etc/collectd/collectd.conf
 collectd_conf_dir: /etc/collectd/collectd.conf.d

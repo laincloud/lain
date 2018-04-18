@@ -2,7 +2,7 @@ dependencies:
   - role: config
   - role: docker
   - role: etcd
-  - role: dnsmasq
+  - role: binary
   - role: images
     images:
       - swarm

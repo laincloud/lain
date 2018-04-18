@@ -5,8 +5,7 @@ dependencies:
   - role: consul
   - role: prepare
   - role: firewall
-  - role: dnsmasq
-  - role: dns-hijack
+  - role: binary
   - role: manager
   - role: docker
   - role: calico

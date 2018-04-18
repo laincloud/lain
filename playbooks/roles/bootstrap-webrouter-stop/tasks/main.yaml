@@ -5,16 +5,16 @@
     state: absent
 
 - name: remove console.lain
-  set_dnsmasq_domain: domain="console.lain" record=""
+  set_config_domain: domain="console.lain" record=""
 
 - name: remove console.DOMAIN
-  set_dnsmasq_domain: domain="console.{{ domain }}" record=""
+  set_config_domain: domain="console.{{ domain }}" record=""
 
 - name: remove registry.lain
-  set_dnsmasq_domain: domain="registry.lain" record=""
+  set_config_domain: domain="registry.lain" record=""
 
 - name: remove registry.DOMAIN
-  set_dnsmasq_domain: domain="registry.{{ domain }}" record=""
+  set_config_domain: domain="registry.{{ domain }}" record=""
 
 - name: wait for DNS resolution ready
   pause: seconds=2

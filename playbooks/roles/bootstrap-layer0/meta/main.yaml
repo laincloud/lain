@@ -21,7 +21,7 @@ dependencies:
 
   - role: deployd
 
-  - role: dnsmasq
+  - role: binary
 
   - role: rsync
 
