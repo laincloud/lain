@@ -1,5 +1,0 @@
-{% for index in range(hijack_ip_list.results|count) %}
-{% set hijack_domain = hijack_domain_list.stdout_lines[index].split('/')[-1] %}
-{% set hijack_ip = hijack_ip_list.results[index].stdout %}
-address=/{{ hijack_domain }}/{{ hijack_ip }}
-{% endfor %}

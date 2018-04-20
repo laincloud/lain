@@ -1,14 +1,14 @@
 - name: add console.lain
-  set_dnsmasq_domain: domain="console.lain" record="{{node_ip if vip == '0.0.0.0' else vip}}"
+  set_config_domain: domain="console.lain" record="{{node_ip if vip == '0.0.0.0' else vip}}"
 
 - name: add console.DOMAIN
-  set_dnsmasq_domain: domain="console.{{ domain  }}" record="{{node_ip if vip == '0.0.0.0' else vip}}"
+  set_config_domain: domain="console.{{ domain  }}" record="{{node_ip if vip == '0.0.0.0' else vip}}"
 
 - name: add registry.lain
-  set_dnsmasq_domain: domain="registry.lain" record="{{node_ip if vip == '0.0.0.0' else vip}}"
+  set_config_domain: domain="registry.lain" record="{{node_ip if vip == '0.0.0.0' else vip}}"
 
 - name: add registry.DOMAIN
-  set_dnsmasq_domain: domain="registry.{{ domain  }}" record="{{node_ip if vip == '0.0.0.0' else vip}}"
+  set_config_domain: domain="registry.{{ domain  }}" record="{{node_ip if vip == '0.0.0.0' else vip}}"
 
 - name: prepare volume dirs
   file: path={{ bootstrap_volumes_dir }}/webrouter/nginx/{{ item }} state=directory

@@ -26,6 +26,18 @@
   register: result
   ignore_errors: yes
 
+- name: config default domains
+  command: etcdctl set /lain/config/domains/{{ item }} '{"ips":[],"type":"node"}'
+  with_items:
+    - etcd.lain
+    - consul.lain
+    - docker.lain
+    - lainlet.lain
+    - metric.lain
+
+- name: config *.lain.local resolved to webrouter vips
+  command: etcdctl set /lain/config/domains/*.lain.local '{"ips":[],"type":"webrouter"}'
+
 - name: delete any interface calico created previously
   command: for interface in $(ip link show | grep cali | awk '{print $2}' | awk -F':' '{print $1}'); do ip link delete ${interface}; done
   ignore_errors: yes

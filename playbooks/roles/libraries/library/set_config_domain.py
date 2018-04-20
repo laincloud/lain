@@ -3,7 +3,7 @@
 from subprocess import Popen, PIPE
 from ansible.module_utils.basic import *
 
-LAIN_TINYDNS_PREFIX_KEY = "/lain/config/dnsmasq_addresses"
+LAIN_TINYDNS_PREFIX_KEY = "/lain/config/domains"
 
 module = AnsibleModule(
     argument_spec=dict(

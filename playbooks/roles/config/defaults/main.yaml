@@ -126,9 +126,6 @@ mfs_data_dir:
   - "/mfsdata"
 mfs_port: 9421
 
-dnsmasq_hosts_path: "/etc/dnsmasq.hosts"
-dnsmasq_servers_path: "/etc/dnsmasq.servers"
-
 # Cpeh fuse configurations
 ceph_version: 10.2.3
 ceph_account: lain

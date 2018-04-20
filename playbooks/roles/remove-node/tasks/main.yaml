@@ -14,9 +14,6 @@
 - name: stop the swarm manager
   service: name=swarm-manager state=stopped
 
-- name: stop dnsmasq
-  service: name=dnsmasq state=stopped
-
 - name: stop lainlet
   service: name=lainlet state=stopped
 

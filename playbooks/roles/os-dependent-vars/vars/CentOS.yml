@@ -7,7 +7,6 @@ iptables_pkt_name: iptables-services
 iptables_save_path: /etc/sysconfig/iptables
 
 docker_service_path: /usr/lib/systemd/system/docker.service
-dnsmasq_service_path: /usr/lib/systemd/system/dnsmasq.service
 
 collectd_conf_path: /etc/collectd.conf
 collectd_conf_dir: /etc/collectd.d
