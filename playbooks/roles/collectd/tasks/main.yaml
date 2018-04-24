@@ -1,9 +1,3 @@
-- name: get hedwig vip
-  get_virtual_ip: container_app="hedwig" container_proc="carbon"
-  register: result
-
-- set_fact: graphite_vip="{{ result.ip }}"
-
 - set_fact: collectd_version="5.5.1"
 
 - name: install collectd(CentOS)

@@ -29,7 +29,7 @@
 
 - name: stop backupd service
   service: name=backupd state=stopped
-  when: ostat|failed or nstat|failed or "{{ostat.stat.md5|default('old')}}" != "{{nstat.stat.md5|default('new')}}"
+  when: ostat.stat.exists
 
 - name: update backupd
   shell: cp /tmp/backupd /usr/bin/backupd && chmod +x /usr/bin/backupd
