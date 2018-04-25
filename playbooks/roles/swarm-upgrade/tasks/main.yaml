@@ -1,8 +1,8 @@
 - name: pull new swarm image
-  command: docker pull registry.lain/swarm:{{ upgrade_version }}
+  command: docker pull registry.lain.local/swarm:{{ upgrade_version }}
 
 - name: tag new swarm image
-  command: docker tag registry.lain/swarm:{{ upgrade_version }} swarm:{{ upgrade_version }}
+  command: docker tag registry.lain.local/swarm:{{ upgrade_version }} swarm:{{ upgrade_version }}
 
 - name: stop deployd
   service: name=deployd enabled=yes state=stopped

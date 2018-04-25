@@ -13,7 +13,7 @@
     {% if node_labels is defined %}
 "labels": [{% for label in node_labels %}"{{ label }}"{% if not loop.last %}, {% endif %}{% endfor %}],
     {% endif -%}
-    "insecure-registries": ["registry.lain","registry.{{ domain }}"{% if registry_mirror is defined %},"{{ registry_mirror|replace('http://', '')|replace('https://', '') }}"{% endif -%}],
+    "insecure-registries": ["registry.{{ domain }}"{% if registry_mirror is defined %},"{{ registry_mirror|replace('http://', '')|replace('https://', '') }}"{% endif -%}],
     "dns": ["{{ node_ip }}"],
     "graph": "{{ docker_graph_dir }}",
     "hosts": ["unix:///var/run/docker.sock","tcp://{{ node_ip }}:{{ docker_port }}"],

@@ -1,7 +1,7 @@
 server {
     listen 80;
     listen 443 ssl;
-    server_name .registry.{{ domain }} .registry.lain;
+    server_name .registry.{{ domain }};
     ssl_certificate /etc/nginx/ssl/web.crt;
     ssl_certificate_key /etc/nginx/ssl/web.key;
     include proxy.conf;
