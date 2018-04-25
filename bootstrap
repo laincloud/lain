@@ -75,6 +75,8 @@ def main():
     parser.add_option('--ipip', action='store_true',
                       help="calico using ip tunnel")
     parser.add_option('--pypi-mirror',action='store_true',help='use the third party python mirror')
+    parser.add_option('--os', choices=('CentOS', 'Ubuntu'), default='CentOS',
+                      help="The operating system of the node")
     options, args = parser.parse_args()
 
     if options.download_only:
@@ -139,7 +141,7 @@ def bootstrap(options):
 
 def exec_prepare(options):
     os.chdir(here)
-    check_call(['bash', 'prepare.sh'])
+    check_call(['bash', 'prepare.sh', options.os])
 
 def install_ansible(options):
     if not which('ansible-playbook'):
