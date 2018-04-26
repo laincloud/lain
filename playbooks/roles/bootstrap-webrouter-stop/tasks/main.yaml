@@ -10,9 +10,6 @@
 - name: remove console.DOMAIN
   set_config_domain: domain="console.{{ domain }}" record=""
 
-- name: remove registry.lain
-  set_config_domain: domain="registry.lain" record=""
-
 - name: remove registry.DOMAIN
   set_config_domain: domain="registry.{{ domain }}" record=""
 
@@ -20,7 +17,7 @@
   pause: seconds=2
 
 - name: check new webrouter works well
-  shell: "curl -s registry.lain/v2/"
+  shell: "curl -s registry.lain.local/v2/"
   register: result
   until: result|success
   retries: 50

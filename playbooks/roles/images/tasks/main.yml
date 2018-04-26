@@ -1,4 +1,4 @@
 - name: pull images
-  docker_pull_image: image={{ bootstrap_images[item] }} registry=registry.lain
+  docker_pull_image: image={{ bootstrap_images[item] }} registry=registry.lain.local
   with_items: "{{ images }}"
   when: not bootstrapping|bool

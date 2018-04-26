@@ -4,9 +4,6 @@
 - name: add console.DOMAIN
   set_config_domain: domain="console.{{ domain  }}" record="{{node_ip if vip == '0.0.0.0' else vip}}"
 
-- name: add registry.lain
-  set_config_domain: domain="registry.lain" record="{{node_ip if vip == '0.0.0.0' else vip}}"
-
 - name: add registry.DOMAIN
   set_config_domain: domain="registry.{{ domain  }}" record="{{node_ip if vip == '0.0.0.0' else vip}}"
 
@@ -55,7 +52,6 @@
 - name: remove generated regitsry app configs by last run
   file: path={{ bootstrap_volumes_dir }}/webrouter/nginx/etc/nginx/conf.d/{{ item }} state=absent
   with_items:
-    - registry.lain.conf
     - registry.{{ domain }}.conf
   when: result|failed
 

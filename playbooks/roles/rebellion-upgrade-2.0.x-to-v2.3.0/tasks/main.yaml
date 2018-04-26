@@ -1,9 +1,9 @@
 # !Caution: this task only applies for rebellion 2.0.x -> v2.3.0
 - name: pull new rebellion image
-  command: docker pull registry.lain/rebellion:v2.3.0
+  command: docker pull registry.lain.local/rebellion:v2.3.0
 
 - name: tag new rebellion image
-  command: docker tag registry.lain/rebellion:v2.3.0 rebellion:v2.3.0
+  command: docker tag registry.lain.local/rebellion:v2.3.0 rebellion:v2.3.0
 
 - name: prepare clean log script
   copy: src=clean_logs.py dest=/tmp/clean_logs.py mode="u+x"

@@ -1,9 +1,9 @@
 # !Caution: this task only applies for rebellion v2.3.0 -> higher
 - name: pull new rebellion image
-  command: docker pull registry.lain/rebellion:{{ upgrade_version }}
+  command: docker pull registry.lain.local/rebellion:{{ upgrade_version }}
 
 - name: tag new rebellion image
-  command: docker tag registry.lain/rebellion:{{ upgrade_version }} rebellion:{{ upgrade_version }}
+  command: docker tag registry.lain.local/rebellion:{{ upgrade_version }} rebellion:{{ upgrade_version }}
 
 - name: update rebellion.service configuration
   template: src=rebellion.service.j2 dest=/etc/systemd/system/rebellion.service

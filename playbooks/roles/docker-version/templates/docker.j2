@@ -15,7 +15,6 @@ ExecStart=/usr/bin/docker daemon \
           --registry-mirror={{ registry_mirror }} \
           --insecure-registry={{ registry_mirror|replace('http://', '')|replace('https://', '') }} \
           {% endif -%}
-          --insecure-registry=registry.lain \
           --insecure-registry=registry.{{ domain }} \
           --dns={{ node_ip }} \
           --selinux-enabled \
