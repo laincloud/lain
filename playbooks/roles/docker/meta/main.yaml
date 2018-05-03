@@ -6,3 +6,4 @@ dependencies:
   - role: etcd
   - role: binary
   - role: firewall
+  - role: networkd

@@ -45,6 +45,7 @@
     wanted_members: "{{ wanted_member_list.stdout_lines }}"
     is_lain_manager: "{{ is_lain_manager }}"
     node_name: "{{node_name}}"
+  ignore_errors: yes
 
 # begin to reset etcd
 - include: etcd-reset.yaml
