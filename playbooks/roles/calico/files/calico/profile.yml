@@ -171,3 +171,41 @@
       destination: {}
       source:
         tag: webrouter
+- apiVersion: v1
+  kind: profile
+  metadata:
+    name: registry
+    tags:
+    - registry
+  spec:
+    egress:
+    - action: allow
+      destination: {}
+      source: {}
+    ingress:
+    - action: allow
+      destination: {}
+      source:
+        tag: lain
+    - action: allow
+      destination: {}
+      source:
+        tag: registry
+    - action: allow
+      destination:
+        ports:
+        - 5000
+      protocol: tcp
+      source: {}
+    - action: allow
+      destination:
+        ports:
+        - 80
+      protocol: tcp
+      source: {}
+    - action: allow
+      destination:
+        ports:
+        - 443
+      protocol: tcp
+      source: {}
