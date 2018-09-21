@@ -50,7 +50,7 @@ def get_save_images(image, tag_type, redundancy, filter_key_list=None):
         image_name = '{}:{}'.format(cols[0], cols[1])
         if cols[1].startswith(tag_type):
             image_names.append(image_name)
-         # keep those images with tag not start with tag_type
+        # keep those images with tag not start with tag_type
         for key in filter_key_list:
             if key in image_name:
                 image_names.append(image_name)
