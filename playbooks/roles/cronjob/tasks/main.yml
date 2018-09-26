@@ -1,0 +1,15 @@
+- name: backup old crontab
+  shell: crontab -l > ~/backup.cron
+
+- name: copy image-clean script
+  copy:
+    src: clean_lainnode_image.py
+    dest: ~/clean_lainnode_image.py
+    mode: 0777
+
+- name: add clean lain node docker images cronjob
+  cron:
+    name: "clean docker images"
+    minute: "0"
+    hour: "1"
+    job: "~/clean_lainnode_image.py --debug &> /dev/nulll"
