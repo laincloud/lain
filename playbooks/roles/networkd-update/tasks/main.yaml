@@ -1,0 +1,14 @@
+# this role is used to update networkd binary, the updated networkd binary should be located at dir: ../files
+- name: copy networkd binary file
+  copy:
+    src: networkd
+    dest: /usr/bin/networkd
+    force: yes
+    mode: a+x
+
+- name: systemctl restart networkd && systemctl enable networkd
+  service:
+    name: networkd
+    state: restarted
+    enabled: yes
+
