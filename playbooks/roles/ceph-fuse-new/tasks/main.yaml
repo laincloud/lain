@@ -1,0 +1,26 @@
+- name: install ceph-fuse
+  yum:
+    name: ceph-fuse-{{ ceph_version }}
+    state: present
+
+- name: create ceph conf dir
+  command: mkdir -p /etc/ceph
+  ignore_errors: yes
+
+- name: create ceph client_mountpoint dir
+  command: mkdir -p {{client_mountpoint}}
+  ignore_errors: yes
+
+- name: copy keyring
+  template: src=ceph.client.lain.keyring.j2 dest=/etc/ceph/ceph.client.{{ceph_account}}.keyring
+  mode: 0600
+
+- name: copy ceph.conf
+  template: src=ceph.conf.j2 dest=/etc/ceph/ceph.conf
+
+- name: mount ceph
+  command: ceph-fuse -n client.lain -r /lain /data/lain/cloud-volumes/
+
+- name: edit rc.local
+  lineinfile: dest=/etc/rc.local line="ceph-fuse -n {{ceph_account}} -r {{ceph_mountpoint}} {{client_mountpoint}}" insertafter=EOF
+ 
