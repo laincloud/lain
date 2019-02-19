@@ -127,7 +127,7 @@ mfs_data_dir:
 mfs_port: 9421
 
 # Cpeh fuse configurations
-ceph_version: 10.2.3
+ceph_version: 13.2.4
 ceph_account: lain
 ceph_password: password
 ceph_mountpoint: /lain
