@@ -6,8 +6,12 @@ lain_data_dir: /data/lain
 # ansible always consider 10.0.2.15 as default ipv4 in vagrant... here is an ugly workaround.
 # TODO: make it less ugly.
 # fixme!!!
-node_ip: "{{ ansible_eth1.ipv4.address if ansible_eth1 is defined else ansible_default_ipv4.address }}"
-net_interface: "{{ ansible_eth1.device if ansible_eth1 is defined else ansible_default_ipv4.interface }}"
+#node_ip: "{{ ansible_eth1.ipv4.address if ansible_eth1 is defined else ansible_default_ipv4.address }}"
+#net_interface: "{{ ansible_eth1.device if ansible_eth1 is defined else ansible_default_ipv4.interface }}"
+
+node_ip: "{{ ansible_default_ipv4.address }}"
+net_interface: "{{ ansible_default_ipv4.interface }}"
+
 # default node network range: a class C network
 node_network: "{{ '.'.join(node_ip.split('.')[:3] + ['0/24']) }}"
 ssh_port: 22
