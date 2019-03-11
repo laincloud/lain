@@ -107,7 +107,7 @@ rebellion_image: "{{ bootstrap_images.rebellion }}"
 
 # Registry configurations
 registry_image: "{{ bootstrap_images.registry }}"
-registry_mfsdir: /mfs/lain/registry
+registry_mfsdir: /mfs/lain2/registry
 registry_datadir: /var/lib/registry
 
 # Rsync configurations
