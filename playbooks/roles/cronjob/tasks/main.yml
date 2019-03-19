@@ -1,5 +1,6 @@
 - name: backup old crontab
   shell: crontab -l > ~/backup.cron
+  ignore_errors: yes
 
 - name: copy image-clean script
   copy:
