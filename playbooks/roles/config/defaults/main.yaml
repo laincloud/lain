@@ -132,7 +132,7 @@ mfs_port: 9421
 
 # Cpeh fuse configurations
 ceph_version: 13.2.4
-ceph_account: lain
+ceph_account: client.lain
 ceph_password: password
 ceph_mountpoint: /lain
 ceph_mon_address: ip1,ip2,ip3
