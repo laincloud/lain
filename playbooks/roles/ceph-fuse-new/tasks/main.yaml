@@ -10,10 +10,10 @@
   file: path={{client_mountpoint}} state=directory
 
 - name: copy keyring
-  template: src=ceph.client.lain.keyring.j2 dest=/etc/ceph/ceph.client.{{ceph_account}}.keyring
+  template: src=ceph.client.lain.keyring.j2 dest=/etc/ceph/ceph.{{ceph_account}}.keyring
 
 - name: chmod 0600 keyring
-  file: path=/etc/ceph/ceph.client.{{ceph_account}}.keyring mode=0600
+  file: path=/etc/ceph/ceph.{{ceph_account}}.keyring mode=0600
 
 - name: copy ceph.conf
   template: src=ceph.conf.j2 dest=/etc/ceph/ceph.conf
